@@ -33,7 +33,8 @@ full_path_to_put_edf = [pwd filesep filename_edf];
 number_demo_trial = 3;
 
 %stim tracker
-p.TRIGGER_CABLE_COM_STRING = 'COM4';
+p.TRIGGER_STIM_TRACKER = true;
+p.TRIGGER_CABLE_COM_STRING = 'COM3';
 
 %% Test
 %create window for calibration
