@@ -41,34 +41,8 @@ p.TRIGGER_CABLE_COM_STRING = 'COM3';
 p.KEYS.QUESTION.NAME = 'Q';
 p.KEYS.ANSWER.NAME = 'A';
 p.KEYS.REACTION.NAME = 'R';
-p.KEYS.STOP.NAME = 'S'; 
-p.KEYS.EXIT.NAME = 'ESCAPE'; 
-p.KEYS.FLAG.NAME = 'SPACE'; 
+p.KEYS.EXIT.ESCAPE
 p.KEYS.BUTTON_DEBUG.NAME = 'B';
-
-%% Prep
-
-%time script started
-d.timestamp_start_script = GetTimestamp;
-
-%put inputs in data struct
-d.participant_number = participant_number;
-d.run_number = run_number;
-
-%set key values
-KbName('UnifyKeyNames');
-for key = fields(p.KEYS)'
-    key = key{1};
-    eval(sprintf('p.KEYS.%s.VALUE = KbName(p.KEYS.%s.NAME);', key, key))
-end
-
-%call GetSecs and KbCheck now to improve latency on later calls (it's a MATLAB thing)
-for i = 1:10
-    GetSecs;
-    KbCheck;
-end
-
-
 
 %% Test
 %create window for calibration
@@ -106,25 +80,6 @@ Eyelink.Collection.SetEDF(filename_edf)
 DrawFormattedText(window, 'Eyelink Calibration', 'center', 'center', screen_colour_text);
 Screen('Flip', window);
 Eyelink.Collection.Calibration
-
-%% Wait for start 
-
-%wait for key
-fprintf('\n----------------------------------------------\nWaiting for start key (%s) or exit key (%s)...\n----------------------------------------------\n\n', p.KEYS.STOP.NAME, p.KEYS.EXIT.NAME);
-while 1
-    [~,keys] = KbWait(-1);
-    if any(keys(p.KEYS.EXIT.VALUE))
-        error('Stop Key Pressed');
-    elseif any(keys(p.KEYS.STOP.VALUE))
-        break;
-    end
-end
-fprintf('Starting...\n');
-
-%time of experiment start
-t0 = GetSecs;
-d.time_start_experiment = t0;
-d.timestamp_start_experiment = GetTimestamp;
 
 %% open serial port for stim tracker
 
