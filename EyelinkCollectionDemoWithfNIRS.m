@@ -33,6 +33,7 @@ full_path_to_put_edf = [pwd filesep filename_edf];
 number_demo_trial = 3;
 
 %stim tracker
+%the left port on Eva's laptop is COM3 
 p.TRIGGER_STIM_TRACKER = true;
 p.TRIGGER_CABLE_COM_STRING = 'COM3';
 
@@ -123,6 +124,15 @@ end
 DrawFormattedText(window, 'Eyelink Close', 'center', 'center', screen_colour_text);
 Screen('Flip', window);
 Eyelink.Collection.Close
+
+%% close serial port for stim tracker
+if p.TRIGGER_STIM_TRACKER
+    try
+        fclose(sport);
+    catch
+        warning('Could not close serial connection')
+    end
+end
 
 %get edf
 DrawFormattedText(window, 'Eyelink Pull EDF', 'center', 'center', screen_colour_text);
