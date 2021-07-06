@@ -41,7 +41,8 @@ p.TRIGGER_CABLE_COM_STRING = 'COM3';
 p.KEYS.QUESTION.NAME = 'Q';
 p.KEYS.ANSWER.NAME = 'A';
 p.KEYS.REACTION.NAME = 'R';
-p.KEYS.STOP.NAME = 'S'; 
+p.KEYS.START.NAME = 'S'; 
+p.KEYS.END.NAME = 'E';
 p.KEYS.EXIT.NAME = 'ESCAPE'; 
 p.KEYS.FLAG.NAME = 'SPACE'; 
 p.KEYS.BUTTON_DEBUG.NAME = 'B';
@@ -67,8 +68,6 @@ for i = 1:10
     GetSecs;
     KbCheck;
 end
-
-
 
 %% Test
 %create window for calibration
@@ -107,15 +106,32 @@ DrawFormattedText(window, 'Eyelink Calibration', 'center', 'center', screen_colo
 Screen('Flip', window);
 Eyelink.Collection.Calibration
 
+
+%% open serial port for stim tracker
+if p.TRIGGER_STIM_TRACKER
+    %sport=serial('/dev/tty.usbserial-00001014','BaudRate',115200);
+    sport=serial(p.TRIGGER_CABLE_COM_STRING,'BaudRate',115200);
+    fopen(sport);
+else
+    sport = nan;
+end
+
 %% Wait for start 
 
 %wait for key
-fprintf('\n----------------------------------------------\nWaiting for start key (%s) or exit key (%s)...\n----------------------------------------------\n\n', p.KEYS.STOP.NAME, p.KEYS.EXIT.NAME);
+fprintf('\n----------------------------------------------\nWaiting for stop key (%s) or exit key (%s)...\n----------------------------------------------\n\n', p.KEYS.STOP.NAME, p.KEYS.EXIT.NAME);
 while 1
     [~,keys] = KbWait(-1);
     if any(keys(p.KEYS.EXIT.VALUE))
         error('Stop Key Pressed');
-    elseif any(keys(p.KEYS.STOP.VALUE))
+    elseif any(keys(p.KEYS.QUESTION.VALUE)) 
+        %NIRx trigger + eyelink message 
+        Eyelink('Message','Event: ~1 second into trial\n');
+        fwrite(sport,['mh',bin2dec('00001001'),0]); 
+        WaitSecs(0.005);
+        fwrite(sport,['mh',0,0]); %turn trigger off (for StimTracker)
+        break 
+    else any(keys(p.KEYS.STOP.VALUE))
         break;
     end
 end
@@ -125,16 +141,6 @@ fprintf('Starting...\n');
 t0 = GetSecs;
 d.time_start_experiment = t0;
 d.timestamp_start_experiment = GetTimestamp;
-
-%% open serial port for stim tracker
-
-if p.TRIGGER_STIM_TRACKER
-    %sport=serial('/dev/tty.usbserial-00001014','BaudRate',115200);
-    sport=serial(p.TRIGGER_CABLE_COM_STRING,'BaudRate',115200);
-    fopen(sport);
-else
-    sport = nan;
-end
 
 %% trigger stim tracker (start of exp)
 if p.TRIGGER_STIM_TRACKER

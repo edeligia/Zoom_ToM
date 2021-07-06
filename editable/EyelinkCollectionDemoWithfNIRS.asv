@@ -41,8 +41,33 @@ p.TRIGGER_CABLE_COM_STRING = 'COM3';
 p.KEYS.QUESTION.NAME = 'Q';
 p.KEYS.ANSWER.NAME = 'A';
 p.KEYS.REACTION.NAME = 'R';
-p.KEYS.EXIT.ESCAPE
+p.KEYS.START.NAME = 'S'; 
+p.KEYS.END.NAME = 'E';
+p.KEYS.EXIT.NAME = 'ESCAPE'; 
+p.KEYS.FLAG.NAME = 'SPACE'; 
 p.KEYS.BUTTON_DEBUG.NAME = 'B';
+
+%% Prep
+
+%time script started
+d.timestamp_start_script = GetTimestamp;
+
+%put inputs in data struct
+d.participant_number = participant_number;
+d.run_number = run_number;
+
+%set key values
+KbName('UnifyKeyNames');
+for key = fields(p.KEYS)'
+    key = key{1};
+    eval(sprintf('p.KEYS.%s.VALUE = KbName(p.KEYS.%s.NAME);', key, key))
+end
+
+%call GetSecs and KbCheck now to improve latency on later calls (it's a MATLAB thing)
+for i = 1:10
+    GetSecs;
+    KbCheck;
+end
 
 %% Test
 %create window for calibration
@@ -81,8 +106,8 @@ DrawFormattedText(window, 'Eyelink Calibration', 'center', 'center', screen_colo
 Screen('Flip', window);
 Eyelink.Collection.Calibration
 
-%% open serial port for stim tracker
 
+%% open serial port for stim tracker
 if p.TRIGGER_STIM_TRACKER
     %sport=serial('/dev/tty.usbserial-00001014','BaudRate',115200);
     sport=serial(p.TRIGGER_CABLE_COM_STRING,'BaudRate',115200);
@@ -90,6 +115,32 @@ if p.TRIGGER_STIM_TRACKER
 else
     sport = nan;
 end
+
+%% Wait for start 
+
+%wait for key
+fprintf('\n----------------------------------------------\nWaiting for stop key (%s) or exit key (%s)...\n----------------------------------------------\n\n', p.KEYS.STOP.NAME, p.KEYS.EXIT.NAME);
+while 1
+    [~,keys] = KbWait(-1);
+    if any(keys(p.KEYS.EXIT.VALUE))
+        error('Stop Key Pressed');
+    elseif any(keys(p.KEYS.QUESTION.VALUE)) 
+        %NIRx trigger + eyelink message 
+        Eyelink('Message','Event: ~1 second into trial\n');
+        fwrite(sport,['mh',bin2dec('00001001'),0]); 
+        WaitSecs(1);
+        fwrite(sport,['mh',0,0]); %turn trigger off (for StimTracker)
+        break 
+    else any(keys(p.KEYS.STOP.VALUE))
+        break;
+    end
+end
+fprintf('Starting...\n');
+
+%time of experiment start
+t0 = GetSecs;
+d.time_start_experiment = t0;
+d.timestamp_start_experiment = GetTimestamp;
 
 %% trigger stim tracker (start of exp)
 if p.TRIGGER_STIM_TRACKER
