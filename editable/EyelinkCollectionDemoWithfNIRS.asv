@@ -33,7 +33,7 @@ full_path_to_put_edf = [pwd filesep filename_edf];
 number_demo_trial = 3;
 
 %stim tracker
-%the left port on Eva's laptop is COM3 
+%the left port on Eva's laptop is COM3 and on the culham lab msi laptop 
 p.TRIGGER_STIM_TRACKER = true;
 p.TRIGGER_CABLE_COM_STRING = 'COM3';
 
@@ -45,7 +45,7 @@ p.KEYS.START.NAME = 'S';
 p.KEYS.END.NAME = 'E';
 p.KEYS.YES.NAME = 'Y';
 p.KEYS.NO.NAME = 'N';
-p.KEYS.EXIT.NAME = 'ESCAPE'; 
+p.KEYS.EXIT.NAME = 'H'; 
 p.KEYS.STOP.NAME = 'SPACE'; 
 p.KEYS.BUTTON_DEBUG.NAME = 'B';
 
@@ -118,11 +118,11 @@ else
     sport = nan;
 end
 %% Start NIRx Recording
-
-%time of experiment start
-t0 = GetSecs;
-d.time_start_experiment = t0;
-d.timestamp_start_experiment = GetTimestamp; 
+% 
+% %time of experiment start
+% t0 = GetSecs;
+% d.time_start_experiment = t0;
+% d.timestamp_start_experiment = GetTimestamp; 
 %% trigger stim tracker (start of exp)
 if p.TRIGGER_STIM_TRACKER
     fwrite(sport,['mh',bin2dec('00000001'),0]); %send trigger to Stim Tracker
@@ -132,47 +132,50 @@ end
 
 %% Initial Baseline (30 seconds) 
 
-fprintf('Initial baseline...\n');
+%fprintf('Initial baseline...\n');
 %% Wait for start
 
 %wait for key
 fprintf('\n----------------------------------------------\nWaiting for start key (%s) or exit key (%s)...\n----------------------------------------------\n\n', p.KEYS.START.NAME, p.KEYS.EXIT.NAME);
 while 1
-    [~,keys] = KbWait(-1, 0, 300); %does adding untilTime == 300 mean it will automatically return after 5 min regardless
+    [~,keys] = KbWait(-1); %does adding untilTime == 300 mean it will automatically return after 5 min regardless
     if any(keys(p.KEYS.EXIT.VALUE))
         error('Exit Key Pressed');
     elseif any(keys(p.KEYS.START.VALUE)) %start of trial
         Eyelink('StartRecording');
         fwrite(sport,['mh',bin2dec('00000001'),0]); %turn trial trigger on (for StimTracker)
+        WaitSecs(30);
+        fwrite(sport,['mh',bin2dec('00000000'),0]);
+        fprintf('Baseline complete...\n'); 
+ Eyelink('Message','Start of Question Period\n');
         %also add a line here that is an audio indicator of question number
-        [~,keys] = KbWait(-1);
-        if any(keys(p.KEYS.EXIT.VALUE))
-            error('Exit Key Pressed');
-        elseif any(keys(p.KEYS.QUESTION.VALUE))
-            Eyelink('Message','Start of Question Period\n');
-            fwrite(sport,['mh',bin2dec('00000011'),0]); %turn question period trigger on (in addition to keeping 1 on for trial number)
-            DrawFormattedText(window, 'Question Period', 'center', 'center', screen_colour_text);
-                Screen('Flip', window);
-                WaitSecs(1);
-            [~,keys] = KbWait(-1);
-            any(keys(p.KEYS.END.VALUE))
-            Eyelink('Message','End of Question Period\n');
-            fwrite(sport,['mh',bin2dec('00000001'),0]); %turn question period trigger off (for StimTracker) - how do we turn one off but leave another one on?
-            [~,keys] = KbWait(-1);
-            any(keys(p.KEYS.ANSWER.VALUE))
-            Eyelink('Message','Start of Answer Period\n');
-            fwrite(sport,['mh',bin2dec('00000101'),0]); %turn answer period trigger on
-            DrawFormattedText(window, 'Answer Period', 'center', 'center', screen_colour_text);
-                Screen('Flip', window);
-                WaitSecs(1);
-            [~,keys] = KbWait(-1);
-            any(keys(p.KEYS.END.VALUE))
-            Eyelink('Message','End of Answer Period\n');
-            fwrite(sport,['mh',bin2dec('00000001'),0]); %turn answer period trigger off (for StimTracker)
-            [
-        else any(keys(p.KEYS.STOP.VALUE))
-            break;
-        end
+%         [~,keys] = KbWait(-1);
+%         if any(keys(p.KEYS.EXIT.VALUE))
+%             error('Exit Key Pressed');
+%         elseif any(keys(p.KEYS.QUESTION.VALUE))
+%             Eyelink('Message','Start of Question Period\n');
+%             fwrite(sport,['mh',bin2dec('00000011'),0]); %turn question period trigger on (in addition to keeping 1 on for trial number)
+%             DrawFormattedText(window, 'Question Period', 'center', 'center', screen_colour_text);
+%                 Screen('Flip', window);
+%                 WaitSecs(1);
+%             [~,keys] = KbWait(-1);
+%             any(keys(p.KEYS.END.VALUE))
+%             Eyelink('Message','End of Question Period\n');
+%             fwrite(sport,['mh',bin2dec('00000001'),0]); %turn question period trigger off (for StimTracker) - how do we turn one off but leave another one on?
+%             [~,keys] = KbWait(-1);
+%             any(keys(p.KEYS.ANSWER.VALUE))
+%             Eyelink('Message','Start of Answer Period\n');
+%             fwrite(sport,['mh',bin2dec('00000101'),0]); %turn answer period trigger on
+%             DrawFormattedText(window, 'Answer Period', 'center', 'center', screen_colour_text);
+%                 Screen('Flip', window);
+%                 WaitSecs(1);
+%             [~,keys] = KbWait(-1);
+%             any(keys(p.KEYS.END.VALUE))
+%             Eyelink('Message','End of Answer Period\n');
+%             fwrite(sport,['mh',bin2dec('00000001'),0]); %turn answer period trigger off (for StimTracker)
+%         else any(keys(p.KEYS.STOP.VALUE))
+%             break;
+%         end
     else any(keys(p.KEYS.STOP.VALUE))
         break;
     end
