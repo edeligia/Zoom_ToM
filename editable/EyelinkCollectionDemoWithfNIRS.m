@@ -43,18 +43,20 @@ p.KEYS.ANSWER.NAME = 'A';
 p.KEYS.REACTION.NAME = 'R';
 p.KEYS.START.NAME = 'S'; 
 p.KEYS.END.NAME = 'E';
+p.KEYS.YES.NAME = 'Y';
+p.KEYS.NO.NAME = 'N';
 p.KEYS.EXIT.NAME = 'ESCAPE'; 
-p.KEYS.FLAG.NAME = 'SPACE'; 
+p.KEYS.STOP.NAME = 'SPACE'; 
 p.KEYS.BUTTON_DEBUG.NAME = 'B';
 
 %% Prep
 
 %time script started
-d.timestamp_start_script = GetTimestamp;
+% d.timestamp_start_script = GetTimestamp;
 
 %put inputs in data struct
-d.participant_number = participant_number;
-d.run_number = run_number;
+% d.participant_number = participant_number;
+% d.run_number = run_number;
 
 %set key values
 KbName('UnifyKeyNames');
@@ -115,73 +117,103 @@ if p.TRIGGER_STIM_TRACKER
 else
     sport = nan;
 end
+%% Start NIRx Recording
 
-%% Wait for start 
+%time of experiment start
+t0 = GetSecs;
+d.time_start_experiment = t0;
+d.timestamp_start_experiment = GetTimestamp; 
+%% trigger stim tracker (start of exp)
+if p.TRIGGER_STIM_TRACKER
+    fwrite(sport,['mh',bin2dec('00000001'),0]); %send trigger to Stim Tracker
+    WaitSecs(1);
+    fwrite(sport,['mh',bin2dec('00000000'),0]); %turn trigger off (for StimTracker)
+end
+
+%% Initial Baseline (30 seconds) 
+
+fprintf('Initial baseline...\n');
+%% Wait for start
 
 %wait for key
-fprintf('\n----------------------------------------------\nWaiting for stop key (%s) or exit key (%s)...\n----------------------------------------------\n\n', p.KEYS.STOP.NAME, p.KEYS.EXIT.NAME);
+fprintf('\n----------------------------------------------\nWaiting for start key (%s) or exit key (%s)...\n----------------------------------------------\n\n', p.KEYS.START.NAME, p.KEYS.EXIT.NAME);
 while 1
-    [~,keys] = KbWait(-1);
+    [~,keys] = KbWait(-1, 0, 300); %does adding untilTime == 300 mean it will automatically return after 5 min regardless
     if any(keys(p.KEYS.EXIT.VALUE))
-        error('Stop Key Pressed');
-    elseif any(keys(p.KEYS.QUESTION.VALUE)) 
-        %NIRx trigger + eyelink message 
-        Eyelink('Message','Event: ~1 second into trial\n');
-        fwrite(sport,['mh',bin2dec('00001001'),0]); 
-        WaitSecs(0.005);
-        fwrite(sport,['mh',0,0]); %turn trigger off (for StimTracker)
-        break 
+        error('Exit Key Pressed');
+    elseif any(keys(p.KEYS.START.VALUE)) %start of trial
+        Eyelink('StartRecording');
+        fwrite(sport,['mh',bin2dec('00000001'),0]); %turn trial trigger on (for StimTracker)
+        WaitSecs(30);
+        fprintf('Baseline complete...\n'); 
+        %also add a line here that is an audio indicator of question number
+        [~,keys] = KbWait(-1);
+        if any(keys(p.KEYS.EXIT.VALUE))
+            error('Exit Key Pressed');
+        elseif any(keys(p.KEYS.QUESTION.VALUE))
+            Eyelink('Message','Start of Question Period\n');
+            fwrite(sport,['mh',bin2dec('00000011'),0]); %turn question period trigger on (in addition to keeping 1 on for trial number)
+            DrawFormattedText(window, 'Question Period', 'center', 'center', screen_colour_text);
+                Screen('Flip', window);
+                WaitSecs(1);
+            [~,keys] = KbWait(-1);
+            any(keys(p.KEYS.END.VALUE))
+            Eyelink('Message','End of Question Period\n');
+            fwrite(sport,['mh',bin2dec('00000001'),0]); %turn question period trigger off (for StimTracker) - how do we turn one off but leave another one on?
+            [~,keys] = KbWait(-1);
+            any(keys(p.KEYS.ANSWER.VALUE))
+            Eyelink('Message','Start of Answer Period\n');
+            fwrite(sport,['mh',bin2dec('00000101'),0]); %turn answer period trigger on
+            DrawFormattedText(window, 'Answer Period', 'center', 'center', screen_colour_text);
+                Screen('Flip', window);
+                WaitSecs(1);
+            [~,keys] = KbWait(-1);
+            any(keys(p.KEYS.END.VALUE))
+            Eyelink('Message','End of Answer Period\n');
+            fwrite(sport,['mh',bin2dec('00000001'),0]); %turn answer period trigger off (for StimTracker)
+        else any(keys(p.KEYS.STOP.VALUE))
+            break;
+        end
     else any(keys(p.KEYS.STOP.VALUE))
         break;
     end
 end
 fprintf('Starting...\n');
 
-%time of experiment start
-t0 = GetSecs;
-d.time_start_experiment = t0;
-d.timestamp_start_experiment = GetTimestamp;
 
-%% trigger stim tracker (start of exp)
-if p.TRIGGER_STIM_TRACKER
-    fwrite(sport,['mh',1,0]); %send trigger to Stim Tracker
-    WaitSecs(1);
-    fwrite(sport,['mh',0,0]); %turn trigger off (for StimTracker)
-end
-
-%collect
-for trial = 1:number_demo_trial
-    fprintf('Demo trial %d of %d...\n', trial, number_demo_trial);
-    
-    DrawFormattedText(window, sprintf('Demo Trial %d of %d', trial, number_demo_trial), 'center', 'center', screen_colour_text);
-    Screen('Flip', window);
-    
-    Eyelink('StartRecording');
-    Eyelink('Message',sprintf('Event: Start of trial %03d\n', trial));
-    WaitSecs(1);
-    Eyelink('Message','Event: ~1 second into trial\n');
-    WaitSecs(1);
-    Eyelink('Message','Event: End of trial %03d\n', trial);
-    Eyelink('StopRecording');
-    
-    if trial < number_demo_trial
-        DrawFormattedText(window, 'Inter-Trial Time', 'center', 'center', screen_colour_text);
-        Screen('Flip', window);
-        WaitSecs(1);
-    end
-end
-
-%% trigger stim tracker (end of exp)
-if p.TRIGGER_STIM_TRACKER
-    fwrite(sport,['mh',1,0]); %send trigger to Stim Tracker
-    WaitSecs(1);
-    fwrite(sport,['mh',0,0]); %turn trigger off (for StimTracker)
-end
-
-%close
-DrawFormattedText(window, 'Eyelink Close', 'center', 'center', screen_colour_text);
-Screen('Flip', window);
-Eyelink.Collection.Close
+% %% collect
+% for trial = 1:number_demo_trial
+%     fprintf('Demo trial %d of %d...\n', trial, number_demo_trial);
+%     
+%     DrawFormattedText(window, sprintf('Demo Trial %d of %d', trial, number_demo_trial), 'center', 'center', screen_colour_text);
+%     Screen('Flip', window);
+%     
+%     Eyelink('StartRecording');
+%     Eyelink('Message',sprintf('Event: Start of trial %03d\n', trial));
+%     WaitSecs(1);
+%     Eyelink('Message','Event: ~1 second into trial\n');
+%     WaitSecs(1);
+%     Eyelink('Message','Event: End of trial %03d\n', trial);
+%     Eyelink('StopRecording');
+%     
+%     if trial < number_demo_trial
+%         DrawFormattedText(window, 'Inter-Trial Time', 'center', 'center', screen_colour_text);
+%         Screen('Flip', window);
+%         WaitSecs(1);
+%     end
+% end
+% 
+% %% trigger stim tracker (end of exp)
+% if p.TRIGGER_STIM_TRACKER
+%     fwrite(sport,['mh',1,0]); %send trigger to Stim Tracker
+%     WaitSecs(1);
+%     fwrite(sport,['mh',0,0]); %turn trigger off (for StimTracker)
+% end
+% 
+% %close
+% DrawFormattedText(window, 'Eyelink Close', 'center', 'center', screen_colour_text);
+% Screen('Flip', window);
+% Eyelink.Collection.Close
 
 %% close serial port for stim tracker
 if p.TRIGGER_STIM_TRACKER
