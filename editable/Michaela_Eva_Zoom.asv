@@ -169,80 +169,60 @@ Screen('Close', window);
 ShowCursor;
 %% Enter Trial Phase 
 
-%% Enter trial phase 
-
-for trial = 1: d.number_trials 
-    fprintf('Trial %d of %d...\n', trial, d.number_trials);
-    
-    phase = 0;
-    trial_in_progress = true; 
-    
-    while trial_in_progress
-        [~,keys] = KbWait(-1);
-        if any(keys(p.KEYS.QUESTION.VALUE)) && phase == 0 
-            fprintf('Start of question period %d...\n', trial);
-            fwrite(sport,['mh',bin2dec('00000010'),0]); %turn question period trigger on (for StimTracker)
-            Eyelink('Message','Start of Question Period %d', trial);
+    for trial = 1: d.number_trials
+        fprintf('Trial %d of %d...\n', trial, d.number_trials);
+       
+     while 1 
+        [~,keys] = KbWait(-1); %does adding untilTime == 300 mean it will automatically return after 5 min regardless
+        if any(keys(p.KEYS.EXIT.VALUE))
+            error('Exit Key Pressed');
+        elseif any(keys(p.KEYS.START.VALUE)) %start of trial
+            d.trial_data(trial).timing.onset = GetSecs - t0;
+            fprintf('\nTrial %d (%g sec)\n', trial, d.trial_data(trial).timing.onset);       
+            Eyelink('StartRecording');
+            Eyelink('Message',sprintf('Event: Start of trial %03d\n', trial));
             WaitSecs(1);
-            while 1
+            [~,keys] = KbWait(-1);
+            if any(keys(p.KEYS.QUESTION.VALUE))
+                fprintf('Question Start...\n');
+                fwrite(sport,['mh',bin2dec('00000010'),0]); %turn question period trigger on (for StimTracker)
+                Eyelink('Message','Start of Question Period\n');
+                WaitSecs(1);
                 [~,keys] = KbWait(-1);
                 if any(keys(p.KEYS.END.VALUE))
-                    fprintf('End of question period %d...\n', trial);
+                    fprintf('Question End...\n');
                     fwrite(sport,['mh',bin2dec('00000000'),0]); %turn question period trigger off (for StimTracker)
-                    Eyelink('Message','End of Question Period %d');
-                    phase = 1;
-                    break;
-                elseif any(keys(p.KEYS.EXIT.VALUE))
-                    error('Exit Key Pressed');
+                    Eyelink('Message','End of Question Period\n');
+                    WaitSecs(1);
+                    [~,keys] = KbWait(-1);
+                    if any(keys(p.KEYS.ANSWER.VALUE))
+                        fprintf('Answer Start...\n');
+                        fwrite(sport,['mh',bin2dec('00000100'),0]); %turn answer period trigger on (for StimTracker)
+                        Eyelink('Message','Start of Answer Period\n');
+                        WaitSecs(1);
+                        [~,keys] = KbWait(-1);
+                        if any(keys(p.KEYS.END.VALUE))
+                            fprintf('Answer End...\n');
+                            fwrite(sport,['mh',bin2dec('00000000'),0]); %turn answer period trigger off (for StimTracker)
+                            Eyelink('Message','End of Answer Period\n');
+                            WaitSecs(1);
+                        else any(keys(p.KEYS.STOP.VALUE))
+                            break;
+                        end
+                    else any(keys(p.KEYS.STOP.VALUE))
+                        break;
+                    end
                 else any(keys(p.KEYS.STOP.VALUE))
                     break;
                 end
+            else any(keys(p.KEYS.STOP.VALUE))
+                break;
             end
-       elseif any(keys(p.KEYS.ANSWER.VALUE)) && phase == 1
-            fprintf('Start of answer period %d...\n', trial);
-            fwrite(sport,['mh',bin2dec('00000100'),0]); %turn question period trigger on (for StimTracker)
-            Eyelink('Message','Start of Question Period %d', trial);
-            WaitSecs(1);
-            while 1
-                [~,keys] = KbWait(-1);
-                if any(keys(p.KEYS.END.VALUE))
-                    fprintf('End of answer period %d...\n', trial);
-                    fwrite(sport,['mh',bin2dec('00000000'),0]); %turn question period trigger off (for StimTracker)
-                    Eyelink('Message','End of answer Period %d');
-                    phase = 2;
-                    break;
-                elseif any(keys(p.KEYS.EXIT.VALUE))
-                    error('Exit Key Pressed');
-                else any(keys(p.KEYS.STOP.VALUE))
-                    break;
-                end
-            end 
-        elseif any(keys(p.KEYS.YES.VALUE)) && phase >= 2
-            Eyelink('Message','Answer correct for trial %d');
-            fwrite(sport,['mh',bin2dec('00001000'),0]);
-            WaitSecs(0.01)
-            fwrite(sport,['mh',bin2dec('00000000'),0]);
-            d.trial(trial).answer = yes;
-            phase = 3; 
-        elseif any(keys(p.KEYS.NO.VALUE)) && phase >= 2
-            Eyelink('Message','Answer incorrect for trial %d');
-            fwrite(sport,['mh',bin2dec('00001000'),0]);
-            WaitSecs(0.01)
-            fwrite(sport,['mh',bin2dec('00000000'),0]);
-            d.trial(trial).answer = no;
-            phase = 3; 
-        elseif any(keys(p.KEYS.STOP.VALUE)) && phase == 3
-            trial_in_progress = false; 
         else any(keys(p.KEYS.STOP.VALUE))
-            break; 
+            break;
         end
     end
 
-
-    
-    % save data
-    fprintf('Saving...\n');
-    save(d.filepath_data, 'p', 'd')
 end
 
 %% close serial port for stim tracker
@@ -279,6 +259,7 @@ Screen('Close', window);
 ShowCursor;
 disp('Study complete!');
 
+end 
 %% Functions
 function [timestamp] = GetTimestamp
 c = round(clock);
@@ -321,8 +302,7 @@ timestamp = sprintf('%d-%d-%d_%d-%d_%d',c([4 5 6 3 2 1]));
 %     rethrow(err)
 % end
          
-end 
-end 
+
 
              
              
