@@ -1,4 +1,4 @@
- 
+  
 %%  Requires PTB
 try
     AssertOpenGL();
@@ -6,6 +6,8 @@ catch err
     warning('PsychToolbox might not be installed or setup correctly!')
     rethrow(err)
 end
+
+sqeaesqeaesqeaeu
 
 %% Requires SR Research Eyelink SDK to be installed
 try
@@ -27,7 +29,7 @@ screen_colour_background = [0 0 0];
 screen_colour_text = [255 255 255];
 screen_font_size = 30;
 
-filename_edf = 'testfile.edf';
+filename_edf = 'testtwo.edf';
 full_path_to_put_edf = [pwd filesep filename_edf];
 
 number_trials = 3;
@@ -75,7 +77,7 @@ catch err
 end
 
 %try in case of error
-try
+%try
 
 %init
 DrawFormattedText(window, 'Eyelink Connect', 'center', 'center', screen_colour_text);
@@ -136,44 +138,47 @@ if p.TRIGGER_STIM_TRACKER
 end     
 
 fprintf('Baseline complete...\n'); 
-%% Start Trial
+%% Start Run 
 
-for trial = 1: number_trials
-    fprintf('Trial %d of %d...\n', trial, number_trials);
-    
-while 1
-    [~,keys] = KbWait(-1); %does adding untilTime == 300 mean it will automatically return after 5 min regardless
-    if any(keys(p.KEYS.EXIT.VALUE))
-        error('Exit Key Pressed');
-    elseif any(keys(p.KEYS.START.VALUE)) %start of trial
-        fprintf('Trial Start...\n');
-        Eyelink('StartRecording');
-        Eyelink('Message',sprintf('Event: Start of trial %03d\n', trial));
-        WaitSecs(1);
-        [~,keys] = KbWait(-1);
-        if any(keys(p.KEYS.QUESTION.VALUE))
-            fprintf('Question Start...\n');
-            fwrite(sport,['mh',bin2dec('00000010'),0]); %turn question period trigger on (for StimTracker)
-            Eyelink('Message','Start of Question Period\n');
+    for trial = 1: number_trials
+        fprintf('Trial %d of %d...\n', trial, number_trials);
+
+%     while 1
+        [~,keys] = KbWait(-1); %does adding untilTime == 300 mean it will automatically return after 5 min regardless
+        if any(keys(p.KEYS.EXIT.VALUE))
+            error('Exit Key Pressed');
+        elseif any(keys(p.KEYS.START.VALUE)) %start of trial
+            fprintf('Trial Start...\n');
+            Eyelink('StartRecording');
+            Eyelink('Message',sprintf('Event: Start of trial %03d\n', trial));
             WaitSecs(1);
             [~,keys] = KbWait(-1);
-            if any(keys(p.KEYS.END.VALUE))
-                fprintf('Question End...\n');
-                fwrite(sport,['mh',bin2dec('00000000'),0]); %turn question period trigger off (for StimTracker)
-                Eyelink('Message','End of Question Period\n');
+            if any(keys(p.KEYS.QUESTION.VALUE))
+                fprintf('Question Start...\n');
+                fwrite(sport,['mh',bin2dec('00000010'),0]); %turn question period trigger on (for StimTracker)
+                Eyelink('Message','Start of Question Period\n');
                 WaitSecs(1);
                 [~,keys] = KbWait(-1);
-                if any(keys(p.KEYS.ANSWER.VALUE))
-                    fprintf('Answer Start...\n');
-                    fwrite(sport,['mh',bin2dec('00000100'),0]); %turn answer period trigger on (for StimTracker)
-                    Eyelink('Message','Start of Question Period\n');
+                if any(keys(p.KEYS.END.VALUE))
+                    fprintf('Question End...\n');
+                    fwrite(sport,['mh',bin2dec('00000000'),0]); %turn question period trigger off (for StimTracker)
+                    Eyelink('Message','End of Question Period\n');
                     WaitSecs(1);
                     [~,keys] = KbWait(-1);
-                    if any(keys(p.KEYS.END.VALUE))
-                        fprintf('Answer End...\n');
-                        fwrite(sport,['mh',bin2dec('00000000'),0]); %turn answer period trigger off (for StimTracker)
-                        Eyelink('Message','End of Question Period\n');
+                    if any(keys(p.KEYS.ANSWER.VALUE))
+                        fprintf('Answer Start...\n');
+                        fwrite(sport,['mh',bin2dec('00000100'),0]); %turn answer period trigger on (for StimTracker)
+                        Eyelink('Message','Start of Answer Period\n');
                         WaitSecs(1);
+                        [~,keys] = KbWait(-1);
+                        if any(keys(p.KEYS.END.VALUE))
+                            fprintf('Answer End...\n');
+                            fwrite(sport,['mh',bin2dec('00000000'),0]); %turn answer period trigger off (for StimTracker)
+                            Eyelink('Message','End of Answer Period\n');
+                            WaitSecs(1);
+                        else any(keys(p.KEYS.STOP.VALUE))
+                            break;
+                        end
                     else any(keys(p.KEYS.STOP.VALUE))
                         break;
                     end
@@ -186,12 +191,9 @@ while 1
         else any(keys(p.KEYS.STOP.VALUE))
             break;
         end
-    else any(keys(p.KEYS.STOP.VALUE))
-        break;
     end
-end
 
-end
+%     end
 
 %% close serial port for stim tracker
 if p.TRIGGER_STIM_TRACKER
@@ -200,6 +202,16 @@ if p.TRIGGER_STIM_TRACKER
     catch
         warning('Could not close serial connection')
     end
+end
+
+%Open screen 
+try
+  window = Screen('OpenWindow', screen_number, screen_colour_background, screen_rect);
+  Screen('TextSize', window, screen_font_size);
+  HideCursor;
+catch err
+  warning('An error occured while opening the Screen(not related to Eyelink)');
+  rethrow(err);
 end
 
 %get edf
@@ -217,42 +229,42 @@ Screen('Close', window);
 ShowCursor;
 disp('Study complete!');
 
-%catch if error
-catch err
-    %close screen if open
-    Screen('Close', window);
-    
-    %show cursor
-    ShowCursor;
-    
-    %if connection was established...
-    if Eyelink('IsConnected')==1
-        %try to close
-        try
-            Eyelink.Collection.Close
-        catch
-            warning('Could not close Eyelink')
-        end
-        
-        %try to get data
-        try
-            Eyelink.Collection.PullEDF(filename_edf, full_path_to_put_edf)
-        catch
-            warning('Could not pull EDF')
-        end
-        
-        %try to shutddown
-        try
-            Eyelink.Collection.Shutdown
-        catch
-            warning('Could not shut down connection to Eyelink')
-        end
-        
-    end
-    
-    %rethrow error for troubleshooting
-    rethrow(err)
-end
+% %catch if error
+% catch err
+%     %close screen if open
+%     Screen('Close', window);
+%     
+%     %show cursor
+%     ShowCursor;
+%     
+%     %if connection was established...
+%     if Eyelink('IsConnected')==1
+%         %try to close
+%         try
+%             Eyelink.Collection.Close
+%         catch
+%             warning('Could not close Eyelink')
+%         end
+%         
+%         %try to get data
+%         try
+%             Eyelink.Collection.PullEDF(filename_edf, full_path_to_put_edf)
+%         catch
+%             warning('Could not pull EDF')
+%         end
+%         
+%         %try to shutddown
+%         try
+%             Eyelink.Collection.Shutdown
+%         catch
+%             warning('Could not shut down connection to Eyelink')
+%         end
+%         
+%     end
+%     
+%     %rethrow error for troubleshooting
+%     rethrow(err)
+% end
          
 
 
