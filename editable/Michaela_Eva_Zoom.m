@@ -1,8 +1,19 @@
 function Michaela_Eva_Zoom (participant_number , run_number) 
-%output file name (8 characters) 
+%% Output file name (8 characters) 
 filename_edf = 'testtwo.edf';
 full_path_to_put_edf = [pwd filesep filename_edf];
 
+%% Debug Settings
+p.USE_EYELINK = false;
+p.TRIGGER_STIM_TRACKER = false;
+
+if ~p.USE_EYELINK || ~p.TRIGGER_STIM_TRACKER    
+    warning('One or more debug settings is active!')
+end
+
+if ~p.USE_EYELINK 
+    Eyelink('InitializeDummy');
+end
 %% Parameters
 % screen_rect [ 0 0 width length]
 % 0 is both, 1 is likely laptop and 2 is likely second screen 
@@ -128,6 +139,8 @@ Screen('Flip', window);
 Eyelink.Collection.Calibration
 
 %add another screen to say press R to begin 
+%% Try 
+try
 %% open serial port for stim tracker
 if p.TRIGGER_STIM_TRACKER
     %sport=serial('/dev/tty.usbserial-00001014','BaudRate',115200);
@@ -152,14 +165,22 @@ fprintf('Starting...\n');
 %Time of Experiment start 
 t0 = GetSecs;
 d.time_start_experiment = t0;
+d.timestamp_start_experiment = GetTimestamp;
 
 %% Initial Baseline 
 fprintf('Initial baseline...\n');
 
 if p.TRIGGER_STIM_TRACKER
-    fwrite(sport, ['mh',bin2dec('00000001'),0]); %turn on 1 for run and 2 for baseline
+    fwrite(sport, ['mh',bin2dec('00000001'),0]);
+    WaitSecs(1);
+    fwrite(sport, ['mh', bin2dec('00000000'), 0]); 
+    
+    %turn on 1 for run and 2 for baseline
     WaitSecs(DURATION_BASELINE_INITIAL);
-    fwrite(sport, ['mh',bin2dec('00000000'),0]); %turn off 2 
+    
+    fwrite(sport, ['mh',bin2dec('00000001'),0]); %turn off 2 
+    WaitSecs(1);
+    fwrite(sport, ['mh', bin2dec('00000000'), 0]);
 end     
 
 fprintf('Baseline complete...\n'); 
@@ -167,12 +188,19 @@ fprintf('Baseline complete...\n');
 %close screen 
 Screen('Close', window);
 ShowCursor;
-%% Enter Trial Phase 
 
+%% Start Eyetracking Recording 
+    Eyelink('StartRecording')
+    
 %% Enter trial phase 
 
 for trial = 1: d.number_trials 
-    fprintf('Trial %d of %d...\n', trial, d.number_trials);
+    d.trial_data(trial).timing.onset = GetSecs - t0;
+    d.latest_trial = trial;
+    
+    fprintf('Starting Task...\n');
+    Eyelink('Message',sprintf('Event: Start of trial %03d\n', trial));
+    fprintf('\nTrial %d (%g sec)\n', trial, d.trial_data(trial).timing.onset);
     
     phase = 0;
     trial_in_progress = true; 
@@ -181,14 +209,26 @@ for trial = 1: d.number_trials
         [~,keys] = KbWait(-1);
         if any(keys(p.KEYS.QUESTION.VALUE)) && phase == 0 
             fprintf('Start of question period %d...\n', trial);
-            fwrite(sport,['mh',bin2dec('00000010'),0]); %turn question period trigger on (for StimTracker)
+            
+            if p.TRIGGER_STIM_TRACKER
+                fwrite(sport,['mh',bin2dec('00000010'),0]); %turn question period trigger on (for StimTracker)
+                d.trial_data(trial).timing.trigger.question_period_start = GetSecs - t0;
+                fwrite(sport,['mh',bin2dec('00000000'),0]); %turn question period trigger off (for StimTracker)
+            end
+            
             Eyelink('Message','Start of Question Period %d', trial);
             WaitSecs(1);
             while 1
                 [~,keys] = KbWait(-1);
                 if any(keys(p.KEYS.END.VALUE))
                     fprintf('End of question period %d...\n', trial);
+                    
+                    if p.TRIGGER_STIM_TRACKER
+                    fwrite(sport,['mh',bin2dec('00000010'),0]); %turn question period trigger on (for StimTracker)
+                    d.trial_data(trial).timing.trigger.question_period_end = GetSecs - t0;
                     fwrite(sport,['mh',bin2dec('00000000'),0]); %turn question period trigger off (for StimTracker)
+                    end
+                    
                     Eyelink('Message','End of Question Period %d');
                     phase = 1;
                     break;
@@ -200,14 +240,26 @@ for trial = 1: d.number_trials
             end
        elseif any(keys(p.KEYS.ANSWER.VALUE)) && phase == 1
             fprintf('Start of answer period %d...\n', trial);
-            fwrite(sport,['mh',bin2dec('00000100'),0]); %turn question period trigger on (for StimTracker)
+            
+            if p.TRIGGER_STIM_TRACKER
+                fwrite(sport,['mh',bin2dec('00000100'),0]); %turn question period trigger on (for StimTracker)
+                d.trial_data(trial).timing.trigger.answer_period_start = GetSecs - t0;
+                fwrite(sport,['mh',bin2dec('00000000'),0]); 
+            end
+            
             Eyelink('Message','Start of Question Period %d', trial);
             WaitSecs(1);
             while 1
                 [~,keys] = KbWait(-1);
                 if any(keys(p.KEYS.END.VALUE))
                     fprintf('End of answer period %d...\n', trial);
-                    fwrite(sport,['mh',bin2dec('00000000'),0]); %turn question period trigger off (for StimTracker)
+                     
+                    if p.TRIGGER_STIM_TRACKER
+                        fwrite(sport,['mh',bin2dec('00000100'),0]); %turn question period trigger on (for StimTracker)
+                        d.trial_data(trial).timing.trigger.answer_period_end = GetSecs - t0;
+                        fwrite(sport,['mh',bin2dec('00000000'),0]); 
+                     end
+                    
                     Eyelink('Message','End of answer Period %d');
                     phase = 2;
                     break;
@@ -219,31 +271,55 @@ for trial = 1: d.number_trials
             end 
         elseif any(keys(p.KEYS.YES.VALUE)) && phase >= 2
             Eyelink('Message','Answer correct for trial %d');
-            fwrite(sport,['mh',bin2dec('00001000'),0]);
-            WaitSecs(0.01)
-            fwrite(sport,['mh',bin2dec('00000000'),0]);
-            d.trial(trial).answer = yes;
+            
+            if p.TRIGGER_STIM_TRACKER
+                fwrite(sport,['mh',bin2dec('00001000'),0]);
+                d.trial(trial).answer = yes;
+                d.trial_data(trial).timing.trigger.reaction = GetSecs - t0;
+                fwrite(sport,['mh',bin2dec('00000000'),0]);
+            end
+            
             phase = 3; 
         elseif any(keys(p.KEYS.NO.VALUE)) && phase >= 2
             Eyelink('Message','Answer incorrect for trial %d');
-            fwrite(sport,['mh',bin2dec('00001000'),0]);
-            WaitSecs(0.01)
-            fwrite(sport,['mh',bin2dec('00000000'),0]);
-            d.trial(trial).answer = no;
+            
+            if p.TRIGGER_STIM_TRACKER
+                fwrite(sport,['mh',bin2dec('00001000'),0]);
+                d.trial(trial).answer = no;
+                d.trial_data(trial).timing.trigger.reaction = GetSecs - t0;
+                fwrite(sport,['mh',bin2dec('00000000'),0]);
+            end
+
             phase = 3; 
         elseif any(keys(p.KEYS.STOP.VALUE)) && phase == 3
             trial_in_progress = false; 
+            d.trial_data(trial).timing.offset = GetSecs - t0; 
         else any(keys(p.KEYS.STOP.VALUE))
             break; 
         end
     end
 
-
-    
     % save data
     fprintf('Saving...\n');
     save(d.filepath_data, 'p', 'd')
 end
+
+Eyelink('Message','Event: End of trial %03d\n', trial);
+%     Eyelink('StopRecording');
+%% trigger stim tracker (end of exp)
+if p.TRIGGER_STIM_TRACKER
+    fwrite(sport,['mh',000000001,0]); %send trigger to Stim Tracker
+    WaitSecs(1);
+    fwrite(sport,['mh',000000000,0]); %turn trigger off (for StimTracker)
+end
+
+%% End
+d.time_end_experiment = GetSecs;
+d.timestamp_end_experiment = GetTimestamp;
+
+%% Done
+save(d.filepath_data, 'p', 'd')
+disp Complete! 
 
 %% close serial port for stim tracker
 if p.TRIGGER_STIM_TRACKER
@@ -279,50 +355,52 @@ Screen('Close', window);
 ShowCursor;
 disp('Study complete!');
 
+%% Catch
+%catch if error
+catch err
+    %close screen if open
+    Screen('Close', window);
+    
+    %show cursor
+    ShowCursor;
+    
+    %if connection was established...
+    if Eyelink('IsConnected')==1
+        %try to close
+        try
+            Eyelink.Collection.Close
+        catch
+            warning('Could not close Eyelink')
+        end
+        
+        %try to get data
+        try
+            Eyelink.Collection.PullEDF(filename_edf, full_path_to_put_edf)
+        catch
+            warning('Could not pull EDF')
+        end
+        
+        %try to shutddown
+        try
+            Eyelink.Collection.Shutdown
+        catch
+            warning('Could not shut down connection to Eyelink')
+        end
+        
+    end 
+    
+    %rethrow error for troubleshooting
+    rethrow(err)
+end 
+
 %% Functions
 function [timestamp] = GetTimestamp
 c = round(clock);
-timestamp = sprintf('%d-%d-%d_%d-%d_%d',c([4 5 6 3 2 1]));
+timestamp = sprintf('%d-%d-%d_%d-%d_%d',c([4 5 6 3 2 1])); 
  
-% %catch if error
-% catch err
-%     %close screen if open
-%     Screen('Close', window);
-%     
-%     %show cursor
-%     ShowCursor;
-%     
-%     %if connection was established...
-%     if Eyelink('IsConnected')==1
-%         %try to close
-%         try
-%             Eyelink.Collection.Close
-%         catch
-%             warning('Could not close Eyelink')
-%         end
-%         
-%         %try to get data
-%         try
-%             Eyelink.Collection.PullEDF(filename_edf, full_path_to_put_edf)
-%         catch
-%             warning('Could not pull EDF')
-%         end
-%         
-%         %try to shutddown
-%         try
-%             Eyelink.Collection.Shutdown
-%         catch
-%             warning('Could not shut down connection to Eyelink')
-%         end
-%         
-%     end
-%     
-%     %rethrow error for troubleshooting
-%     rethrow(err)
-% end
          
-end 
-end 
+
+ 
 
              
              
