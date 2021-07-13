@@ -7,13 +7,10 @@ full_path_to_put_edf = [pwd filesep filename_edf];
 p.USE_EYELINK = false;
 p.TRIGGER_STIM_TRACKER = false;
 
-if ~p.USE_EYELINK || ~p.TRIGGER_STIM_TRACKER    
+if ~p.TRIGGER_STIM_TRACKER    
     warning('One or more debug settings is active!')
 end
 
-if ~p.USE_EYELINK 
-    Eyelink('InitializeDummy');
-end
 %% Parameters
 % screen_rect [ 0 0 width length]
 % 0 is both, 1 is likely laptop and 2 is likely second screen 
@@ -34,7 +31,7 @@ d.number_trials = 3;
 
 %stim tracker
 %the left port on Eva's laptop is COM3 and on the culham lab msi laptop 
-p.TRIGGER_STIM_TRACKER = true;
+%p.TRIGGER_STIM_TRACKER = true;
 p.TRIGGER_CABLE_COM_STRING = 'COM3';
 
 %timings
@@ -115,30 +112,46 @@ catch err
   rethrow(err);
 end
 
-%try in case of error
-%try
-
 %init
 DrawFormattedText(window, 'Eyelink Connect', 'center', 'center', screen_colour_text);
 Screen('Flip', window);
-Eyelink.Collection.Connect
+if p.USE_EYELINK 
+    Eyelink.Collection.Connect
+else
+    Eyelink('InitializeDummy');
+end 
     
 %set window used
 DrawFormattedText(window, 'Eyelink Set Window', 'center', 'center', screen_colour_text);
 Screen('Flip', window);
-Eyelink.Collection.SetupScreen(window)
+if p.USE_EYELINK 
+    Eyelink.Collection.SetupScreen(window)
+else
+    Eyelink('InitializeDummy');
+end 
 
 %set file to write to
 DrawFormattedText(window, 'Eyelink Set EDF', 'center', 'center', screen_colour_text);
 Screen('Flip', window);
-Eyelink.Collection.SetEDF(filename_edf)
+if p.USE_EYELINK 
+    Eyelink.Collection.SetEDF(filename_edf)
+else
+    Eyelink('InitializeDummy');
+end
 
 %calibrate
 DrawFormattedText(window, 'Eyelink Calibration', 'center', 'center', screen_colour_text);
 Screen('Flip', window);
-Eyelink.Collection.Calibration
+if p.USE_EYELINK 
+    Eyelink.Collection.Calibration
+else
+    Eyelink('InitializeDummy');
+end
 
 %add another screen to say press R to begin 
+DrawFormattedText(window, 'Waiting for RETURN key to run or H key to exit', 'center', 'center', screen_colour_text);
+Screen('Flip', window);
+
 %% Try 
 try
 %% open serial port for stim tracker
@@ -193,7 +206,7 @@ ShowCursor;
     Eyelink('StartRecording')
     
 %% Enter trial phase 
-
+   phase = 0;
 for trial = 1: d.number_trials 
     d.trial_data(trial).timing.onset = GetSecs - t0;
     d.latest_trial = trial;
@@ -202,7 +215,7 @@ for trial = 1: d.number_trials
     Eyelink('Message',sprintf('Event: Start of trial %03d\n', trial));
     fprintf('\nTrial %d (%g sec)\n', trial, d.trial_data(trial).timing.onset);
     
-    phase = 0;
+ 
     trial_in_progress = true; 
     
     while trial_in_progress
@@ -229,9 +242,9 @@ for trial = 1: d.number_trials
                     fwrite(sport,['mh',bin2dec('00000000'),0]); %turn question period trigger off (for StimTracker)
                     end
                     
-                    Eyelink('Message','End of Question Period %d');
+                    Eyelink('Message','End of Question Period %d', trial);
                     phase = 1;
-                    break;
+                    %break;
                 elseif any(keys(p.KEYS.EXIT.VALUE))
                     error('Exit Key Pressed');
                 else any(keys(p.KEYS.STOP.VALUE))
@@ -260,9 +273,9 @@ for trial = 1: d.number_trials
                         fwrite(sport,['mh',bin2dec('00000000'),0]); 
                      end
                     
-                    Eyelink('Message','End of answer Period %d');
+                    Eyelink('Message','End of answer Period %d', trial);
                     phase = 2;
-                    break;
+                    %break;
                 elseif any(keys(p.KEYS.EXIT.VALUE))
                     error('Exit Key Pressed');
                 else any(keys(p.KEYS.STOP.VALUE))
@@ -270,7 +283,7 @@ for trial = 1: d.number_trials
                 end
             end 
         elseif any(keys(p.KEYS.YES.VALUE)) && phase >= 2
-            Eyelink('Message','Answer correct for trial %d');
+            Eyelink('Message','Answer correct for trial %d', trial);
             
             if p.TRIGGER_STIM_TRACKER
                 fwrite(sport,['mh',bin2dec('00001000'),0]);
@@ -281,7 +294,7 @@ for trial = 1: d.number_trials
             
             phase = 3; 
         elseif any(keys(p.KEYS.NO.VALUE)) && phase >= 2
-            Eyelink('Message','Answer incorrect for trial %d');
+            Eyelink('Message','Answer incorrect for trial %d', trial);
             
             if p.TRIGGER_STIM_TRACKER
                 fwrite(sport,['mh',bin2dec('00001000'),0]);
@@ -292,10 +305,12 @@ for trial = 1: d.number_trials
 
             phase = 3; 
         elseif any(keys(p.KEYS.STOP.VALUE)) && phase == 3
-            trial_in_progress = false; 
-            d.trial_data(trial).timing.offset = GetSecs - t0; 
-        else any(keys(p.KEYS.STOP.VALUE))
-            break; 
+            
+            d.trial_data(trial).timing.offset = GetSecs - t0;
+            phase = 0;
+            trial_in_progress = false;
+%         elseif any(keys(p.KEYS.STOP.VALUE))
+%             break; 
         end
     end
 
@@ -343,12 +358,20 @@ end
 %get edf
 DrawFormattedText(window, 'Eyelink Pull EDF', 'center', 'center', screen_colour_text);
 Screen('Flip', window);
-Eyelink.Collection.PullEDF(filename_edf, full_path_to_put_edf)
+if p.USE_EYELINK 
+    Eyelink.Collection.PullEDF(filename_edf, full_path_to_put_edf)
+else
+    Eyelink('InitializeDummy');
+end 
 
 %shutdown
 DrawFormattedText(window, 'Eyelink Shutdown', 'center', 'center', screen_colour_text);
 Screen('Flip', window);
-Eyelink.Collection.Shutdown
+if p.USE_EYELINK 
+    Eyelink.Collection.Shutdown
+else
+    Eyelink('InitializeDummy');
+end
 
 %done
 Screen('Close', window);
