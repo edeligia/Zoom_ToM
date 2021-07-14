@@ -38,7 +38,7 @@ try
 	Screen(window, 'TextFont', 'Helvetica');                         
 	Screen(window, 'TextSize', 32);
     instructions = 'Please wait while the movie loads';   
-    DrawFormattedText(window, instructions, 'center' , 'center', 255,70); 
+    DrawFormattedText(w, instructions, 'center' , 'center', 255,70); 
 	Screen(window, 'Flip');												% Instructional screen is presented.
     
 catch exception
@@ -114,7 +114,7 @@ while(GetSecs - trialStart < movieDur -.2)
         break;
     end;
     % Draw the new texture immediately to screen:
-    Screen('DrawTexture', window, tex);
+    Screen('DrawTexture', w, tex);
     % Update display:
     Screen(window, 'Flip');
     % Release texture:
