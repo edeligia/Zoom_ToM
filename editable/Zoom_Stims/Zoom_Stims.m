@@ -24,8 +24,7 @@ orig_dir			= pwd;
 stimdir             = fullfile(rootdir, 'stimuli');
 behavdir			= fullfile(rootdir, 'behavioural');
 moviefName          = fullfile(stimdir, 'Stims_Owl1.mov');
-restDur = 10;  %fixation time before movie. we stopped scanning in the middle of credits, so no post movie fixation
-movieDur = 349;
+movieDur = 15;
 
 try
 	PsychJavaTrouble;
@@ -73,7 +72,7 @@ end
 
 % Now want to open a new window to play the movie in
 
-[movie movieduration fps imgw imgh] = Screen('OpenMovie', w, moviefName);
+[movie] = Screen('OpenMovie', w, moviefName);
 rate = 1;
 
 % Give the display a moment to recover from change of display mode when
