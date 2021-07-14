@@ -4,7 +4,7 @@ function zoom_mov(subjID)
 % Errors using Screen so have added 'SkipSyncTests' for now, but need to
 % look into the timing 
 
-Screen('Preference', 'SkipSyncTests', 1);
+Screen('Preference', 'SkipSyncTests', 0);
 
 %% Variables unique to computer
 
@@ -31,10 +31,10 @@ try
 	HideCursor;
     Screen('Preference', 'SkipSyncTests', 1);
 	displays    = max(Screen('screens'));
-    scrnRect = [];
+%     scrnRect = [];
 	window  = Screen('OpenWindow',displays, 0);
-	scrnRes     = Screen('Resolution',displays(end));               % Get Screen resolution
-	[x0 y0]		= RectCenter([1080 820 scrnRes.width scrnRes.height]);   % Screen center                       
+% 	scrnRes     = Screen('Resolution',displays(end));               % Get Screen resolution
+% 	[x0 y0]		= RectCenter([0 0 scrnRes.width scrnRes.height]);   % Screen center                       
 	Screen(window, 'TextFont', 'Helvetica');                         
 	Screen(window, 'TextSize', 32);
     instructions = 'Please wait while the movie loads';   
