@@ -1,5 +1,7 @@
 function Michaela_Eva_Zoom (participant_number , run_number) 
-%% Output file name (8 characters) 
+%% Output files (8 characters) 
+cd('C:\Users\evade\Documents\Zoom_project\Memoji_Zoom_Data')
+
 filename_edf = 'testtwo.edf';
 full_path_to_put_edf = [pwd filesep filename_edf];
 
@@ -35,20 +37,18 @@ d.number_trials = 3;
 p.TRIGGER_CABLE_COM_STRING = 'COM3';
 
 %timings
-DURATION_BASELINE_INITIAL = 30;
+DURATION_BASELINE_INITIAL = 5;
 
 %buttons
-p.KEYS.START.NAME = 'S';
 p.KEYS.RUN.NAME = 'RETURN';
 p.KEYS.QUESTION.NAME = 'Q';
 p.KEYS.ANSWER.NAME = 'A';
-p.KEYS.REACTION.NAME = 'R'; 
 p.KEYS.END.NAME = 'E';
 p.KEYS.YES.NAME = 'Y';
 p.KEYS.NO.NAME = 'N';
 p.KEYS.EXIT.NAME = 'H'; 
-p.KEYS.STOP.NAME = 'SPACE'; 
-p.KEYS.BUTTON_DEBUG.NAME = 'B';
+p.KEYS.STOP.NAME = 'SPACE';
+p.KEYS.ABORT.NAME = 'P';
 
 %%  Check Requirements
 %psychtoolbox
@@ -173,24 +173,28 @@ while 1
         error ('Exit Key Pressed');
     end
 end
-fprintf('Starting...\n'); 
+
+fprintf('Starting...\n');
+Screen('Flip', window);
 
 %Time of Experiment start 
 t0 = GetSecs;
 d.time_start_experiment = t0;
 d.timestamp_start_experiment = GetTimestamp;
 
-%% Initial Baseline 
+%% Initial Baseline (add check for close screen key)
 fprintf('Initial baseline...\n');
 
 if p.TRIGGER_STIM_TRACKER
     fwrite(sport, ['mh',bin2dec('00000001'),0]);
     WaitSecs(1);
     fwrite(sport, ['mh', bin2dec('00000000'), 0]); 
+end
     
     %turn on 1 for run and 2 for baseline
     WaitSecs(DURATION_BASELINE_INITIAL);
     
+if p.TRIGGER_STIM_TRACKER     
     fwrite(sport, ['mh',bin2dec('00000001'),0]); %turn off 2 
     WaitSecs(1);
     fwrite(sport, ['mh', bin2dec('00000000'), 0]);
@@ -207,11 +211,12 @@ ShowCursor;
     
 %% Enter trial phase 
    phase = 0;
+   fprintf('Starting Run...\n');
+   
 for trial = 1: d.number_trials 
     d.trial_data(trial).timing.onset = GetSecs - t0;
     d.latest_trial = trial;
     
-    fprintf('Starting Task...\n');
     Eyelink('Message',sprintf('Event: Start of trial %03d\n', trial));
     fprintf('\nTrial %d (%g sec)\n', trial, d.trial_data(trial).timing.onset);
     
@@ -219,7 +224,7 @@ for trial = 1: d.number_trials
     trial_in_progress = true; 
     
     while trial_in_progress
-        [~,keys] = KbWait(-1);
+        [~,keys] = KbWait(-1); %if any key is pressed that is incorrect the trial section must be restarted 
         if any(keys(p.KEYS.QUESTION.VALUE)) && phase == 0 
             fprintf('Start of question period %d...\n', trial);
             
@@ -244,11 +249,11 @@ for trial = 1: d.number_trials
                     
                     Eyelink('Message','End of Question Period %d', trial);
                     phase = 1;
-                    %break;
-                elseif any(keys(p.KEYS.EXIT.VALUE))
-                    error('Exit Key Pressed');
-                else any(keys(p.KEYS.STOP.VALUE))
                     break;
+                elseif any(keys(p.KEYS.EXIT.VALUE)) %break is currently breaking out of the larger while loop as well 
+                    break;
+                elseif any(keys(p.KEYS.ABORT.VALUE))
+                    error('Abort key pressed');
                 end
             end
        elseif any(keys(p.KEYS.ANSWER.VALUE)) && phase == 1
@@ -275,10 +280,10 @@ for trial = 1: d.number_trials
                     
                     Eyelink('Message','End of answer Period %d', trial);
                     phase = 2;
-                    %break;
+                    break;
                 elseif any(keys(p.KEYS.EXIT.VALUE))
                     error('Exit Key Pressed');
-                else any(keys(p.KEYS.STOP.VALUE))
+                elseif any(keys(p.KEYS.STOP.VALUE))
                     break;
                 end
             end 
@@ -309,18 +314,23 @@ for trial = 1: d.number_trials
             d.trial_data(trial).timing.offset = GetSecs - t0;
             phase = 0;
             trial_in_progress = false;
-%         elseif any(keys(p.KEYS.STOP.VALUE))
-%             break; 
+        elseif any(keys(p.KEYS.EXIT.VALUE)) %exit the trial 
+            phase = 0; 
+            trial_in_progress = false;  
+        elseif any(keys(p.KEYS.ABORT.VALUE)) %exit the run
+            error('Abort key pressed');
         end
     end
 
     % save data
     fprintf('Saving...\n');
     save(d.filepath_data, 'p', 'd')
+    Eyelink('Message','Event: End of trial %03d\n', trial);
 end
 
-Eyelink('Message','Event: End of trial %03d\n', trial);
-%     Eyelink('StopRecording');
+%% Stop eyelink recording
+   Eyelink('StopRecording');
+   
 %% trigger stim tracker (end of exp)
 if p.TRIGGER_STIM_TRACKER
     fwrite(sport,['mh',000000001,0]); %send trigger to Stim Tracker
