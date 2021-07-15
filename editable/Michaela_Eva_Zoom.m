@@ -269,6 +269,7 @@ for trial = 1: d.number_trials
                     trial_in_progress = false;
                     break;
                 elseif any(keys(p.KEYS.ABORT.VALUE))
+                    d.number_trials = trial;
                     error('Abort key pressed');
                 end
             end
@@ -299,8 +300,9 @@ for trial = 1: d.number_trials
                     break;
                 elseif any(keys(p.KEYS.EXIT.VALUE)) %KS revisit this (no abort, etc)
                     error('Exit Key Pressed');
-                elseif any(keys(p.KEYS.STOP.VALUE))
-                    break;
+                elseif any(keys(p.KEYS.ABORT.VALUE))
+                    d.number_trials = trial;
+                    error('Abort key pressed');
                 end
             end 
         elseif any(keys(p.KEYS.YES.VALUE)) && phase >= 2 && (d.trial_data(trial).correct_response ~= true)
@@ -334,6 +336,7 @@ for trial = 1: d.number_trials
         elseif any(keys(p.KEYS.EXIT.VALUE)) %exit the trial 
             trial_in_progress = false;  
         elseif any(keys(p.KEYS.ABORT.VALUE)) %exit the run
+            d.number_trials = trial;
             error('Abort key pressed');
         end
     end
@@ -341,6 +344,7 @@ for trial = 1: d.number_trials
     % save data
     fprintf('Saving...\n');
     save(d.filepath_data, 'p', 'd')
+    fprintf('End of trial %03d\n', trial)
     Eyelink('Message','Event: End of trial %03d\n', trial);
 end
 
