@@ -2,8 +2,8 @@ function Michaela_Eva_Zoom (participant_number , run_number)
 %% Output files (8 characters) 
 cd('C:\Users\evade\Documents\Zoom_project\Memoji_Zoom_Data')
 
-d.filename_edf = 'testtwo.edf';
-d.full_path_to_put_edf = [pwd filesep d.filename_edf];
+% d.filename_edf = 'testtwo.edf';
+% d.full_path_to_put_edf = [pwd filesep d.filename_edf];
 
 %% Debug Settings
 p.USE_EYELINK = false;
@@ -13,11 +13,15 @@ if ~p.TRIGGER_STIM_TRACKER
     warning('One or more debug settings is active!')
 end
 
+%% Start Timestamp 
+
+[d.timestamp, d.timestamp_edf] = GetTimestamp;
+
 %% Parameters
 % screen_rect [ 0 0 width length]
 % 0 is both, 1 is likely laptop and 2 is likely second screen 
-screen_number = max(Screen('Screens'));
-screen_rect = [];
+screen_number = Screen('Screens', 1);
+screen_rect = [0 0 500 500];
 screen_colour_background = [0 0 0];
 screen_colour_text = [255 255 255];
 screen_font_size = 30;
@@ -27,9 +31,10 @@ Screen('Preference','SkipSyncTests', 1);
 
 %directories 
 p.DIR_DATA = [pwd filesep 'Data' filesep];
+p.DIR.DATA_EDF = [pwd filesep 'Data_EDF' filesep];
 
 %trials
-d.number_trials = 3;
+p.number_trials = 3;
 
 %stim tracker
 %the left port on Eva's laptop is COM3 and on the culham lab msi laptop 
@@ -37,7 +42,7 @@ d.number_trials = 3;
 p.TRIGGER_CABLE_COM_STRING = 'COM3';
 
 %timings
-DURATION_BASELINE_INITIAL = 5;
+p.DURATION_BASELINE = 5;
 
 %buttons
 p.KEYS.RUN.NAME = 'RETURN';
@@ -83,9 +88,12 @@ d.run_number = run_number;
 %filenames 
 d.filepath_data = sprintf('%sPAR%02d_RUN%02d_%s.mat', p.DIR_DATA, d.participant_number, d.run_number, d.timestamp_start_script);
 d.filepath_error = strrep(d.filepath_data, '.mat', '_ERROR.mat');
+p.filepath.data_edf = [p.DIR.DATA_EDF sprintf('Participant_%02d_FromRun%03d_%s.edf', d.participant_number, d.run_number, d.timestamp)];
+p.filepath.data_edf_on_system = sprintf('P%02d_%s', d.participant_number, d.timestamp_edf);
 
 %create output directories
 if ~exist(p.DIR_DATA, 'dir'), mkdir(p.DIR_DATA); end
+if ~exist(p.DIR.DATA_EDF, 'dir'), mkdir(p.DIR.DATA_EDF); end
 
 %set key values
 KbName('UnifyKeyNames');
@@ -100,7 +108,7 @@ for i = 1:10
     KbCheck;
 end
 
-%% Test
+%% Calibrate Eyetracker 
 %create window for calibration
 
 try
@@ -134,7 +142,7 @@ end
 DrawFormattedText(window, 'Eyelink Set EDF', 'center', 'center', screen_colour_text);
 Screen('Flip', window);
 if p.USE_EYELINK 
-    Eyelink.Collection.SetEDF(d.filename_edf)
+    Eyelink.Collection.SetEDF(p.filepath.data_edf_on_system)
 else
     Eyelink('InitializeDummy');
 end
@@ -164,7 +172,7 @@ else
 end
 
 %% Wait for Run Start 
-fprintf('\n----------------------------------------------\nWaiting for run key (%s) or stop key (%s)...\n----------------------------------------------\n\n', p.KEYS.RUN.NAME, p.KEYS.EXIT.NAME);
+fprintf('\n----------------------------------------------\nWaiting for run key (%s) or exit key (%s)...\n----------------------------------------------\n\n', p.KEYS.RUN.NAME, p.KEYS.EXIT.NAME);
 while 1 
     [~,keys] = KbWait(-1);
     if any(keys(p.KEYS.RUN.VALUE))
@@ -183,20 +191,30 @@ d.time_start_experiment = t0;
 d.timestamp_start_experiment = GetTimestamp;
 
 %% Initial Baseline (add check for close screen key)
-fprintf('Initial baseline...\n');
 
 if p.TRIGGER_STIM_TRACKER
     fwrite(sport, ['mh',bin2dec('00000001'),0]);
-    WaitSecs(1);
+    WaitSecs(0.05);
     fwrite(sport, ['mh', bin2dec('00000000'), 0]); 
 end
-    
-    %turn on 1 for run and 2 for baseline
-    WaitSecs(DURATION_BASELINE_INITIAL);
+
+fprintf('Initial baseline...\n');
+tend = t0 + p.DURATION_BASELINE;
+while 1
+    ti = GetSecs;
+    if ti > tend
+        break;
+    end
+end 
+    %Check for exit key to end run
+    [~,~,keys] = KbCheck(-1);  
+    if any(keys(p.KEYS.EXIT.VALUE))
+        error('Exit Key Pressed');
+    end 
     
 if p.TRIGGER_STIM_TRACKER     
     fwrite(sport, ['mh',bin2dec('00000001'),0]); %turn off 2 
-    WaitSecs(1);
+    WaitSecs(0.05);
     fwrite(sport, ['mh', bin2dec('00000000'), 0]);
 end   
 
@@ -218,13 +236,17 @@ ShowCursor;
 
 %% Start Eyetracking Recording 
     Eyelink('StartRecording')
-    %KS
-    %consider fnirs trigger
+
+    if p.TRIGGER_STIM_TRACKER     
+    fwrite(sport, ['mh',bin2dec('00000001'),0]); %turn off 2 
+    WaitSecs(0.05);
+    fwrite(sport, ['mh', bin2dec('00000000'), 0]);
+    end   
     
 %% Enter trial phase 
    fprintf('Starting Run...\n');
    
-for trial = 1: d.number_trials 
+for trial = 1: p.number_trials 
     d.trial_data(trial).timing.onset = GetSecs - t0;
     d.latest_trial = trial;
     
@@ -266,6 +288,7 @@ for trial = 1: d.number_trials
                     break;
                 elseif any(keys(p.KEYS.EXIT.VALUE)) %break is currently breaking out of the larger while loop as well 
                     %ends current trial
+                    
                     trial_in_progress = false;
                     break;
                 elseif any(keys(p.KEYS.ABORT.VALUE))
@@ -299,7 +322,9 @@ for trial = 1: d.number_trials
                     phase = 2;
                     break;
                 elseif any(keys(p.KEYS.EXIT.VALUE)) %KS revisit this (no abort, etc)
-                    error('Exit Key Pressed');
+                    %ends current trial
+                    trial_in_progress = false;
+                    break;
                 elseif any(keys(p.KEYS.ABORT.VALUE))
                     d.number_trials = trial;
                     error('Abort key pressed');
@@ -333,8 +358,10 @@ for trial = 1: d.number_trials
             
             d.trial_data(trial).timing.offset = GetSecs - t0;
             trial_in_progress = false;
-        elseif any(keys(p.KEYS.EXIT.VALUE)) %exit the trial 
-            trial_in_progress = false;  
+        elseif any(keys(p.KEYS.EXIT.VALUE))  
+            %ends current trial
+            trial_in_progress = false;
+            break;
         elseif any(keys(p.KEYS.ABORT.VALUE)) %exit the run
             d.number_trials = trial;
             error('Abort key pressed');
@@ -346,21 +373,31 @@ for trial = 1: d.number_trials
     save(d.filepath_data, 'p', 'd')
     fprintf('End of trial %03d\n', trial)
     Eyelink('Message','Event: End of trial %03d\n', trial);
+    
+    %jitter the trial ITI
+    ITI = [6 7 8 9];
+    ITI_index = randi(numel(ITI));
+    WaitSecs(ITI(ITI_index));
 end
 
 %% Stop eyelink recording
-   Eyelink('StopRecording');
+fprintf('Eyelink Close');   
+
+if p.USE_EYELINK 
+    Eyelink.Collection.Close
+else
+    Eyelink('InitializeDummy');
+end 
+
    
-%% trigger stim tracker (end of exp)
+% trigger stim tracker (end of exp)
 if p.TRIGGER_STIM_TRACKER
     fwrite(sport,['mh',000000001,0]); %send trigger to Stim Tracker
-    WaitSecs(1);
+    % get end timings
+    d.time_end_experiment = GetSecs;
+    d.timestamp_end_experiment = GetTimestamp;
     fwrite(sport,['mh',000000000,0]); %turn trigger off (for StimTracker)
 end
-
-%% End
-d.time_end_experiment = GetSecs;
-d.timestamp_end_experiment = GetTimestamp;
 
 %% Done
 save(d.filepath_data, 'p', 'd')
@@ -389,7 +426,7 @@ end
 DrawFormattedText(window, 'Eyelink Pull EDF', 'center', 'center', screen_colour_text);
 Screen('Flip', window);
 if p.USE_EYELINK 
-    Eyelink.Collection.PullEDF(d.filename_edf, d.full_path_to_put_edf)
+    Eyelink.Collection.PullEDF([d.filepath.data_edf_on_system '.edf'], p.DIR.DATA_EDF)
 else
     Eyelink('InitializeDummy');
 end 
@@ -453,9 +490,10 @@ catch err
 end 
 
 %% Functions
-function [timestamp] = GetTimestamp
+function [timestamp, timestamp_edf] = GetTimestamp
 c = round(clock);
-timestamp = sprintf('%d-%d-%d_%d-%d_%d',c([4 5 6 3 2 1])); 
+timestamp = sprintf('%d-%d-%d_%d-%d_%d',c([4 5 6 3 2 1]));
+timestamp_edf = sprintf('%02d%02d', c(5:6));
  
          
 
