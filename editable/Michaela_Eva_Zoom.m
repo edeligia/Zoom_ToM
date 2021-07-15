@@ -2,8 +2,8 @@ function Michaela_Eva_Zoom (participant_number , run_number)
 %% Output files (8 characters) 
 cd('C:\Users\evade\Documents\Zoom_project\Memoji_Zoom_Data')
 
-filename_edf = 'testtwo.edf';
-full_path_to_put_edf = [pwd filesep filename_edf];
+d.filename_edf = 'testtwo.edf';
+d.full_path_to_put_edf = [pwd filesep d.filename_edf];
 
 %% Debug Settings
 p.USE_EYELINK = false;
@@ -134,7 +134,7 @@ end
 DrawFormattedText(window, 'Eyelink Set EDF', 'center', 'center', screen_colour_text);
 Screen('Flip', window);
 if p.USE_EYELINK 
-    Eyelink.Collection.SetEDF(filename_edf)
+    Eyelink.Collection.SetEDF(d.filename_edf)
 else
     Eyelink('InitializeDummy');
 end
@@ -198,7 +198,17 @@ if p.TRIGGER_STIM_TRACKER
     fwrite(sport, ['mh',bin2dec('00000001'),0]); %turn off 2 
     WaitSecs(1);
     fwrite(sport, ['mh', bin2dec('00000000'), 0]);
-end     
+end   
+
+%KS
+%calculate end time of baseline
+%calcualte time to set trigger low
+%set trigger high
+%wait a little
+%set trigger low
+%while time < end time (wait rest of time)
+%check for stop key
+%reaches ent time
 
 fprintf('Baseline complete...\n'); 
 
@@ -208,9 +218,10 @@ ShowCursor;
 
 %% Start Eyetracking Recording 
     Eyelink('StartRecording')
+    %KS
+    %consider fnirs trigger
     
 %% Enter trial phase 
-   phase = 0;
    fprintf('Starting Run...\n');
    
 for trial = 1: d.number_trials 
@@ -220,8 +231,11 @@ for trial = 1: d.number_trials
     Eyelink('Message',sprintf('Event: Start of trial %03d\n', trial));
     fprintf('\nTrial %d (%g sec)\n', trial, d.trial_data(trial).timing.onset);
     
- 
+    d.trial_data(trial).correct_response = nan;
+    d.trial_data(trial).timing.trigger.reaction = [];
+    
     trial_in_progress = true; 
+    phase = 0;
     
     while trial_in_progress
         [~,keys] = KbWait(-1); %if any key is pressed that is incorrect the trial section must be restarted 
@@ -251,6 +265,8 @@ for trial = 1: d.number_trials
                     phase = 1;
                     break;
                 elseif any(keys(p.KEYS.EXIT.VALUE)) %break is currently breaking out of the larger while loop as well 
+                    %ends current trial
+                    trial_in_progress = false;
                     break;
                 elseif any(keys(p.KEYS.ABORT.VALUE))
                     error('Abort key pressed');
@@ -281,41 +297,41 @@ for trial = 1: d.number_trials
                     Eyelink('Message','End of answer Period %d', trial);
                     phase = 2;
                     break;
-                elseif any(keys(p.KEYS.EXIT.VALUE))
+                elseif any(keys(p.KEYS.EXIT.VALUE)) %KS revisit this (no abort, etc)
                     error('Exit Key Pressed');
                 elseif any(keys(p.KEYS.STOP.VALUE))
                     break;
                 end
             end 
-        elseif any(keys(p.KEYS.YES.VALUE)) && phase >= 2
+        elseif any(keys(p.KEYS.YES.VALUE)) && phase >= 2 && (d.trial_data(trial).correct_response ~= true)
             Eyelink('Message','Answer correct for trial %d', trial);
             
             if p.TRIGGER_STIM_TRACKER
                 fwrite(sport,['mh',bin2dec('00001000'),0]);
-                d.trial(trial).answer = yes;
-                d.trial_data(trial).timing.trigger.reaction = GetSecs - t0;
+                d.trial_data(trial).timing.trigger.reaction(end+1) = GetSecs - t0;
                 fwrite(sport,['mh',bin2dec('00000000'),0]);
             end
             
+            d.trial_data(trial).correct_response = true;
+            
             phase = 3; 
-        elseif any(keys(p.KEYS.NO.VALUE)) && phase >= 2
+        elseif any(keys(p.KEYS.NO.VALUE)) && phase >= 2 && (d.trial_data(trial).correct_response ~= false)
             Eyelink('Message','Answer incorrect for trial %d', trial);
             
             if p.TRIGGER_STIM_TRACKER
                 fwrite(sport,['mh',bin2dec('00001000'),0]);
-                d.trial(trial).answer = no;
-                d.trial_data(trial).timing.trigger.reaction = GetSecs - t0;
+                d.trial_data(trial).timing.trigger.reaction(end+1) = GetSecs - t0;
                 fwrite(sport,['mh',bin2dec('00000000'),0]);
             end
+            
+            d.trial_data(trial).correct_response = false;
 
             phase = 3; 
         elseif any(keys(p.KEYS.STOP.VALUE)) && phase == 3
             
             d.trial_data(trial).timing.offset = GetSecs - t0;
-            phase = 0;
             trial_in_progress = false;
         elseif any(keys(p.KEYS.EXIT.VALUE)) %exit the trial 
-            phase = 0; 
             trial_in_progress = false;  
         elseif any(keys(p.KEYS.ABORT.VALUE)) %exit the run
             error('Abort key pressed');
@@ -369,7 +385,7 @@ end
 DrawFormattedText(window, 'Eyelink Pull EDF', 'center', 'center', screen_colour_text);
 Screen('Flip', window);
 if p.USE_EYELINK 
-    Eyelink.Collection.PullEDF(filename_edf, full_path_to_put_edf)
+    Eyelink.Collection.PullEDF(d.filename_edf, d.full_path_to_put_edf)
 else
     Eyelink('InitializeDummy');
 end 
@@ -384,7 +400,8 @@ else
 end
 
 %done
-Screen('Close', window);
+sca
+sca
 ShowCursor;
 disp('Study complete!');
 
@@ -392,7 +409,12 @@ disp('Study complete!');
 %catch if error
 catch err
     %close screen if open
-    Screen('Close', window);
+%     Screen('Close', window);
+    sca
+    sca
+    
+    %save everything
+    save(['ErrorDump_' d.timestamp_start_script])
     
     %show cursor
     ShowCursor;
@@ -408,7 +430,7 @@ catch err
         
         %try to get data
         try
-            Eyelink.Collection.PullEDF(filename_edf, full_path_to_put_edf)
+            Eyelink.Collection.PullEDF(d.filename_edf, d.full_path_to_put_edf)
         catch
             warning('Could not pull EDF')
         end
