@@ -374,7 +374,8 @@ for trial = 1: p.number_trials
     fprintf('End of trial %03d\n', trial)
     Eyelink('Message','Event: End of trial %03d\n', trial);
     
-    %jitter the trial ITI
+    if 
+    %jitter the trial ITI (add a save of the variable) 
     ITI = [6 7 8 9];
     ITI_index = randi(numel(ITI));
     WaitSecs(ITI(ITI_index));
