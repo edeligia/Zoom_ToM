@@ -1,0 +1,3 @@
+There are two hotels in the town: one has a waterpark and one is a bed and breakfast. 
+I want a quiet room to sleep in. 
+Which hotel should I stay at?
