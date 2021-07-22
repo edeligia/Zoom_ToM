@@ -1,3 +1,4 @@
 
 *.asv
 editable/Zoom_Stims/behavioural/*
+.DS_Store
