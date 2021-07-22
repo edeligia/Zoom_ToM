@@ -368,17 +368,25 @@ for trial = 1: p.number_trials
         end
     end
 
-    % save data
+    
+    %jitter the trial ITI (add a save of the variable) 
+    ITI = [1 2 3 4];
+    ITI_index = randi(numel(ITI));
+    d.trial_data(trial).trial_end_wait = ITI(ITI_index);
+    WaitSecs(d.trial_data(trial).trial_end_wait);
+    
+    %end of trial and save data
+    fprintf('End of trial %03d\n', trial)
+    
+    if p.TRIGGER_STIM_TRACKER
+        fwrite(sport,['mh',bin2dec('00000001'),0]);
+        Eyelink('Message','Event: End of trial %03d\n', trial);
+        d.trial_data(trial).timing.offset = GetSecs - t0;
+        fwrite(sport,['mh',bin2dec('00000000'),0]);
+    end
+ 
     fprintf('Saving...\n');
     save(d.filepath_data, 'p', 'd')
-    fprintf('End of trial %03d\n', trial)
-    Eyelink('Message','Event: End of trial %03d\n', trial);
-    
-    if 
-    %jitter the trial ITI (add a save of the variable) 
-    ITI = [6 7 8 9];
-    ITI_index = randi(numel(ITI));
-    WaitSecs(ITI(ITI_index));
 end
 
 %% Stop eyelink recording
