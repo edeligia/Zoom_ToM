@@ -20,8 +20,8 @@ end
 %% Parameters
 % screen_rect [ 0 0 width length]
 % 0 is both, 1 is likely laptop and 2 is likely second screen 
-screen_number = Screen('Screens', 1);
-screen_rect = [0 0 500 500];
+screen_number = max(Screen('Screens'));
+screen_rect = [ ];
 screen_colour_background = [0 0 0];
 screen_colour_text = [255 255 255];
 screen_font_size = 30;
@@ -43,6 +43,7 @@ p.TRIGGER_CABLE_COM_STRING = 'COM3';
 
 %timings
 p.DURATION_BASELINE = 5;
+p.DURATION_BASELINE_FINAL = 5;
 
 %buttons
 p.KEYS.RUN.NAME = 'RETURN';
@@ -165,7 +166,7 @@ try
 %% open serial port for stim tracker
 if p.TRIGGER_STIM_TRACKER
     %sport=serial('/dev/tty.usbserial-00001014','BaudRate',115200);
-    sport=serial(p.TRIGGER_CABLE_COM_STRING,'BaudRate',115200);
+    sport=serial(p.TRIGGER.CABLE_COM_STRING,'BaudRate',115200);
     fopen(sport);
 else
     sport = nan;
@@ -190,7 +191,7 @@ t0 = GetSecs;
 d.time_start_experiment = t0;
 d.timestamp_start_experiment = GetTimestamp;
 
-%% Initial Baseline (add check for close screen key)
+%% Initial Baseline 
 
 if p.TRIGGER_STIM_TRACKER
     fwrite(sport, ['mh',bin2dec('00000001'),0]);
@@ -398,15 +399,43 @@ else
     Eyelink('InitializeDummy');
 end 
 
-   
-% trigger stim tracker (end of exp)
-if p.TRIGGER_STIM_TRACKER
-    fwrite(sport,['mh',000000001,0]); %send trigger to Stim Tracker
-    % get end timings
-    d.time_end_experiment = GetSecs;
-    d.timestamp_end_experiment = GetTimestamp;
-    fwrite(sport,['mh',000000000,0]); %turn trigger off (for StimTracker)
+%% Final Baseline
+%Open blank screen for final baseline
+try
+  window = Screen('OpenWindow', screen_number, screen_colour_background, screen_rect); 
+  Screen('TextSize', window, screen_font_size);
+  HideCursor;
+catch err
+  warning('An error occured while opening the Screen(not related to Eyelink)');
+  rethrow(err);
 end
+
+Screen('Flip', window);
+
+fprintf('Final baseline...\n');
+tend = GetSecs + p.DURATION_BASELINE_FINAL;
+while 1
+    ti = GetSecs;
+    if ti > tend
+        break;
+    end
+    
+    [~,~,keys] = KbCheck(-1);  
+    if any(keys(p.KEYS.EXIT.VALUE))
+        error('Exit Key Pressed');
+    end 
+end
+
+%% trigger stim tracker (end of exp)
+if p.TRIGGER_STIM_TRACKER
+    fwrite(sport, ['mh',bin2dec('00000001'),0]);
+    WaitSecs(0.05);
+    fwrite(sport, ['mh', bin2dec('00000000'), 0]); 
+end
+
+%% End
+d.time_end_experiment = GetSecs;
+d.timestamp_end_experiment = GetTimestamp;
 
 %% Done
 save(d.filepath_data, 'p', 'd')
@@ -421,15 +450,8 @@ if p.TRIGGER_STIM_TRACKER
     end
 end
 
-%Open screen 
-try
-  window = Screen('OpenWindow', screen_number, screen_colour_background, screen_rect);
-  Screen('TextSize', window, screen_font_size);
-  HideCursor;
-catch err
-  warning('An error occured while opening the Screen(not related to Eyelink)');
-  rethrow(err);
-end
+%Display shutdown info on experimenter screen
+window = Screen('OpenWindow', 1, screen_colour_background, screen_rect); 
 
 %get edf
 DrawFormattedText(window, 'Eyelink Pull EDF', 'center', 'center', screen_colour_text);
@@ -453,7 +475,7 @@ end
 sca
 sca
 ShowCursor;
-disp('Study complete!');
+disp('Run complete!');
 
 %% Catch
 %catch if error

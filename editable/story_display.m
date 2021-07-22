@@ -32,16 +32,3 @@ end
 fclose(textfid);
 Screen('Flip', window);
 
-% odd_sample_1_range = 1:2:17;
-% odd_sample_vector = randsample(odd_sample_1_range, 9);
-% odd_sample_matrix = reshape(odd_sample_vector, 9, 1);
-% even_sample_1 = odd_sample_matrix + 1;
-% run = 1; 
-% trial = 1;
-% designs				= [ 1 2 2 1 2 1 2 1 1 2 ;
-% 					    2 1 2 1 1 2 2 1 2 1 ; ];
-% design				= designs(run,:)
-% counter				= zeros(1,2)+(5*(run-1))
-% counter(1,design(trial)) = counter(1,design(trial)) + 1
-% trialT			= design(trial);
-% numbeT			= counter(1,trialT);

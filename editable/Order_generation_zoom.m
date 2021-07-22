@@ -1,28 +1,28 @@
-p.DIR_ORDERS = [pwd filesep 'Orders' filesep];
-d.participant_number = participant_number;
-d.run_number = run_number;
-d.filepath_order = sprintf('%sParticipant%02d_Run%d.mat', p.DIR_ORDERS, d.participant_number, d.run_number);
-%read order
-%[~,~,xls] = xlsread([p.DIR_ORDERS d.filename_order]);
-load(d.filepath_order);
-%order raw file is the excel file
-d.order.raw = xls;
-%order headers are the first row containing all the columns
-d.order.headers = xls(1,:);
-%the data is the second row onwards for all the columns 
-d.order.data = xls(2:end,:);
+number_questions_total = 38;
+number_runs = 4;
+number_participants = 1;
 
-%% Prepare Order
-%the number of trials is the number of rows in column 1
-d.number_trials = size(d.order.data, 1);
-for trial = 1:d.number_trials
-    %handle blank rows at end of excel
-    if ~any(~cellfun(@(x) length(x)==1 && isnan(x), d.order.data(trial,:)))
-        d.number_trials = trial;
-        break;
+folder_output = [pwd filesep 'Orders' filesep];
+if ~exist(folder_output, 'dir')
+    mkdir(folder_output);
+end
+
+for par = 1:number_participants
+
+    question_order = [randperm(number_questions_total) randperm(number_questions_total)];
+
+    for run = 1:number_runs
+        questions = question_order(1:19)';
+        question_order(1:19) = [];
+
+        number_trials = length(questions);
+
+        xls = {'Trial' 'Question' 'RunType'};
+        xls((1:number_trials)+1,1) = num2cell((1:number_trials)');
+        xls((1:number_trials)+1,2) = num2cell(questions);
+        xls((1:number_trials)+1,3) = {run};
+
+        xlswrite(sprintf('%sPAR%02d_RUN%02d.xlsx', folder_output, par, run), xls);
+
     end
-    
-    %copy from excel
-    for f = 1:length(d.order.headers)
-        eval(sprintf('d.trial_data(trial).Condition.%s = d.order.data{trial,f};', d.order.headers{f}));
-    end
+end
