@@ -195,7 +195,7 @@ d.timestamp_start_experiment = GetTimestamp;
 
 if p.TRIGGER_STIM_TRACKER
     fwrite(sport, ['mh',bin2dec('00000001'),0]);
-    WaitSecs(0.05);
+    WaitSecs(0.1);
     fwrite(sport, ['mh', bin2dec('00000000'), 0]); 
 end
 
@@ -457,7 +457,7 @@ window = Screen('OpenWindow', 1, screen_colour_background, screen_rect);
 DrawFormattedText(window, 'Eyelink Pull EDF', 'center', 'center', screen_colour_text);
 Screen('Flip', window);
 if p.USE_EYELINK 
-    Eyelink.Collection.PullEDF([d.filepath.data_edf_on_system '.edf'], p.DIR.DATA_EDF)
+    Eyelink.Collection.PullEDF([d.filepath.data_edf_on_system '.edf'], p.filepath.data_edf)
 else
     Eyelink('InitializeDummy');
 end 
