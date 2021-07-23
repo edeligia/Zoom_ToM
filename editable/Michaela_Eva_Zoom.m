@@ -232,7 +232,9 @@ end
 fprintf('Baseline complete...\n'); 
 
 %close screen 
-Screen('Close', window);
+% Screen('Close', window);
+sca
+sca
 ShowCursor;
 
 %% Start Eyetracking Recording 
@@ -450,12 +452,11 @@ if p.TRIGGER_STIM_TRACKER
     end
 end
 
-%Display shutdown info on experimenter screen
-window = Screen('OpenWindow', 1, screen_colour_background, screen_rect); 
+%% Save EDF and Shutdown Eyelink 
 
 %get edf
-DrawFormattedText(window, 'Eyelink Pull EDF', 'center', 'center', screen_colour_text);
-Screen('Flip', window);
+fprintf('Eyelink Pull EDF...\n');
+
 if p.USE_EYELINK 
     Eyelink.Collection.PullEDF([d.filepath.data_edf_on_system '.edf'], p.DIR.DATA_EDF)
 else
@@ -463,8 +464,8 @@ else
 end 
 
 %shutdown
-DrawFormattedText(window, 'Eyelink Shutdown', 'center', 'center', screen_colour_text);
-Screen('Flip', window);
+fprintf('Eyelink Shutdown');
+
 if p.USE_EYELINK 
     Eyelink.Collection.Shutdown
 else
@@ -472,9 +473,6 @@ else
 end
 
 %done
-sca
-sca
-ShowCursor;
 disp('Run complete!');
 
 %% Catch

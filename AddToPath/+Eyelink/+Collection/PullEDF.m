@@ -4,7 +4,7 @@ function PullEDF(filename_edf, full_filepath_to_copy_to)
 if Eyelink('IsConnected')~=1, error('Error: not connected'); end
 
 %% add extension to filename if not there
-if isempty(strfind(filename_edf, '.edf'))
+if isempty(strfind(filenamxe_edf, '.edf'))
     filename_edf = [filename_edf '.edf'];
 end
 if isempty(strfind(full_filepath_to_copy_to, '.edf'))
