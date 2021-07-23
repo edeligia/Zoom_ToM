@@ -1,10 +1,10 @@
-function zoom_mov(subjID)
+function Zoom_Stims
 
 %% Most basic attempt to play movie files in Matlab via Psychtoolbox
 % Errors using Screen so have added 'SkipSyncTests' for now, but need to
 % look into the timing 
 
-Screen('Preference', 'SkipSyncTests', 0);
+% Screen('Preference', 'SkipSyncTests', 0);
 
 %% Variables unique to computer
 
@@ -23,7 +23,7 @@ triggerKey			= '+';
 orig_dir			= pwd;
 stimdir             = fullfile(rootdir, 'stimuli');
 behavdir			= fullfile(rootdir, 'behavioural');
-moviefName          = fullfile(stimdir, 'Stims_Owl1.mov');
+moviefName          = fullfile(stimdir, 'Testvideo-MP3.mp4');
 movieDur = 15;
 
 try
@@ -32,7 +32,7 @@ try
     Screen('Preference', 'SkipSyncTests', 1);
 	displays    = max(Screen('screens'));
 %     scrnRect = [];
-	window  = Screen('OpenWindow',displays, 0);
+    window  = Screen('OpenWindow',displays, 0);
 % 	scrnRes     = Screen('Resolution',displays(end));               % Get Screen resolution
 % 	[x0 y0]		= RectCenter([0 0 scrnRes.width scrnRes.height]);   % Screen center                       
 	Screen(window, 'TextFont', 'Helvetica');                         
@@ -74,7 +74,7 @@ end
 
 % Now want to open a new window to play the movie in
 
-[movie] = Screen('OpenMovie', window, moviefName);
+movie = Screen('OpenMovie', window, moviefName);
 rate = 1;
 
 % Give the display a moment to recover from change of display mode when
