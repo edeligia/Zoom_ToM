@@ -33,7 +33,7 @@ screen_colour_text = [255 255 255];
 screen_font_size = 30;
 
 %Work around to turn off sync 
-Screen('Preference','SkipSyncTests', 1);
+% Screen('Preference','SkipSyncTests', 1);
 
 %directories 
 p.DIR_DATA = [pwd filesep 'Data' filesep];
@@ -240,7 +240,7 @@ end
 
 if p.TRIGGER_STIM_TRACKER     
     fwrite(sport, ['mh',bin2dec('00000001'),0]); %turn off 2 
-    WaitSecs(0.05);
+    WaitSecs(0.1);
     fwrite(sport, ['mh', bin2dec('00000000'), 0]);
 end   
 
@@ -258,8 +258,8 @@ fprintf('Baseline complete...\n');
 
 %close screen 
 % Screen('Close', window);
-sca
-sca
+% sca
+% sca
 ShowCursor;
 
 %% Start Eyetracking Recording 
@@ -267,7 +267,7 @@ ShowCursor;
 
     if p.TRIGGER_STIM_TRACKER     
     fwrite(sport, ['mh',bin2dec('00000001'),0]); %turn off 2 
-    WaitSecs(0.05);
+    WaitSecs(0.1);
     fwrite(sport, ['mh', bin2dec('00000000'), 0]);
     end   
     
@@ -294,6 +294,9 @@ for trial = 1: p.number_trials
         [~,keys] = KbWait(-1); %if any key is pressed that is incorrect the trial section must be restarted 
         if any(keys(p.KEYS.QUESTION.VALUE)) && phase == 0 && condition_type == 1
             fprintf('Start of question period %d...\n', trial);
+            
+            sca
+            sca
             
             if p.TRIGGER_STIM_TRACKER
                 fwrite(sport,['mh',bin2dec('00000010'),0]); %turn question period trigger on (for StimTracker)
@@ -328,10 +331,10 @@ for trial = 1: p.number_trials
                 end
             end
         elseif any(keys(p.KEYS.QUESTION.VALUE)) && phase == 0 && condition_type == 2
-            window = Screen('OpenWindow', screen_number, screen_colour_background, screen_rect);
-            Screen(window, 'Flip');	
+%             window = Screen('OpenWindow', screen_number, screen_colour_background, screen_rect);
+%             Screen(window, 'Flip');	
             movie = Screen('OpenMovie', window, movie_filepath);
-            rate = 1;
+            rate = 1; 
             
             if p.TRIGGER_STIM_TRACKER
                 fwrite(sport,['mh',bin2dec('00000010'),0]); %turn question period trigger on (for StimTracker)
@@ -508,7 +511,7 @@ end
 %% trigger stim tracker (end of exp)
 if p.TRIGGER_STIM_TRACKER
     fwrite(sport, ['mh',bin2dec('00000001'),0]);
-    WaitSecs(0.05);
+    WaitSecs(0.1);
     fwrite(sport, ['mh', bin2dec('00000000'), 0]); 
 end
 
@@ -519,6 +522,10 @@ d.timestamp_end_experiment = GetTimestamp;
 %% Done
 save(d.filepath_data, 'p', 'd')
 disp Complete! 
+
+%% Close Screens
+sca
+sca
 
 %% close serial port for stim tracker
 if p.TRIGGER_STIM_TRACKER
