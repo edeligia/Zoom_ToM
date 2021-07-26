@@ -1,6 +1,11 @@
-function Michaela_Eva_Zoom (participant_number , run_number) 
+function Michaela_Eva_Zoom (condition_type, participant_number , run_number) 
+%% Notes 
+%condition_types
+%1 = live 
+%2 = pre-recorded 
+
 %% Output files (8 characters) 
-cd('C:\Users\evade\Documents\Zoom_project\Memoji_Zoom_Data')
+% cd('C:\Users\evade\Documents\Zoom_project\Memoji_Zoom_Data')
 
 % d.filename_edf = 'testtwo.edf';
 % d.full_path_to_put_edf = [pwd filesep d.filename_edf];
@@ -18,6 +23,7 @@ end
 [d.timestamp, d.timestamp_edf] = GetTimestamp;
 
 %% Parameters
+
 % screen_rect [ 0 0 width length]
 % 0 is both, 1 is likely laptop and 2 is likely second screen 
 screen_number = max(Screen('Screens'));
@@ -31,10 +37,9 @@ Screen('Preference','SkipSyncTests', 1);
 
 %directories 
 p.DIR_DATA = [pwd filesep 'Data' filesep];
-p.DIR.DATA_EDF = [pwd filesep 'Data_EDF' filesep];
-
-%trials
-p.number_trials = 3;
+p.DIR_DATA_EDF = [pwd filesep 'Data_EDF' filesep];
+p.DIR_ORDERS = [pwd filesep 'Orders' filesep];
+p.DIR_VIDEOSTIMS = [pwd filesep 'VideoStims' filesep]; %to specify two different types of videos add and if statement here 
 
 %stim tracker
 %the left port on Eva's laptop is COM3 and on the culham lab msi laptop 
@@ -77,24 +82,30 @@ if isempty(which('Eyelink.Collection.Connect'))
     error('The "AddToPath" directory must be added to the MATLAB path. Run "setup.m" or add manually.');
 end
 
+%Movie files 
+% if isempty(dir(VideoStims))
+% 	uiwait(warndlg(sprintf('Your stimuli directory is missing! Please create directory %s and populate it with stimuli. When Directory is created, hit ''Okay''',stimdir),'Missing Directory','modal'));
+% end
+
 %% Prep 
 
 %time script started
 d.timestamp_start_script = GetTimestamp;
 
 %put inputs in data struct
+d.condition_type = condition_type; 
 d.participant_number = participant_number;
 d.run_number = run_number;
 
 %filenames 
 d.filepath_data = sprintf('%sPAR%02d_RUN%02d_%s.mat', p.DIR_DATA, d.participant_number, d.run_number, d.timestamp_start_script);
 d.filepath_error = strrep(d.filepath_data, '.mat', '_ERROR.mat');
-p.filepath.data_edf = [p.DIR.DATA_EDF sprintf('Participant_%02d_FromRun%03d_%s.edf', d.participant_number, d.run_number, d.timestamp)];
+p.filepath.data_edf = [p.DIR_DATA_EDF sprintf('Participant_%02d_FromRun%03d_%s.edf', d.participant_number, d.run_number, d.timestamp)];
 p.filepath.data_edf_on_system = sprintf('P%02d_%s', d.participant_number, d.timestamp_edf);
 
 %create output directories
 if ~exist(p.DIR_DATA, 'dir'), mkdir(p.DIR_DATA); end
-if ~exist(p.DIR.DATA_EDF, 'dir'), mkdir(p.DIR.DATA_EDF); end
+if ~exist(p.DIR_DATA_EDF, 'dir'), mkdir(p.DIR_DATA_EDF); end
 
 %set key values
 KbName('UnifyKeyNames');
@@ -108,6 +119,19 @@ for i = 1:10
     GetSecs;
     KbCheck;
 end
+
+movieDur = 15;
+%% Prepare Orders
+
+orderfilepath = sprintf('%sPAR%02d_RUN%02d.xlsx', p.DIR_ORDERS, d.participant_number, d.run_number);
+
+[numbers_only_info,~,all_info_cell_matrix] = xlsread(orderfilepath);
+
+% order_headers = all_info_cell_matrix(1,:);
+order_data = all_info_cell_matrix(2:end,:);
+
+%get number of trials from order  
+p.number_trials = size(order_data, 1);
 
 %% Calibrate Eyetracker 
 %create window for calibration
@@ -206,13 +230,14 @@ while 1
     if ti > tend
         break;
     end
-end 
-    %Check for exit key to end run
-    [~,~,keys] = KbCheck(-1);  
-    if any(keys(p.KEYS.EXIT.VALUE))
-        error('Exit Key Pressed');
-    end 
-    
+end
+
+%Check for exit key to end run
+[~,~,keys] = KbCheck(-1);
+if any(keys(p.KEYS.EXIT.VALUE))
+    error('Exit Key Pressed');
+end
+
 if p.TRIGGER_STIM_TRACKER     
     fwrite(sport, ['mh',bin2dec('00000001'),0]); %turn off 2 
     WaitSecs(0.05);
@@ -252,10 +277,13 @@ ShowCursor;
 for trial = 1: p.number_trials 
     d.trial_data(trial).timing.onset = GetSecs - t0;
     d.latest_trial = trial;
-    
+       
     Eyelink('Message',sprintf('Event: Start of trial %03d\n', trial));
-    fprintf('\nTrial %d (%g sec)\n', trial, d.trial_data(trial).timing.onset);
+    fprintf('\nTrial %d (%g sec)\n', trial, d.trial_data(trial).timing.onset); 
     
+    question_number = numbers_only_info(trial, 2);
+    movie_filepath = sprintf('%s%d_question.mov', p.DIR_VIDEOSTIMS, question_number);
+
     d.trial_data(trial).correct_response = nan;
     d.trial_data(trial).timing.trigger.reaction = [];
     
@@ -264,7 +292,7 @@ for trial = 1: p.number_trials
     
     while trial_in_progress
         [~,keys] = KbWait(-1); %if any key is pressed that is incorrect the trial section must be restarted 
-        if any(keys(p.KEYS.QUESTION.VALUE)) && phase == 0 
+        if any(keys(p.KEYS.QUESTION.VALUE)) && phase == 0 && condition_type == 1
             fprintf('Start of question period %d...\n', trial);
             
             if p.TRIGGER_STIM_TRACKER
@@ -299,7 +327,56 @@ for trial = 1: p.number_trials
                     error('Abort key pressed');
                 end
             end
-       elseif any(keys(p.KEYS.ANSWER.VALUE)) && phase == 1
+        elseif any(keys(p.KEYS.QUESTION.VALUE)) && phase == 0 && condition_type == 2
+            window = Screen('OpenWindow', screen_number, screen_colour_background, screen_rect);
+            Screen(window, 'Flip');	
+            movie = Screen('OpenMovie', window, movie_filepath);
+            rate = 1;
+            
+            if p.TRIGGER_STIM_TRACKER
+                fwrite(sport,['mh',bin2dec('00000010'),0]); %turn question period trigger on (for StimTracker)
+                d.trial_data(trial).timing.trigger.question_period_start = GetSecs - t0;
+                fwrite(sport,['mh',bin2dec('00000000'),0]); %turn question period trigger off (for StimTracker)
+            end
+            
+            Eyelink('Message','Start of Question Period %d', trial);
+            fprintf('Start of question period %d...\n', trial);
+            
+            WaitSecs(1); %Give the display a moment to recover from change of display mode 
+            
+            Screen(window, 'Flip');
+            Screen('PlayMovie', movie, rate, 0, 1.0);
+            movie_start = GetSecs;
+                       
+            while(GetSecs - movie_start < movieDur -.2)
+                % Wait for next movie frame, retrieve texture handle to it
+                tex = Screen('GetMovieImage', window, movie);
+                % Valid texture returned? A negative value means end of movie reached:
+                if tex<=0
+                    % done, break
+                    break;
+                end
+                % Draw the new texture immediately to screen:
+                Screen('DrawTexture', window, tex);
+                % Update display:
+                Screen(window, 'Flip');
+                % Release texture:
+                Screen('Close', tex);
+            end
+            Screen('CloseMovie', movie);
+            Screen(window, 'Flip');
+            
+            fprintf('End of question period %d...\n', trial);
+            
+            if p.TRIGGER_STIM_TRACKER
+                fwrite(sport,['mh',bin2dec('00000010'),0]); %turn question period trigger on (for StimTracker)
+                d.trial_data(trial).timing.trigger.question_period_end = GetSecs - t0;
+                fwrite(sport,['mh',bin2dec('00000000'),0]); %turn question period trigger off (for StimTracker)
+            end
+            
+            Eyelink('Message','End of Question Period %d', trial);
+            phase = 1;    
+        elseif any(keys(p.KEYS.ANSWER.VALUE)) && phase == 1
             fprintf('Start of answer period %d...\n', trial);
             
             if p.TRIGGER_STIM_TRACKER
@@ -308,7 +385,7 @@ for trial = 1: p.number_trials
                 fwrite(sport,['mh',bin2dec('00000000'),0]); 
             end
             
-            Eyelink('Message','Start of Question Period %d', trial);
+            Eyelink('Message','Start of Answer Period %d', trial);
             WaitSecs(1);
             while 1
                 [~,keys] = KbWait(-1);
