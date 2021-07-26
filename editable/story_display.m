@@ -1,5 +1,13 @@
 function story_display(participant_number, run_number)
+<<<<<<< Updated upstream
 cd('C:\Users\CulhmanLab\Documents\GitHub\Zoom_ToM\editable\text_files');
+=======
+<<<<<<< HEAD
+cd('C:\Users\evade\Documents\GitHub\Zoom_ToM\editable\text_files');
+=======
+cd('C:\Users\CulhmanLab\Documents\GitHub\Zoom_ToM\editable\text_files');
+>>>>>>> 6f527e344af40036c1adf57211f4b56cb10a0c54
+>>>>>>> Stashed changes
 
 %% Prepare Orders
 fol_out = [pwd filesep 'Orders' filesep];
