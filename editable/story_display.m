@@ -1,13 +1,6 @@
 function story_display(participant_number, run_number)
-<<<<<<< Updated upstream
-cd('C:\Users\CulhmanLab\Documents\GitHub\Zoom_ToM\editable\text_files');
-=======
-<<<<<<< HEAD
+
 cd('C:\Users\evade\Documents\GitHub\Zoom_ToM\editable\text_files');
-=======
-cd('C:\Users\CulhmanLab\Documents\GitHub\Zoom_ToM\editable\text_files');
->>>>>>> 6f527e344af40036c1adf57211f4b56cb10a0c54
->>>>>>> Stashed changes
 
 %% Prepare Orders
 fol_out = [pwd filesep 'Orders' filesep];
@@ -62,10 +55,10 @@ Screen('Flip', window);
 number_trials = size(order_data, 1);
 
 for trial = 1:number_trials
-    fprintf('\n----------------------------------------------\nWaiting for start key (%s) or escape key (%s)...\n----------------------------------------------\n\n', KEYS.START.NAME, KEYS.ESCAPE.NAME);
+    fprintf('\n----------------------------------------------\nWaiting for start key (%s) or escape key (%s) for trial %03d ...\n----------------------------------------------\n\n', KEYS.START.NAME, KEYS.ESCAPE.NAME, trial);
    
     while 1
-        [~,keys] = KbWait(-1,3);
+        [~,keys] = KbWait(-1, 2);
         if any(keys(KEYS.START.VALUE))
             break;
         else any(keys(KEYS.ESCAPE.VALUE))
@@ -84,7 +77,7 @@ for trial = 1:number_trials
     while 1
         tline		= fgetl(textfid);							% read line from text file.
         if ~ischar(tline), break, end
-        Screen('DrawText',window, tline, x0-380,y0-160+lCounter*45,[255]);
+        Screen('DrawText',window, tline, x0-600, y0-500+lCounter*45,[255]);
         lCounter	= lCounter + 1;
     end
     

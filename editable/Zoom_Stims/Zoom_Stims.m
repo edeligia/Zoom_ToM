@@ -86,6 +86,8 @@ WaitSecs(2);
 % fwrite(sport,['mh',0,0]); %turn trigger off (for StimTracker)
 
 %% wait for trigger to begin 
+
+fprintf('Waiting for + key to start...\n')
 while 1  
     FlushEvents;
     trig = GetChar;
