@@ -11,8 +11,8 @@ function Michaela_Eva_Zoom (condition_type, participant_number , run_number)
 % d.full_path_to_put_edf = [pwd filesep d.filename_edf];
 
 %% Debug Settings
-p.USE_EYELINK = false;
-p.TRIGGER_STIM_TRACKER = false;
+p.USE_EYELINK = true;
+p.TRIGGER_STIM_TRACKER = true;
 
 if ~p.TRIGGER_STIM_TRACKER    
     warning('One or more debug settings is active!')
@@ -33,7 +33,7 @@ screen_colour_text = [255 255 255];
 screen_font_size = 30;
 
 %Work around to turn off sync 
-% Screen('Preference','SkipSyncTests', 1);
+Screen('Preference','SkipSyncTests', 1);
 
 %directories 
 p.DIR_DATA = [pwd filesep 'Data' filesep];
@@ -190,7 +190,7 @@ try
 %% open serial port for stim tracker
 if p.TRIGGER_STIM_TRACKER
     %sport=serial('/dev/tty.usbserial-00001014','BaudRate',115200);
-    sport=serial(p.TRIGGER.CABLE_COM_STRING,'BaudRate',115200);
+    sport=serial(p.TRIGGER_CABLE_COM_STRING,'BaudRate',115200);
     fopen(sport);
 else
     sport = nan;
