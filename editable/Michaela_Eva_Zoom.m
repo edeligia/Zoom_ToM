@@ -8,8 +8,8 @@ function Michaela_Eva_Zoom (condition_type, participant_number , run_number)
 % cd('C:\Users\evade\Documents\Zoom_project\Memoji_Zoom_Data')
 
 %% Debug Settings
-p.USE_EYELINK = false;
-p.TRIGGER_STIM_TRACKER = false;
+p.USE_EYELINK = true;
+p.TRIGGER_STIM_TRACKER = true;
 
 if ~p.TRIGGER_STIM_TRACKER    
     warning('One or more debug settings is active!')
@@ -22,7 +22,7 @@ end
 %% Parameters
 
 %Folder to save EDF file to 
-filepath_run_edf = sprintf('Participant_%02d_Run%03d_%s', participant_number, run_number, d.timestamp);
+filepath_participant_edf = sprintf('PAR%02d', participant_number);
 
 % screen_rect [ 0 0 width length]
 % 0 is both, 1 is likely laptop and 2 is likely second screen 
@@ -40,7 +40,7 @@ p.DIR_DATA = [pwd filesep 'Data' filesep];
 p.DIR_DATA_EDF = [pwd filesep 'Data_EDF' filesep];
 p.DIR_ORDERS = [pwd filesep 'Orders' filesep];
 p.DIR_VIDEOSTIMS = [pwd filesep 'VideoStims' filesep]; %to specify two different types of videos add and if statement here 
-p.DIR_RUN_EDF = [pwd filesep 'Data_EDF' filesep filepath_run_edf filesep];
+p.DIR_PARTICIPANT_EDF = [pwd filesep 'Data_EDF' filesep filepath_participant_edf filesep];
 
 %stim tracker
 %the left port on Eva's laptop is COM3 and on the culham lab msi laptop 
@@ -101,12 +101,13 @@ d.run_number = run_number;
 %filenames 
 d.filepath_data = sprintf('%sPAR%02d_RUN%02d_%s.mat', p.DIR_DATA, d.participant_number, d.run_number, d.timestamp_start_script);
 d.filepath_error = strrep(d.filepath_data, '.mat', '_ERROR.mat');
-p.filename_edf_on_system = sprintf('P%02d%s', d.participant_number, d.timestamp_edf);
+d.filename_edf_on_system = sprintf('P%02d%s', d.participant_number, d.timestamp_edf);
+d.filepath_run_edf = sprintf('%sParticipant_%02d_Run%03d_%s', p.DIR_PARTICIPANT_EDF, d.participant_number, d.run_number, d.timestamp);
 
 %create output directories
 if ~exist(p.DIR_DATA, 'dir'), mkdir(p.DIR_DATA); end
 if ~exist(p.DIR_DATA_EDF, 'dir'), mkdir(p.DIR_DATA_EDF); end
-if ~exist(p.DIR_RUN_EDF, 'dir'), mkdir(p.DIR_RUN_EDF); end
+if ~exist(p.DIR_PARTICIPANT_EDF, 'dir'), mkdir(p.DIR_PARTICIPANT_EDF); end
 
 %set key values
 KbName('UnifyKeyNames');
@@ -168,7 +169,7 @@ end
 DrawFormattedText(window, 'Eyelink Set EDF', 'center', 'center', screen_colour_text);
 Screen('Flip', window);
 if p.USE_EYELINK 
-    Eyelink.Collection.SetEDF(p.filename_edf_on_system)
+    Eyelink.Collection.SetEDF(d.filename_edf_on_system)
 else
     Eyelink('InitializeDummy');
 end
@@ -543,7 +544,7 @@ end
 fprintf('Eyelink Pull EDF...\n');
 
 if p.USE_EYELINK 
-    Eyelink.Collection.PullEDF([d.filename_edf_on_system '.edf'], p.DIR_RUN_EDF)
+    Eyelink.Collection.PullEDF([d.filename_edf_on_system '.edf'], d.filepath_run_edf)
 else
     Eyelink('InitializeDummy');
 end 
@@ -585,7 +586,7 @@ catch err
         
         %try to get data
         try
-            Eyelink.Collection.PullEDF([d.filename_edf_on_system '.edf'], p.DIR_RUN_EDF)
+            Eyelink.Collection.PullEDF([d.filename_edf_on_system '.edf'], d.filepath_run_edf)
         catch
             warning('Could not pull EDF')
         end
