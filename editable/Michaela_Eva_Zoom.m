@@ -100,8 +100,8 @@ d.run_number = run_number;
 %filenames 
 d.filepath_data = sprintf('%sPAR%02d_RUN%02d_%s.mat', p.DIR_DATA, d.participant_number, d.run_number, d.timestamp_start_script);
 d.filepath_error = strrep(d.filepath_data, '.mat', '_ERROR.mat');
-p.filepath.data_edf = [p.DIR_DATA_EDF sprintf('Participant_%02d_FromRun%03d_%s.edf', d.participant_number, d.run_number, d.timestamp)];
-p.filepath.data_edf_on_system = sprintf('P%02d_%s', d.participant_number, d.timestamp_edf);
+p.filepath_edf = [p.DIR_DATA_EDF sprintf('Participant_%02d_FromRun%03d_%s.edf', d.participant_number, d.run_number, d.timestamp)];
+p.filepath_edf_on_system = sprintf('P%02d_%s', d.participant_number, d.timestamp_edf);
 
 %create output directories
 if ~exist(p.DIR_DATA, 'dir'), mkdir(p.DIR_DATA); end
@@ -167,7 +167,7 @@ end
 DrawFormattedText(window, 'Eyelink Set EDF', 'center', 'center', screen_colour_text);
 Screen('Flip', window);
 if p.USE_EYELINK 
-    Eyelink.Collection.SetEDF(p.filepath.data_edf_on_system)
+    Eyelink.Collection.SetEDF(p.filepath_edf_on_system)
 else
     Eyelink('InitializeDummy');
 end
@@ -282,7 +282,7 @@ for trial = 1: p.number_trials
     fprintf('\nTrial %d (%g sec)\n', trial, d.trial_data(trial).timing.onset); 
     
     question_number = numbers_only_info(trial, 2);
-    movie_filepath = sprintf('%s%d_question.mov', p.DIR_VIDEOSTIMS, question_number);
+    movie_filepath = sprintf('%s%d_question.mp4', p.DIR_VIDEOSTIMS, question_number);
 
     d.trial_data(trial).correct_response = nan;
     d.trial_data(trial).timing.trigger.reaction = [];
@@ -542,7 +542,7 @@ end
 fprintf('Eyelink Pull EDF...\n');
 
 if p.USE_EYELINK 
-    Eyelink.Collection.PullEDF([d.filepath.data_edf_on_system '.edf'], p.filepath.data_edf)
+    Eyelink.Collection.PullEDF([d.filepath_edf_on_system '.edf'], p.filepath_edf)
 else
     Eyelink('InitializeDummy');
 end 
@@ -584,7 +584,7 @@ catch err
         
         %try to get data
         try
-            Eyelink.Collection.PullEDF(d.filename_edf, d.full_path_to_put_edf)
+            Eyelink.Collection.PullEDF([d.filepath_edf_on_system '.edf'], p.filepath_edf)
         catch
             warning('Could not pull EDF')
         end
