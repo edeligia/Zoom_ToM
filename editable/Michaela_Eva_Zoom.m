@@ -1,4 +1,4 @@
-function Michaela_Eva_Zoom (condition_type, participant_number , run_number) 
+function Michaela_Eva_Zoom (participant_number , run_number) 
 %% Notes 
 %condition_types
 %1 = live 
@@ -14,8 +14,8 @@ function Michaela_Eva_Zoom (condition_type, participant_number , run_number)
 % cd('C:\Users\evade\Documents\Zoom_project\Memoji_Zoom_Data')
 
 %% Debug Settings
-p.USE_EYELINK = true;
-p.TRIGGER_STIM_TRACKER = true;
+p.USE_EYELINK = false;
+p.TRIGGER_STIM_TRACKER = false;
 
 if ~p.TRIGGER_STIM_TRACKER    
     warning('One or more debug settings is active!')
@@ -145,17 +145,17 @@ order_data = all_info_cell_matrix(2:end,:);
 p.number_trials = size(order_data, 1);
 
 %get condition number from order 
-p.condition_number = all_info_cell_matrix(2, 3);
+p.condition_number = all_info_cell_matrix{2, 3};
 
 %save condition type in data 
 if p.condition_number == 1
-    d.condition_type = live_human;
+    d.condition_type = sprintf('live_human');
 elseif p.condition_number == 2
-    d.condition_type = live_memoji;
+    d.condition_type = sprintf('live_memoji');
 elseif p.condition_number == 3
-    d.condition_type = prerecorded_human;
+    d.condition_type = sprintf('prerecorded_human');
 elseif p.condition_number == 4
-    d.condition_type = prerecorded_memoji;
+    d.condition_type = sprintf('prerecorded_memoji');
 elseif ~p.condition_number
     error('No condition type available');
 end
@@ -310,9 +310,9 @@ for trial = 1: p.number_trials
     
     question_number = numbers_only_info(trial, 2);
    
-    if condition_number == 3
+    if p.condition_number == 3
         movie_filepath = sprintf('%s%d_question.mp4', p.DIR_VIDEOSTIMS_HUMAN, question_number);
-    elseif condition_number == 4
+    elseif p.condition_number == 4
         movie_filepath = sprintf('%s%d_question.mp4', p.DIR_VIDEOSTIMS_MEMOJI, question_number);
     end
 
