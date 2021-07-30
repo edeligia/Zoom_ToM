@@ -1,15 +1,21 @@
-function Michaela_Eva_Zoom (condition_type, participant_number , run_number) 
+function Michaela_Eva_Zoom (participant_number , run_number) 
 %% Notes 
 %condition_types
 %1 = live 
 %2 = pre-recorded 
 
+% condition numbers 
+% 1 = live + human
+% 2 = live + memoji 
+% 3 = pre-recorded + human 
+% 4 = pre-recorded + memoji 
+
 %% Output files (8 characters) 
 % cd('C:\Users\evade\Documents\Zoom_project\Memoji_Zoom_Data')
 
 %% Debug Settings
-p.USE_EYELINK = true;
-p.TRIGGER_STIM_TRACKER = true;
+p.USE_EYELINK = false;
+p.TRIGGER_STIM_TRACKER = false;
 
 if ~p.TRIGGER_STIM_TRACKER    
     warning('One or more debug settings is active!')
@@ -39,8 +45,10 @@ Screen('Preference','SkipSyncTests', 1);
 p.DIR_DATA = [pwd filesep 'Data' filesep];
 p.DIR_DATA_EDF = [pwd filesep 'Data_EDF' filesep];
 p.DIR_ORDERS = [pwd filesep 'Orders' filesep];
-p.DIR_VIDEOSTIMS = [pwd filesep 'VideoStims' filesep]; %to specify two different types of videos add and if statement here 
+p.DIR_VIDEOSTIMS_HUMAN = [pwd filesep 'VideoStims' filesep 'Human' filesep]; 
+p.DIR_VIDEOSTIMS_MEMOJI = [pwd filesep 'VideoStims' filesep 'Memoji' filesep]; 
 p.DIR_PARTICIPANT_EDF = [pwd filesep 'Data_EDF' filesep filepath_participant_edf filesep];
+p.DIR_IMAGES = [pwd filesep 'ImageResponses' filesep];
 
 %stim tracker
 %the left port on Eva's laptop is COM3 and on the culham lab msi laptop 
@@ -88,13 +96,43 @@ end
 % 	uiwait(warndlg(sprintf('Your stimuli directory is missing! Please create directory %s and populate it with stimuli. When Directory is created, hit ''Okay''',stimdir),'Missing Directory','modal'));
 % end
 
+%% Prepare Orders
+
+orderfilepath = sprintf('%sPAR%02d_RUN%02d.xlsx', p.DIR_ORDERS, participant_number, run_number);
+
+[numbers_only_info,~,all_info_cell_matrix] = xlsread(orderfilepath);
+
+%get header info
+% order_headers = all_info_cell_matrix(1,:);
+
+%get number of rows (ie. number of trials) excluding headers 
+order_data = all_info_cell_matrix(2:end,:);
+
+%get number of trials from order  
+p.number_trials = size(order_data, 1);
+
+%get condition number from order 
+p.condition_number = all_info_cell_matrix{2, 3};
+
+%save condition type in data 
+if p.condition_number == 1
+    d.condition_type = sprintf('live_human');
+elseif p.condition_number == 2
+    d.condition_type = sprintf('live_memoji');
+elseif p.condition_number == 3
+    d.condition_type = sprintf('prerecorded_human');
+elseif p.condition_number == 4
+    d.condition_type = sprintf('prerecorded_memoji');
+elseif ~p.condition_number
+    error('No condition type available');
+end
+
 %% Prep 
 
 %time script started
 d.timestamp_start_script = GetTimestamp;
 
 %put inputs in data struct
-d.condition_type = condition_type; 
 d.participant_number = participant_number;
 d.run_number = run_number;
 
@@ -103,6 +141,8 @@ d.filepath_data = sprintf('%sPAR%02d_RUN%02d_%s.mat', p.DIR_DATA, d.participant_
 d.filepath_error = strrep(d.filepath_data, '.mat', '_ERROR.mat');
 d.filename_edf_on_system = sprintf('P%02d%s', d.participant_number, d.timestamp_edf);
 d.filepath_run_edf = sprintf('%sParticipant_%02d_Run%03d_%s', p.DIR_PARTICIPANT_EDF, d.participant_number, d.run_number, d.timestamp);
+d.filepath_correct_image_response = sprintf('%scorrect_response_%02d.jpg', p.DIR_IMAGES, p.condition_number); 
+d.filepath_incorrect_image_response = sprintf('%sincorrect_response_%02d.jpg', p.DIR_IMAGES, p.condition_number); 
 
 %create output directories
 if ~exist(p.DIR_DATA, 'dir'), mkdir(p.DIR_DATA); end
@@ -123,18 +163,8 @@ for i = 1:10
 end
 
 movieDur = 15;
-%% Prepare Orders
 
-orderfilepath = sprintf('%sPAR%02d_RUN%02d.xlsx', p.DIR_ORDERS, d.participant_number, d.run_number);
-
-[numbers_only_info,~,all_info_cell_matrix] = xlsread(orderfilepath);
-
-% order_headers = all_info_cell_matrix(1,:);
-order_data = all_info_cell_matrix(2:end,:);
-
-%get number of trials from order  
-p.number_trials = size(order_data, 1);
-
+        
 %% Calibrate Eyetracker 
 %create window for calibration
 
@@ -284,7 +314,13 @@ for trial = 1: p.number_trials
     fprintf('\nTrial %d (%g sec)\n', trial, d.trial_data(trial).timing.onset); 
     
     question_number = numbers_only_info(trial, 2);
-    movie_filepath = sprintf('%s%d_question.mp4', p.DIR_VIDEOSTIMS, question_number);
+   
+    if p.condition_number == 3
+        movie_filepath = sprintf('%s%d_question.mp4', p.DIR_VIDEOSTIMS_HUMAN, question_number);
+    elseif p.condition_number == 4
+        movie_filepath = sprintf('%s%d_question.mp4', p.DIR_VIDEOSTIMS_MEMOJI, question_number);
+    end
+
 
     d.trial_data(trial).correct_response = nan;
     d.trial_data(trial).timing.trigger.reaction = [];
@@ -294,7 +330,7 @@ for trial = 1: p.number_trials
     
     while trial_in_progress
         [~,keys] = KbWait(-1); %if any key is pressed that is incorrect the trial section must be restarted 
-        if any(keys(p.KEYS.QUESTION.VALUE)) && phase == 0 && condition_type == 1
+        if any(keys(p.KEYS.QUESTION.VALUE)) && phase == 0 && (p.condition_number == 1 || p.condition_number == 2)
             fprintf('Start of question period %d...\n', trial);
             
             sca
@@ -332,7 +368,7 @@ for trial = 1: p.number_trials
                     error('Abort key pressed');
                 end
             end
-        elseif any(keys(p.KEYS.QUESTION.VALUE)) && phase == 0 && condition_type == 2
+        elseif any(keys(p.KEYS.QUESTION.VALUE)) && phase == 0 && (p.condition_number == 3 || p.condition_number == 4)
 %             window = Screen('OpenWindow', screen_number, screen_colour_background, screen_rect);
 %             Screen(window, 'Flip');	
             movie = Screen('OpenMovie', window, movie_filepath);
@@ -414,8 +450,10 @@ for trial = 1: p.number_trials
                     d.number_trials = trial;
                     error('Abort key pressed');
                 end
-            end 
+            end
+        %no image response if in live conditions   
         elseif any(keys(p.KEYS.YES.VALUE)) && phase >= 2 && (d.trial_data(trial).correct_response ~= true)
+            
             Eyelink('Message','Answer correct for trial %d', trial);
             
             if p.TRIGGER_STIM_TRACKER
@@ -439,6 +477,47 @@ for trial = 1: p.number_trials
             d.trial_data(trial).correct_response = false;
 
             phase = 3; 
+       %display image response if in pre-recorded conditions
+        elseif any(keys(p.KEYS.YES.VALUE)) && phase >= 2 && (d.trial_data(trial).correct_response ~= true) && (p.condition_number == 3 || p.condition_number == 4)
+            correct_response_image = imread(d.filepath_correct_image_response);
+            
+            imageTexture = Screen('MakeTexture', window, correct_response_image);
+            Screen('DrawTexture', window, imageTexture, [], [], 0);
+            Screen('Flip', window);
+
+            Eyelink('Message','Answer correct for trial %d', trial);
+            
+            if p.TRIGGER_STIM_TRACKER
+                fwrite(sport,['mh',bin2dec('00001000'),0]);
+                d.trial_data(trial).timing.trigger.reaction(end+1) = GetSecs - t0;
+                fwrite(sport,['mh',bin2dec('00000000'),0]);
+            end
+            
+            d.trial_data(trial).correct_response = true;
+            
+            phase = 3;
+            
+            WaitSecs(1);
+            
+        elseif any(keys(p.KEYS.NO.VALUE)) && phase >= 2 && (d.trial_data(trial).correct_response ~= false) && (p.condition_number == 3 || p.condition_number == 4)
+            incorrect_response_image = imread(d.filepath_incorrect_image_response);
+            
+            imageTexture = Screen('MakeTexture', window, incorrect_response_image);
+            Screen('DrawTexture', window, imageTexture, [], [], 0);
+            Screen('Flip', window);
+
+            Eyelink('Message','Answer incorrect for trial %d', trial);
+            
+            if p.TRIGGER_STIM_TRACKER
+                fwrite(sport,['mh',bin2dec('00001000'),0]);
+                d.trial_data(trial).timing.trigger.reaction(end+1) = GetSecs - t0;
+                fwrite(sport,['mh',bin2dec('00000000'),0]);
+            end
+            
+            d.trial_data(trial).correct_response = false;
+
+            phase = 3; 
+            WaitSecs(1);
         elseif any(keys(p.KEYS.STOP.VALUE)) && phase == 3
             
             d.trial_data(trial).timing.offset = GetSecs - t0;
