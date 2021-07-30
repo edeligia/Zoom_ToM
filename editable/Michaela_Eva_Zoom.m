@@ -48,6 +48,7 @@ p.DIR_ORDERS = [pwd filesep 'Orders' filesep];
 p.DIR_VIDEOSTIMS_HUMAN = [pwd filesep 'VideoStims' filesep 'Human' filesep]; 
 p.DIR_VIDEOSTIMS_MEMOJI = [pwd filesep 'VideoStims' filesep 'Memoji' filesep]; 
 p.DIR_PARTICIPANT_EDF = [pwd filesep 'Data_EDF' filesep filepath_participant_edf filesep];
+p.DIR_IMAGES = [pwd filesep 'ImageResponses' filesep];
 
 %stim tracker
 %the left port on Eva's laptop is COM3 and on the culham lab msi laptop 
@@ -95,43 +96,9 @@ end
 % 	uiwait(warndlg(sprintf('Your stimuli directory is missing! Please create directory %s and populate it with stimuli. When Directory is created, hit ''Okay''',stimdir),'Missing Directory','modal'));
 % end
 
-%% Prep 
-
-%time script started
-d.timestamp_start_script = GetTimestamp;
-
-%put inputs in data struct
-d.participant_number = participant_number;
-d.run_number = run_number;
-
-%filenames 
-d.filepath_data = sprintf('%sPAR%02d_RUN%02d_%s.mat', p.DIR_DATA, d.participant_number, d.run_number, d.timestamp_start_script);
-d.filepath_error = strrep(d.filepath_data, '.mat', '_ERROR.mat');
-d.filename_edf_on_system = sprintf('P%02d%s', d.participant_number, d.timestamp_edf);
-d.filepath_run_edf = sprintf('%sParticipant_%02d_Run%03d_%s', p.DIR_PARTICIPANT_EDF, d.participant_number, d.run_number, d.timestamp);
-
-%create output directories
-if ~exist(p.DIR_DATA, 'dir'), mkdir(p.DIR_DATA); end
-if ~exist(p.DIR_DATA_EDF, 'dir'), mkdir(p.DIR_DATA_EDF); end
-if ~exist(p.DIR_PARTICIPANT_EDF, 'dir'), mkdir(p.DIR_PARTICIPANT_EDF); end
-
-%set key values
-KbName('UnifyKeyNames');
-for key = fields(p.KEYS)'
-    key = key{1};
-    eval(sprintf('p.KEYS.%s.VALUE = KbName(p.KEYS.%s.NAME);', key, key))
-end
-
-%call GetSecs and KbCheck now to improve latency on later calls (it's a MATLAB thing)
-for i = 1:10
-    GetSecs;
-    KbCheck;
-end
-
-movieDur = 15;
 %% Prepare Orders
 
-orderfilepath = sprintf('%sPAR%02d_RUN%02d.xlsx', p.DIR_ORDERS, d.participant_number, d.run_number);
+orderfilepath = sprintf('%sPAR%02d_RUN%02d.xlsx', p.DIR_ORDERS, participant_number, run_number);
 
 [numbers_only_info,~,all_info_cell_matrix] = xlsread(orderfilepath);
 
@@ -159,6 +126,44 @@ elseif p.condition_number == 4
 elseif ~p.condition_number
     error('No condition type available');
 end
+
+%% Prep 
+
+%time script started
+d.timestamp_start_script = GetTimestamp;
+
+%put inputs in data struct
+d.participant_number = participant_number;
+d.run_number = run_number;
+
+%filenames 
+d.filepath_data = sprintf('%sPAR%02d_RUN%02d_%s.mat', p.DIR_DATA, d.participant_number, d.run_number, d.timestamp_start_script);
+d.filepath_error = strrep(d.filepath_data, '.mat', '_ERROR.mat');
+d.filename_edf_on_system = sprintf('P%02d%s', d.participant_number, d.timestamp_edf);
+d.filepath_run_edf = sprintf('%sParticipant_%02d_Run%03d_%s', p.DIR_PARTICIPANT_EDF, d.participant_number, d.run_number, d.timestamp);
+d.filepath_correct_image_response = sprintf('%scorrect_response_%02d.jpg', p.DIR_IMAGES, p.condition_number); 
+d.filepath_incorrect_image_response = sprintf('%sincorrect_response_%02d.jpg', p.DIR_IMAGES, p.condition_number); 
+
+%create output directories
+if ~exist(p.DIR_DATA, 'dir'), mkdir(p.DIR_DATA); end
+if ~exist(p.DIR_DATA_EDF, 'dir'), mkdir(p.DIR_DATA_EDF); end
+if ~exist(p.DIR_PARTICIPANT_EDF, 'dir'), mkdir(p.DIR_PARTICIPANT_EDF); end
+
+%set key values
+KbName('UnifyKeyNames');
+for key = fields(p.KEYS)'
+    key = key{1};
+    eval(sprintf('p.KEYS.%s.VALUE = KbName(p.KEYS.%s.NAME);', key, key))
+end
+
+%call GetSecs and KbCheck now to improve latency on later calls (it's a MATLAB thing)
+for i = 1:10
+    GetSecs;
+    KbCheck;
+end
+
+movieDur = 15;
+
         
 %% Calibrate Eyetracker 
 %create window for calibration
@@ -445,8 +450,10 @@ for trial = 1: p.number_trials
                     d.number_trials = trial;
                     error('Abort key pressed');
                 end
-            end 
+            end
+        %no image response if in live conditions   
         elseif any(keys(p.KEYS.YES.VALUE)) && phase >= 2 && (d.trial_data(trial).correct_response ~= true)
+            
             Eyelink('Message','Answer correct for trial %d', trial);
             
             if p.TRIGGER_STIM_TRACKER
@@ -470,6 +477,47 @@ for trial = 1: p.number_trials
             d.trial_data(trial).correct_response = false;
 
             phase = 3; 
+       %display image response if in pre-recorded conditions
+        elseif any(keys(p.KEYS.YES.VALUE)) && phase >= 2 && (d.trial_data(trial).correct_response ~= true) && (p.condition_number == 3 || p.condition_number == 4)
+            correct_response_image = imread(d.filepath_correct_image_response);
+            
+            imageTexture = Screen('MakeTexture', window, correct_response_image);
+            Screen('DrawTexture', window, imageTexture, [], [], 0);
+            Screen('Flip', window);
+
+            Eyelink('Message','Answer correct for trial %d', trial);
+            
+            if p.TRIGGER_STIM_TRACKER
+                fwrite(sport,['mh',bin2dec('00001000'),0]);
+                d.trial_data(trial).timing.trigger.reaction(end+1) = GetSecs - t0;
+                fwrite(sport,['mh',bin2dec('00000000'),0]);
+            end
+            
+            d.trial_data(trial).correct_response = true;
+            
+            phase = 3;
+            
+            WaitSecs(1);
+            
+        elseif any(keys(p.KEYS.NO.VALUE)) && phase >= 2 && (d.trial_data(trial).correct_response ~= false) && (p.condition_number == 3 || p.condition_number == 4)
+            incorrect_response_image = imread(d.filepath_incorrect_image_response);
+            
+            imageTexture = Screen('MakeTexture', window, incorrect_response_image);
+            Screen('DrawTexture', window, imageTexture, [], [], 0);
+            Screen('Flip', window);
+
+            Eyelink('Message','Answer incorrect for trial %d', trial);
+            
+            if p.TRIGGER_STIM_TRACKER
+                fwrite(sport,['mh',bin2dec('00001000'),0]);
+                d.trial_data(trial).timing.trigger.reaction(end+1) = GetSecs - t0;
+                fwrite(sport,['mh',bin2dec('00000000'),0]);
+            end
+            
+            d.trial_data(trial).correct_response = false;
+
+            phase = 3; 
+            WaitSecs(1);
         elseif any(keys(p.KEYS.STOP.VALUE)) && phase == 3
             
             d.trial_data(trial).timing.offset = GetSecs - t0;
