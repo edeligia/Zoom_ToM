@@ -14,8 +14,8 @@ function Michaela_Eva_Zoom (participant_number , run_number)
 % cd('C:\Users\evade\Documents\Zoom_project\Memoji_Zoom_Data')
 
 %% Debug Settings
-p.USE_EYELINK = false;
-p.TRIGGER_STIM_TRACKER = false;
+p.USE_EYELINK = true;
+p.TRIGGER_STIM_TRACKER = true;
 
 if ~p.TRIGGER_STIM_TRACKER    
     warning('One or more debug settings is active!')
@@ -56,8 +56,8 @@ p.DIR_IMAGES = [pwd filesep 'ImageResponses' filesep];
 p.TRIGGER_CABLE_COM_STRING = 'COM3';
 
 %timings
-p.DURATION_BASELINE = 5;
-p.DURATION_BASELINE_FINAL = 5;
+p.DURATION_BASELINE = 30;
+p.DURATION_BASELINE_FINAL = 30;
 
 %buttons
 p.KEYS.RUN.NAME = 'RETURN';
@@ -141,8 +141,8 @@ d.filepath_data = sprintf('%sPAR%02d_RUN%02d_%s.mat', p.DIR_DATA, d.participant_
 d.filepath_error = strrep(d.filepath_data, '.mat', '_ERROR.mat');
 d.filename_edf_on_system = sprintf('P%02d%s', d.participant_number, d.timestamp_edf);
 d.filepath_run_edf = sprintf('%sParticipant_%02d_Run%03d_%s', p.DIR_PARTICIPANT_EDF, d.participant_number, d.run_number, d.timestamp);
-d.filepath_correct_image_response = sprintf('%scorrect_response_%02d.jpg', p.DIR_IMAGES, p.condition_number); 
-d.filepath_incorrect_image_response = sprintf('%sincorrect_response_%02d.jpg', p.DIR_IMAGES, p.condition_number); 
+d.filepath_correct_image_response = sprintf('%scorrect_response_%02d.jpeg', p.DIR_IMAGES, p.condition_number); 
+d.filepath_incorrect_image_response = sprintf('%sincorrect_response_%02d.jpeg', p.DIR_IMAGES, p.condition_number); 
 
 %create output directories
 if ~exist(p.DIR_DATA, 'dir'), mkdir(p.DIR_DATA); end
@@ -404,7 +404,7 @@ for trial = 1: p.number_trials
                 % Release texture:
                 Screen('Close', tex);
             end
-            Screen('CloseMovie', movie);
+%             Screen('CloseMovie', movie);
             Screen(window, 'Flip');
             
             fprintf('End of question period %d...\n', trial);
@@ -452,7 +452,7 @@ for trial = 1: p.number_trials
                 end
             end
         %no image response if in live conditions   
-        elseif any(keys(p.KEYS.YES.VALUE)) && phase >= 2 && (d.trial_data(trial).correct_response ~= true)
+        elseif any(keys(p.KEYS.YES.VALUE)) && phase >= 2 && (d.trial_data(trial).correct_response ~= true) && (p.condition_number == 1 || p.condition_number == 2)
             
             Eyelink('Message','Answer correct for trial %d', trial);
             
@@ -465,7 +465,7 @@ for trial = 1: p.number_trials
             d.trial_data(trial).correct_response = true;
             
             phase = 3; 
-        elseif any(keys(p.KEYS.NO.VALUE)) && phase >= 2 && (d.trial_data(trial).correct_response ~= false)
+        elseif any(keys(p.KEYS.NO.VALUE)) && phase >= 2 && (d.trial_data(trial).correct_response ~= false) && (p.condition_number == 1 || p.condition_number == 2)
             Eyelink('Message','Answer incorrect for trial %d', trial);
             
             if p.TRIGGER_STIM_TRACKER
@@ -481,6 +481,7 @@ for trial = 1: p.number_trials
         elseif any(keys(p.KEYS.YES.VALUE)) && phase >= 2 && (d.trial_data(trial).correct_response ~= true) && (p.condition_number == 3 || p.condition_number == 4)
             correct_response_image = imread(d.filepath_correct_image_response);
             
+%             window = Screen('OpenWindow', screen_number, screen_colour_background, screen_rect);
             imageTexture = Screen('MakeTexture', window, correct_response_image);
             Screen('DrawTexture', window, imageTexture, [], [], 0);
             Screen('Flip', window);
@@ -499,9 +500,11 @@ for trial = 1: p.number_trials
             
             WaitSecs(1);
             
+            Screen('Flip', window);
         elseif any(keys(p.KEYS.NO.VALUE)) && phase >= 2 && (d.trial_data(trial).correct_response ~= false) && (p.condition_number == 3 || p.condition_number == 4)
             incorrect_response_image = imread(d.filepath_incorrect_image_response);
             
+%             window = Screen('OpenWindow', screen_number, screen_colour_background, screen_rect);
             imageTexture = Screen('MakeTexture', window, incorrect_response_image);
             Screen('DrawTexture', window, imageTexture, [], [], 0);
             Screen('Flip', window);
@@ -518,6 +521,7 @@ for trial = 1: p.number_trials
 
             phase = 3; 
             WaitSecs(1);
+            Screen('Flip', window);
         elseif any(keys(p.KEYS.STOP.VALUE)) && phase == 3
             
             d.trial_data(trial).timing.offset = GetSecs - t0;
