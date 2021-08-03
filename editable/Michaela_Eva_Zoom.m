@@ -31,7 +31,7 @@ end
 filepath_participant_edf = sprintf('PAR%02d', participant_number);
 
 % screen_rect [ 0 0 width length]
-% 0 is both, 1 is likely laptop and 2 is likely second screen 
+% 0 is both, 1 is likely laptop and 2 is likely second screen F
 screen_number = max(Screen('Screens'));
 screen_rect = [0 0 500 500];
 screen_colour_background = [0 0 0];
@@ -322,7 +322,7 @@ while 1
             [~,keys] = KbWait(-1);
             %display image response if in pre-recorded conditions
             if any(keys(p.KEYS.YES.VALUE))
-                correct_response_image_practice = imread('C:\Users\evade\Documents\GitHub\Zoom_ToM\editable\ImageResponses\correct_response_03.jpeg');
+                correct_response_image_practice = imread('C:\Users\CulhmanLab\Documents\GitHub\Zoom_ToM\editable\ImageResponses\correct_response_03.jpeg');
                 imageTexture = Screen('MakeTexture', window, correct_response_image_practice);
                 Screen('DrawTexture', window, imageTexture, [], [], 0);
                 Screen('Flip', window);
@@ -331,7 +331,7 @@ while 1
                 
                 Screen('Flip', window);
             elseif any(keys(p.KEYS.NO.VALUE))
-                incorrect_response_image_practice = imread('C:\Users\evade\Documents\GitHub\Zoom_ToM\editable\ImageResponses\incorrect_response_03.jpeg');
+                incorrect_response_image_practice = imread('C:\Users\CulhmanLab\Documents\GitHub\Zoom_ToM\editable\ImageResponses\incorrect_response_03.jpeg');
                 imageTexture = Screen('MakeTexture', window, incorrect_response_image_practice);
                 Screen('DrawTexture', window, imageTexture, [], [], 0);
                 Screen('Flip', window);
