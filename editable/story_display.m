@@ -26,7 +26,7 @@ scrnRes     = Screen('Resolution',screen_number);               % Get Screen res
 %buttons
 KEYS.START.NAME = 'SPACE'; % to advance to the next question prompt
 KEYS.ESCAPE.NAME = 'ESCAPE'; 
-
+KEYS.BACK.NAME = 'B';
 %%  Check Requirements
 %psychtoolbox
 try
@@ -61,7 +61,7 @@ for trial = 1:number_trials
         [~,keys] = KbWait(-1, 2);
         if any(keys(KEYS.START.VALUE))
             break;
-        else any(keys(KEYS.ESCAPE.VALUE))
+        elseif any(keys(KEYS.ESCAPE.VALUE))
             number_trials = trial;
             error('Escape Key Pressed');
         end

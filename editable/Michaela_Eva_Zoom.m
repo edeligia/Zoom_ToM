@@ -14,8 +14,8 @@ function Michaela_Eva_Zoom (participant_number , run_number)
 % cd('C:\Users\evade\Documents\Zoom_project\Memoji_Zoom_Data')
 
 %% Debug Settings
-p.USE_EYELINK = true;
-p.TRIGGER_STIM_TRACKER = true;
+p.USE_EYELINK = false;
+p.TRIGGER_STIM_TRACKER = false;
 
 if ~p.TRIGGER_STIM_TRACKER    
     warning('One or more debug settings is active!')
@@ -33,7 +33,7 @@ filepath_participant_edf = sprintf('PAR%02d', participant_number);
 % screen_rect [ 0 0 width length]
 % 0 is both, 1 is likely laptop and 2 is likely second screen 
 screen_number = max(Screen('Screens'));
-screen_rect = [ ];
+screen_rect = [0 0 500 500];
 screen_colour_background = [0 0 0];
 screen_colour_text = [255 255 255];
 screen_font_size = 30;
@@ -49,6 +49,7 @@ p.DIR_VIDEOSTIMS_HUMAN = [pwd filesep 'VideoStims' filesep 'Human' filesep];
 p.DIR_VIDEOSTIMS_MEMOJI = [pwd filesep 'VideoStims' filesep 'Memoji' filesep]; 
 p.DIR_PARTICIPANT_EDF = [pwd filesep 'Data_EDF' filesep filepath_participant_edf filesep];
 p.DIR_IMAGES = [pwd filesep 'ImageResponses' filesep];
+p.DIR_VIDEOSTIMS_PRACTICE = [pwd filesep 'VideoStims' filesep 'Practice_Stims' filesep]; 
 
 %stim tracker
 %the left port on Eva's laptop is COM3 and on the culham lab msi laptop 
@@ -56,8 +57,8 @@ p.DIR_IMAGES = [pwd filesep 'ImageResponses' filesep];
 p.TRIGGER_CABLE_COM_STRING = 'COM3';
 
 %timings
-p.DURATION_BASELINE = 30;
-p.DURATION_BASELINE_FINAL = 30;
+p.DURATION_BASELINE = 2;
+p.DURATION_BASELINE_FINAL = 2;
 
 %buttons
 p.KEYS.RUN.NAME = 'RETURN';
@@ -276,16 +277,6 @@ if p.TRIGGER_STIM_TRACKER
     fwrite(sport, ['mh', bin2dec('00000000'), 0]);
 end   
 
-%KS
-%calculate end time of baseline
-%calcualte time to set trigger low
-%set trigger high
-%wait a little
-%set trigger low
-%while time < end time (wait rest of time)
-%check for stop key
-%reaches ent time
-
 fprintf('Baseline complete...\n'); 
 
 %close screen 
@@ -294,6 +285,68 @@ fprintf('Baseline complete...\n');
 % sca
 ShowCursor;
 
+
+%% Practice Run
+
+fprintf('\n----------------------------------------------\nWaiting for return key (%s) to start the practice run or exit key (%s) to skip...\n----------------------------------------------\n\n', p.KEYS.RUN.NAME, p.KEYS.EXIT.NAME);
+while 1
+    [~,keys] = KbWait(-1);
+    if any(keys(p.KEYS.RUN.VALUE))
+        for practice_trial = 1:4
+            practice_movie_filepath = sprintf('%s%d_question.mp4', p.DIR_VIDEOSTIMS_PRACTICE, practice_trial);
+            movie = Screen('OpenMovie', window, practice_movie_filepath);
+            rate = 1;
+            WaitSecs(1); %Give the display a moment to recover from change of display mode
+            
+            Screen(window, 'Flip');
+            Screen('PlayMovie', movie, rate, 0, 1.0);
+            movie_start = GetSecs;
+            
+            while(GetSecs - movie_start < movieDur -.2)
+                % Wait for next movie frame, retrieve texture handle to it
+                tex = Screen('GetMovieImage', window, movie);
+                % Valid texture returned? A negative value means end of movie reached:
+                if tex<=0
+                    % done, break
+                    break;
+                end
+                % Draw the new texture immediately to screen:
+                Screen('DrawTexture', window, tex);
+                % Update display:
+                Screen(window, 'Flip');
+                % Release texture:
+                Screen('Close', tex);
+            end
+            Screen(window, 'Flip');
+            
+            [~,keys] = KbWait(-1);
+            %display image response if in pre-recorded conditions
+            if any(keys(p.KEYS.YES.VALUE))
+                correct_response_image_practice = imread('C:\Users\evade\Documents\GitHub\Zoom_ToM\editable\ImageResponses\correct_response_03.jpeg');
+                imageTexture = Screen('MakeTexture', window, correct_response_image_practice);
+                Screen('DrawTexture', window, imageTexture, [], [], 0);
+                Screen('Flip', window);
+                
+                WaitSecs(1);
+                
+                Screen('Flip', window);
+            elseif any(keys(p.KEYS.NO.VALUE))
+                incorrect_response_image_practice = imread('C:\Users\evade\Documents\GitHub\Zoom_ToM\editable\ImageResponses\incorrect_response_03.jpeg');
+                imageTexture = Screen('MakeTexture', window, incorrect_response_image_practice);
+                Screen('DrawTexture', window, imageTexture, [], [], 0);
+                Screen('Flip', window);
+                
+                WaitSecs(1);
+                Screen('Flip', window);
+            elseif any(keys(p.KEYS.ABORT.VALUE))
+                error('Abort key pressed');
+            end
+        end
+    elseif any(keys(p.KEYS.ABORT.VALUE))
+        break;
+    end
+end
+
 %% Start Eyetracking Recording 
     Eyelink('StartRecording')
 
@@ -301,9 +354,9 @@ ShowCursor;
     fwrite(sport, ['mh',bin2dec('00000001'),0]); %turn off 2 
     WaitSecs(0.1);
     fwrite(sport, ['mh', bin2dec('00000000'), 0]);
-    end   
+    end
     
-%% Enter trial phase 
+    %% Enter trial phase
    fprintf('Starting Run...\n');
    
 for trial = 1: p.number_trials 
@@ -321,7 +374,6 @@ for trial = 1: p.number_trials
         movie_filepath = sprintf('%s%d_question.mp4', p.DIR_VIDEOSTIMS_MEMOJI, question_number);
     end
 
-
     d.trial_data(trial).correct_response = nan;
     d.trial_data(trial).timing.trigger.reaction = [];
     
@@ -329,7 +381,7 @@ for trial = 1: p.number_trials
     phase = 0;
     
     while trial_in_progress
-        [~,keys] = KbWait(-1); %if any key is pressed that is incorrect the trial section must be restarted 
+        [~,keys] = KbWait(-1); 
         if any(keys(p.KEYS.QUESTION.VALUE)) && phase == 0 && (p.condition_number == 1 || p.condition_number == 2)
             fprintf('Start of question period %d...\n', trial);
             
@@ -344,21 +396,8 @@ for trial = 1: p.number_trials
             
             Eyelink('Message','Start of Question Period %d', trial);
             WaitSecs(1);
-            while 1
-                [~,keys] = KbWait(-1);
-                if any(keys(p.KEYS.END.VALUE))
-                    fprintf('End of question period %d...\n', trial);
-                    
-                    if p.TRIGGER_STIM_TRACKER
-                    fwrite(sport,['mh',bin2dec('00000010'),0]); %turn question period trigger on (for StimTracker)
-                    d.trial_data(trial).timing.trigger.question_period_end = GetSecs - t0;
-                    fwrite(sport,['mh',bin2dec('00000000'),0]); %turn question period trigger off (for StimTracker)
-                    end
-                    
-                    Eyelink('Message','End of Question Period %d', trial);
-                    phase = 1;
-                    break;
-                elseif any(keys(p.KEYS.EXIT.VALUE)) %break is currently breaking out of the larger while loop as well 
+            [~,~,keys] = KbCheck(-1);
+                if any(keys(p.KEYS.EXIT.VALUE)) %break is currently breaking out of the larger while loop as well 
                     %ends current trial
                     
                     trial_in_progress = false;
@@ -367,7 +406,8 @@ for trial = 1: p.number_trials
                     d.number_trials = trial;
                     error('Abort key pressed');
                 end
-            end
+            phase = 1;
+
         elseif any(keys(p.KEYS.QUESTION.VALUE)) && phase == 0 && (p.condition_number == 3 || p.condition_number == 4)
 %             window = Screen('OpenWindow', screen_number, screen_colour_background, screen_rect);
 %             Screen(window, 'Flip');	
@@ -417,7 +457,8 @@ for trial = 1: p.number_trials
             
             Eyelink('Message','End of Question Period %d', trial);
             phase = 1;    
-        elseif any(keys(p.KEYS.ANSWER.VALUE)) && phase == 1
+        %end the live condition without the use of answer key end 
+        elseif any(keys(p.KEYS.ANSWER.VALUE)) && phase == 1 && (p.condition_number == 1 || p.condition_number == 2)
             fprintf('Start of answer period %d...\n', trial);
             
             if p.TRIGGER_STIM_TRACKER
@@ -428,21 +469,8 @@ for trial = 1: p.number_trials
             
             Eyelink('Message','Start of Answer Period %d', trial);
             WaitSecs(1);
-            while 1
-                [~,keys] = KbWait(-1);
-                if any(keys(p.KEYS.END.VALUE))
-                    fprintf('End of answer period %d...\n', trial);
-                     
-                    if p.TRIGGER_STIM_TRACKER
-                        fwrite(sport,['mh',bin2dec('00000100'),0]); %turn question period trigger on (for StimTracker)
-                        d.trial_data(trial).timing.trigger.answer_period_end = GetSecs - t0;
-                        fwrite(sport,['mh',bin2dec('00000000'),0]); 
-                     end
-                    
-                    Eyelink('Message','End of answer Period %d', trial);
-                    phase = 2;
-                    break;
-                elseif any(keys(p.KEYS.EXIT.VALUE)) %KS revisit this (no abort, etc)
+                [~,~,keys] = KbCheck(-1);
+                if any(keys(p.KEYS.EXIT.VALUE)) %KS revisit this (no abort, etc)
                     %ends current trial
                     trial_in_progress = false;
                     break;
@@ -450,33 +478,26 @@ for trial = 1: p.number_trials
                     d.number_trials = trial;
                     error('Abort key pressed');
                 end
-            end
-        %no image response if in live conditions   
-        elseif any(keys(p.KEYS.YES.VALUE)) && phase >= 2 && (d.trial_data(trial).correct_response ~= true) && (p.condition_number == 1 || p.condition_number == 2)
-            
-            Eyelink('Message','Answer correct for trial %d', trial);
-            
-            if p.TRIGGER_STIM_TRACKER
-                fwrite(sport,['mh',bin2dec('00001000'),0]);
-                d.trial_data(trial).timing.trigger.reaction(end+1) = GetSecs - t0;
-                fwrite(sport,['mh',bin2dec('00000000'),0]);
-            end
-            
-            d.trial_data(trial).correct_response = true;
-            
-            phase = 3; 
-        elseif any(keys(p.KEYS.NO.VALUE)) && phase >= 2 && (d.trial_data(trial).correct_response ~= false) && (p.condition_number == 1 || p.condition_number == 2)
-            Eyelink('Message','Answer incorrect for trial %d', trial);
+            phase = 3;
+        %in pre-recorded conditions wait for the answer key end to trigger 
+        elseif any(keys(p.KEYS.ANSWER.VALUE)) && phase == 1 && (p.condition_number == 3 || p.condition_number == 4)
+            fprintf('Start of answer period %d...\n', trial);
             
             if p.TRIGGER_STIM_TRACKER
-                fwrite(sport,['mh',bin2dec('00001000'),0]);
-                d.trial_data(trial).timing.trigger.reaction(end+1) = GetSecs - t0;
+                fwrite(sport,['mh',bin2dec('00000100'),0]); %turn question period trigger on (for StimTracker)
+                d.trial_data(trial).timing.trigger.answer_period_start = GetSecs - t0;
                 fwrite(sport,['mh',bin2dec('00000000'),0]);
             end
-            
-            d.trial_data(trial).correct_response = false;
-
-            phase = 3; 
+                [~,~,keys] = KbCheck(-1);
+                if any(keys(p.KEYS.EXIT.VALUE)) %KS revisit this (no abort, etc)
+                    %ends current trial
+                    trial_in_progress = false;
+                    break;
+                elseif any(keys(p.KEYS.ABORT.VALUE))
+                    d.number_trials = trial;
+                    error('Abort key pressed');
+                end
+                phase = 2;
        %display image response if in pre-recorded conditions
         elseif any(keys(p.KEYS.YES.VALUE)) && phase >= 2 && (d.trial_data(trial).correct_response ~= true) && (p.condition_number == 3 || p.condition_number == 4)
             correct_response_image = imread(d.filepath_correct_image_response);
@@ -522,6 +543,7 @@ for trial = 1: p.number_trials
             phase = 3; 
             WaitSecs(1);
             Screen('Flip', window);
+        %triggers the end of the current trial 
         elseif any(keys(p.KEYS.STOP.VALUE)) && phase == 3
             
             d.trial_data(trial).timing.offset = GetSecs - t0;
@@ -538,7 +560,7 @@ for trial = 1: p.number_trials
 
     
     %jitter the trial ITI (add a save of the variable) 
-    ITI = [1 2 3 4];
+    ITI = [6 7 8 9];
     ITI_index = randi(numel(ITI));
     d.trial_data(trial).trial_end_wait = ITI(ITI_index);
     WaitSecs(d.trial_data(trial).trial_end_wait);
