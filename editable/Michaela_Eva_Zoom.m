@@ -357,7 +357,17 @@ end
     end
     
     %% Enter trial phase
-   fprintf('Starting Run...\n');
+ fprintf('\n----------------------------------------------\nWaiting for run key (%s) or exit key (%s)...\n----------------------------------------------\n\n', p.KEYS.RUN.NAME, p.KEYS.EXIT.NAME);
+while 1 
+    [~,keys] = KbWait(-1);
+    if any(keys(p.KEYS.RUN.VALUE))
+      break;   
+    else any(keys(p.KEYS.EXIT.VALUE))
+        error ('Exit Key Pressed');
+    end
+end
+
+    fprintf('Starting Run...\n');
    
 for trial = 1: p.number_trials 
     d.trial_data(trial).timing.onset = GetSecs - t0;
