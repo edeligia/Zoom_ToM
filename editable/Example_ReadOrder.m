@@ -3,7 +3,7 @@ run = 2;
 
 fol_out = [pwd filesep 'Orders' filesep];
 
-filepath = sprintf('%sPAR%02d_RUN%02d.xlsx', fol_out, par, run);
+filepath = sprintf('C:\Users\evade\Documents\GitHub\Zoom_ToM\editable');
 
 [numbers_only_info,~,all_info_cell_matrix] = xlsread(filepath)
 

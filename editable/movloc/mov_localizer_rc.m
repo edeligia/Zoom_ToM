@@ -115,19 +115,17 @@ triggerKey			= '+';										% this is the value of the key the scanner sends to
 TRIGGER_CABLE_COM_STRING = 'COM43';
 
 %% open serial port for stim tracker
-sport=serial(TRIGGER_CABLE_COM_STRING,'BaudRate',115200);
-fopen(sport);
+% sport=serial(TRIGGER_CABLE_COM_STRING,'BaudRate',115200);
+% fopen(sport);
 
 %% Set up necessary variables
 orig_dir			= pwd;
 stimdir             = fullfile(rootdir, 'stimuli');
 behavdir			= fullfile(rootdir, 'behavioural');
-moviefName          = fullfile(stimdir, 'partly_cloudy.mov');
+moviefName          = fullfile(stimdir, 'partly_cloudy.mp4');
 
-restDur = 10;  %fixation time before movie. we stopped scanning in the middle of credits, so no post movie fixation
+p.DURATION_BASELINE = 30;  %fixation time before movie. we stopped scanning in the middle of credits, so no post movie fixation
 movieDur = 349;
-TR = 2;
-ips = (restDur + movieDur)/TR;  
 
 %% check if it was run before shuffle order of stories
 bfname = [subjID '.movloc.1.mat'];
@@ -186,13 +184,8 @@ catch exception
 end
 
 %% Open movie file
-[movie movieduration fps imgw imgh] = Screen('OpenMovie', w, moviefName);
+movie = Screen('OpenMovie', w, moviefName);
 rate = 1;
-
-
-fwrite(sport,['mh',1,0]); %send trigger to Stim Tracker
-WaitSecs(1); %PTB command, could use built-in, doesn't have to be 1sec, a few msec is fine
-fwrite(sport,['mh',0,0]); %turn trigger off (for StimTracker)
 
 %% wait for the 1st trigger pulse
 while 1  
@@ -205,19 +198,39 @@ end
 Screen(w, 'Flip');
 
 
-%% Main Experiment
-experimentStart = GetSecs;
 
-% pause for opening fixation
-while GetSecs - experimentStart < restDur; end 
+%% Initial Baseline 
+
+if p.TRIGGER_STIM_TRACKER
+    fwrite(sport, ['mh',bin2dec('00000001'),0]);
+    WaitSecs(0.1);
+    fwrite(sport, ['mh', bin2dec('00000000'), 0]); 
+end
+
+p.experimentStart = GetSecs;
+
+fprintf('Initial baseline...\n');
+
+tend = p.experimentStart + p.DURATION_BASELINE;
+while 1
+    ti = GetSecs;
+    if ti > tend
+        break;
+    end
+end
 
 %% present movie
   
 Screen('PlayMovie', movie, rate, 0, 1.0);
-trialStart = GetSecs;
-timing_adjustment = trialStart - experimentStart;
 
-while(GetSecs - trialStart < movieDur -.2)
+fwrite(sport,['mh',1,0]); %send trigger to Stim Tracker
+WaitSecs(0.1); %PTB command, could use built-in, doesn't have to be 1sec, a few msec is fine
+fwrite(sport,['mh',0,0]); %turn trigger off (for StimTracker)
+
+p.trialStart = GetSecs;
+p.timing_adjustment = p.trialStart - p.experimentStart;
+
+while(GetSecs - p.trialStart < movieDur -.2)
     % Wait for next movie frame, retrieve texture handle to it
     tex = Screen('GetMovieImage', w, movie);
     % Valid texture returned? A negative value means end of movie reached:
@@ -236,11 +249,13 @@ Screen('CloseMovie', movie);
 Screen(w, 'Flip');
 
 
-experimentEnd		= GetSecs;
-experimentDuration	= experimentEnd - experimentStart;
+p.experimentEnd = GetSecs;
+p.experimentDuration = p.experimentEnd - p.experimentStart;
 
 %close connection
 fclose(sport);
+
+save(behavdir, 'p');
 
 %% Analysis Info
 
