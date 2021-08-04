@@ -124,7 +124,7 @@ stimdir             = fullfile(rootdir, 'stimuli');
 behavdir			= fullfile(rootdir, 'behavioural');
 moviefName          = fullfile(stimdir, 'partly_cloudy.mp4');
 
-p.DURATION_BASELINE = 30;  %fixation time before movie. we stopped scanning in the middle of credits, so no post movie fixation
+p.DURATION_BASELINE = 5;  %fixation time before movie. we stopped scanning in the middle of credits, so no post movie fixation
 movieDur = 349;
 
 %% check if it was run before shuffle order of stories
@@ -201,11 +201,11 @@ Screen(w, 'Flip');
 
 %% Initial Baseline 
 
-if p.TRIGGER_STIM_TRACKER
-    fwrite(sport, ['mh',bin2dec('00000001'),0]);
-    WaitSecs(0.1);
-    fwrite(sport, ['mh', bin2dec('00000000'), 0]); 
-end
+% if p.TRIGGER_STIM_TRACKER
+%     fwrite(sport, ['mh',bin2dec('00000001'),0]);
+%     WaitSecs(0.1);
+%     fwrite(sport, ['mh', bin2dec('00000000'), 0]); 
+% end
 
 p.experimentStart = GetSecs;
 
@@ -223,9 +223,9 @@ end
   
 Screen('PlayMovie', movie, rate, 0, 1.0);
 
-fwrite(sport,['mh',1,0]); %send trigger to Stim Tracker
-WaitSecs(0.1); %PTB command, could use built-in, doesn't have to be 1sec, a few msec is fine
-fwrite(sport,['mh',0,0]); %turn trigger off (for StimTracker)
+% fwrite(sport,['mh',1,0]); %send trigger to Stim Tracker
+% WaitSecs(0.1); %PTB command, could use built-in, doesn't have to be 1sec, a few msec is fine
+%fwrite(sport,['mh',0,0]); %turn trigger off (for StimTracker)
 
 p.trialStart = GetSecs;
 p.timing_adjustment = p.trialStart - p.experimentStart;
@@ -253,7 +253,7 @@ p.experimentEnd = GetSecs;
 p.experimentDuration = p.experimentEnd - p.experimentStart;
 
 %close connection
-fclose(sport);
+%fclose(sport);
 
 save(behavdir, 'p');
 
