@@ -183,6 +183,14 @@ catch exception
 	return
 end
 
+p.KEYS.ABORT.NAME = 'P';
+
+%set key values
+KbName('UnifyKeyNames');
+for key = fields(p.KEYS)'
+    key = key{1};
+    eval(sprintf('p.KEYS.%s.VALUE = KbName(p.KEYS.%s.NAME);', key, key))
+end
 %% Open movie file
 movie = Screen('OpenMovie', w, moviefName);
 rate = 1;
@@ -196,8 +204,6 @@ while 1
     end
 end
 Screen(w, 'Flip');
-
-
 
 %% Initial Baseline 
 
@@ -238,6 +244,11 @@ while(GetSecs - p.trialStart < movieDur -.2)
         % done, break
         break;
     end;
+    
+      [~,~,keys] = KbCheck(-1);
+      if any(keys(p.KEYS.ABORT.VALUE))
+            error('Abort key pressed');
+      end
     % Draw the new texture immediately to screen:
     Screen('DrawTexture', w, tex);
     % Update display:
