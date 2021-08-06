@@ -422,8 +422,8 @@ while 1
             end
         end
         break;
-    elseif any(keys(p.KEYS.ABORT.VALUE))
-        break;
+    elseif any(keys(p.KEYS.EXIT.VALUE))
+       break; 
     end
 end
 
