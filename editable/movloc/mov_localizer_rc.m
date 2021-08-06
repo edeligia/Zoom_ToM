@@ -1,7 +1,6 @@
 function mov_localizer_rc(subjID)
 
-%% Version: March 28, 2019
-%__________________________________________________________________________
+%% Version: March 28, 2019 ___
 %
 % This script will localize theory-of-mind network areas and pain matrix
 % areas by contrasting activation during mental and pain events, as identified via
@@ -112,11 +111,11 @@ triggerKey			= '+';										% this is the value of the key the scanner sends to
 
 
 %% param
-TRIGGER_CABLE_COM_STRING = 'COM43';
+TRIGGER_CABLE_COM_STRING = 'COM3';
 
 %% open serial port for stim tracker
-% sport=serial(TRIGGER_CABLE_COM_STRING,'BaudRate',115200);
-% fopen(sport);
+sport=serial(TRIGGER_CABLE_COM_STRING,'BaudRate',115200);
+fopen(sport);
 
 %% Set up necessary variables
 orig_dir			= pwd;
@@ -124,7 +123,7 @@ stimdir             = fullfile(rootdir, 'stimuli');
 behavdir			= fullfile(rootdir, 'behavioural');
 moviefName          = fullfile(stimdir, 'partly_cloudy.mp4');
 
-p.DURATION_BASELINE = 5;  %fixation time before movie. we stopped scanning in the middle of credits, so no post movie fixation
+p.DURATION_BASELINE = 30;  %fixation time before movie. we stopped scanning in the middle of credits, so no post movie fixation
 movieDur = 349;
 
 %% check if it was run before shuffle order of stories
@@ -207,11 +206,9 @@ Screen(w, 'Flip');
 
 %% Initial Baseline 
 
-% if p.TRIGGER_STIM_TRACKER
-%     fwrite(sport, ['mh',bin2dec('00000001'),0]);
-%     WaitSecs(0.1);
-%     fwrite(sport, ['mh', bin2dec('00000000'), 0]); 
-% end
+fwrite(sport,['mh',1,0]); %send trigger to Stim Tracker
+WaitSecs(0.1); %PTB command, could use built-in, doesn't have to be 1sec, a few msec is fine
+fwrite(sport,['mh',0,0]); %turn trigger off (for StimTracker)
 
 p.experimentStart = GetSecs;
 
@@ -229,9 +226,9 @@ end
   
 Screen('PlayMovie', movie, rate, 0, 1.0);
 
-% fwrite(sport,['mh',1,0]); %send trigger to Stim Tracker
-% WaitSecs(0.1); %PTB command, could use built-in, doesn't have to be 1sec, a few msec is fine
-%fwrite(sport,['mh',0,0]); %turn trigger off (for StimTracker)
+fwrite(sport,['mh',1,0]); %send trigger to Stim Tracker
+WaitSecs(0.1); %PTB command, could use built-in, doesn't have to be 1sec, a few msec is fine
+fwrite(sport,['mh',0,0]); %turn trigger off (for StimTracker)
 
 p.trialStart = GetSecs;
 p.timing_adjustment = p.trialStart - p.experimentStart;
@@ -263,8 +260,8 @@ Screen(w, 'Flip');
 p.experimentEnd = GetSecs;
 p.experimentDuration = p.experimentEnd - p.experimentStart;
 
-%close connection
-%fclose(sport);
+% close connection
+fclose(sport);
 
 save(behavdir, 'p');
 

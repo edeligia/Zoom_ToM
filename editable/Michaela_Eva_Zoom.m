@@ -11,8 +11,8 @@ function Michaela_Eva_Zoom (participant_number , run_number)
 % 4 = pre-recorded + memoji 
 
 %% Debug Settings
-p.USE_EYELINK = false;
-p.TRIGGER_STIM_TRACKER = false;
+p.USE_EYELINK = true;
+p.TRIGGER_STIM_TRACKER = true;
 
 if ~p.TRIGGER_STIM_TRACKER    
     warning('One or more debug settings is active!')
@@ -29,7 +29,7 @@ filepath_participant_edf = sprintf('PAR%02d', participant_number);
 
 % screen_rect [ 0 0 width length]
 screen_number = max(Screen('Screens'));
-screen_rect = [0 0 500 500];
+screen_rect = [];
 screen_colour_background = [0 0 0];
 screen_colour_text = [255 255 255];
 screen_font_size = 30;
@@ -57,8 +57,8 @@ p.DIR_VIDEOSTIMS_PRACTICE = [pwd filesep 'VideoStims' filesep 'Practice_Stims' f
 p.TRIGGER_CABLE_COM_STRING = 'COM3';
 
 %timings
-p.DURATION_BASELINE = 2;
-p.DURATION_BASELINE_FINAL = 2;
+p.DURATION_BASELINE = 30;
+p.DURATION_BASELINE_FINAL = 30;
 
 %buttons
 p.KEYS.RUN.NAME = 'RETURN';
@@ -297,7 +297,7 @@ ShowCursor;
 
 fprintf('\n----------------------------------------------\nWaiting for return key (%s) to start the practice run or exit key (%s) to skip...\n----------------------------------------------\n\n', p.KEYS.RUN.NAME, p.KEYS.EXIT.NAME);
 while 1
-    [~,keys] = KbWait(-1);
+    [~,keys] = KbWait(-1,3);
     if any(keys(p.KEYS.RUN.VALUE))
         for practice_trial = 1:4
             practice_movie_filepath = sprintf('%s%d_question.mp4', p.DIR_VIDEOSTIMS_PRACTICE, practice_trial);
@@ -336,41 +336,41 @@ while 1
                 
                 WaitSecs(1);
                 
-                Screen('Flip', window);
-                % add the fixation cross
-
-            % Set up alpha-blending for smooth (anti-aliased) lines
-            Screen('BlendFunction', window, 'GL_SRC_ALPHA', 'GL_ONE_MINUS_SRC_ALPHA');
-            
-            % Setup the text type for the window
-            Screen('TextFont', window, 'Ariel');
-            Screen('TextSize', window, 36);
-            
-            % Get the centre coordinate of the window
-            [xCenter, yCenter] = RectCenter(screen_rect);
-            
-            % Here we set the size of the arms of our fixation cross
-            fixCrossDimPix = 40;
-            
-            % Now we set the coordinates (these are all relative to zero we will let
-            % the drawing routine center the cross in the center of our monitor for us)
-            xCoords = [-fixCrossDimPix fixCrossDimPix 0 0];
-            yCoords = [0 0 -fixCrossDimPix fixCrossDimPix];
-            allCoords = [xCoords; yCoords];
-
-            % Set the line width for our fixation cross
-            lineWidthPix = 4;
-            
-            % Draw the fixation cross in white, set it to the center of our screen and
-            % set good quality antialiasing
-            Screen('DrawLines', window, allCoords,...
-                lineWidthPix, white, [xCenter yCenter], 2);
-            
-            % Flip to the screen
-            Screen('Flip', window);
-            
-            % Wait for a specified amount of time 
-            WaitSecs(2);
+%                 Screen('Flip', window);
+%                 % add the fixation cross
+% 
+%             % Set up alpha-blending for smooth (anti-aliased) lines
+%             Screen('BlendFunction', window, 'GL_SRC_ALPHA', 'GL_ONE_MINUS_SRC_ALPHA');
+%             
+%             % Setup the text type for the window
+%             Screen('TextFont', window, 'Ariel');
+%             Screen('TextSize', window, 36);
+%             
+%             % Get the centre coordinate of the window
+%             [xCenter, yCenter] = RectCenter(Screen('Rect',window));
+%             
+%             % Here we set the size of the arms of our fixation cross
+%             fixCrossDimPix = 40;
+%             
+%             % Now we set the coordinates (these are all relative to zero we will let
+%             % the drawing routine center the cross in the center of our monitor for us)
+%             xCoords = [-fixCrossDimPix fixCrossDimPix 0 0];
+%             yCoords = [0 0 -fixCrossDimPix fixCrossDimPix];
+%             allCoords = [xCoords; yCoords];
+% 
+%             % Set the line width for our fixation cross
+%             lineWidthPix = 4;
+%             
+%             % Draw the fixation cross in white, set it to the center of our screen and
+%             % set good quality antialiasing
+%             Screen('DrawLines', window, allCoords,...
+%                 lineWidthPix, white, [xCenter yCenter], 2);
+%             
+%             % Flip to the screen
+%             Screen('Flip', window);
+%             
+%             % Wait for a specified amount of time 
+%             WaitSecs(2);
             
             Screen('Flip', window);
             elseif any(keys(p.KEYS.NO.VALUE))
@@ -380,41 +380,41 @@ while 1
                 Screen('Flip', window);
                 
                 WaitSecs(1);
-                Screen('Flip', window);
+%                 Screen('Flip', window);
                 % add the fixation cross
 
-            % Set up alpha-blending for smooth (anti-aliased) lines
-            Screen('BlendFunction', window, 'GL_SRC_ALPHA', 'GL_ONE_MINUS_SRC_ALPHA');
-            
-            % Setup the text type for the window
-            Screen('TextFont', window, 'Ariel');
-            Screen('TextSize', window, 36);
-            
-            % Get the centre coordinate of the window
-            [xCenter, yCenter] = RectCenter(screen_rect);
-            
-            % Here we set the size of the arms of our fixation cross
-            fixCrossDimPix = 40;
-            
-            % Now we set the coordinates (these are all relative to zero we will let
-            % the drawing routine center the cross in the center of our monitor for us)
-            xCoords = [-fixCrossDimPix fixCrossDimPix 0 0];
-            yCoords = [0 0 -fixCrossDimPix fixCrossDimPix];
-            allCoords = [xCoords; yCoords];
-
-            % Set the line width for our fixation cross
-            lineWidthPix = 4;
-            
-            % Draw the fixation cross in white, set it to the center of our screen and
-            % set good quality antialiasing
-            Screen('DrawLines', window, allCoords,...
-                lineWidthPix, white, [xCenter yCenter], 2);
-            
-            % Flip to the screen
-            Screen('Flip', window);
-            
-            % Wait for a specified amount of time 
-            WaitSecs(2);
+%             % Set up alpha-blending for smooth (anti-aliased) lines
+%             Screen('BlendFunction', window, 'GL_SRC_ALPHA', 'GL_ONE_MINUS_SRC_ALPHA');
+%             
+%             % Setup the text type for the window
+%             Screen('TextFont', window, 'Ariel');
+%             Screen('TextSize', window, 36);
+%             
+%             % Get the centre coordinate of the window
+%             [xCenter, yCenter] = RectCenter(screen_rect);
+%             
+%             % Here we set the size of the arms of our fixation cross
+%             fixCrossDimPix = 40;
+%             
+%             % Now we set the coordinates (these are all relative to zero we will let
+%             % the drawing routine center the cross in the center of our monitor for us)
+%             xCoords = [-fixCrossDimPix fixCrossDimPix 0 0];
+%             yCoords = [0 0 -fixCrossDimPix fixCrossDimPix];
+%             allCoords = [xCoords; yCoords];
+% 
+%             % Set the line width for our fixation cross
+%             lineWidthPix = 4;
+%             
+%             % Draw the fixation cross in white, set it to the center of our screen and
+%             % set good quality antialiasing
+%             Screen('DrawLines', window, allCoords,...
+%                 lineWidthPix, white, [xCenter yCenter], 2);
+%             
+%             % Flip to the screen
+%             Screen('Flip', window);
+%             
+%             % Wait for a specified amount of time 
+%             WaitSecs(2);
             
             Screen('Flip', window);
             elseif any(keys(p.KEYS.ABORT.VALUE))
@@ -630,40 +630,40 @@ for trial = 1: p.number_trials
             d.trial_data(trial).correct_response = true;
             
             WaitSecs(1);
-            % add the fixation cross
-
-            % Set up alpha-blending for smooth (anti-aliased) lines
-            Screen('BlendFunction', window, 'GL_SRC_ALPHA', 'GL_ONE_MINUS_SRC_ALPHA');
-            
-            % Setup the text type for the window
-            Screen('TextFont', window, 'Ariel');
-            Screen('TextSize', window, 36);
-            
-            % Get the centre coordinate of the window
-            [xCenter, yCenter] = RectCenter(screen_rect);
-            
-            % Here we set the size of the arms of our fixation cross
-            fixCrossDimPix = 40;
-            
-            % Now we set the coordinates (these are all relative to zero we will let
-            % the drawing routine center the cross in the center of our monitor for us)
-            xCoords = [-fixCrossDimPix fixCrossDimPix 0 0];
-            yCoords = [0 0 -fixCrossDimPix fixCrossDimPix];
-            allCoords = [xCoords; yCoords];
-
-            % Set the line width for our fixation cross
-            lineWidthPix = 4;
-            
-            % Draw the fixation cross in white, set it to the center of our screen and
-            % set good quality antialiasing
-            Screen('DrawLines', window, allCoords,...
-                lineWidthPix, white, [xCenter yCenter], 2);
-            
-            % Flip to the screen
-            Screen('Flip', window);
-            
-            % Wait for a specified amount of time 
-            WaitSecs(2);
+%             % add the fixation cross
+% 
+%             % Set up alpha-blending for smooth (anti-aliased) lines
+%             Screen('BlendFunction', window, 'GL_SRC_ALPHA', 'GL_ONE_MINUS_SRC_ALPHA');
+%             
+%             % Setup the text type for the window
+%             Screen('TextFont', window, 'Ariel');
+%             Screen('TextSize', window, 36);
+%             
+%             % Get the centre coordinate of the window
+%             [xCenter, yCenter] = RectCenter(screen_rect);
+%             
+%             % Here we set the size of the arms of our fixation cross
+%             fixCrossDimPix = 40;
+%             
+%             % Now we set the coordinates (these are all relative to zero we will let
+%             % the drawing routine center the cross in the center of our monitor for us)
+%             xCoords = [-fixCrossDimPix fixCrossDimPix 0 0];
+%             yCoords = [0 0 -fixCrossDimPix fixCrossDimPix];
+%             allCoords = [xCoords; yCoords];
+% 
+%             % Set the line width for our fixation cross
+%             lineWidthPix = 4;
+%             
+%             % Draw the fixation cross in white, set it to the center of our screen and
+%             % set good quality antialiasing
+%             Screen('DrawLines', window, allCoords,...
+%                 lineWidthPix, white, [xCenter yCenter], 2);
+%             
+%             % Flip to the screen
+%             Screen('Flip', window);
+%             
+%             % Wait for a specified amount of time 
+%             WaitSecs(2);
             
             Screen('Flip', window);
             
@@ -689,41 +689,41 @@ for trial = 1: p.number_trials
  
             WaitSecs(1);
             
-            % add the fixation cross
-
-            % Set up alpha-blending for smooth (anti-aliased) lines
-            Screen('BlendFunction', window, 'GL_SRC_ALPHA', 'GL_ONE_MINUS_SRC_ALPHA');
-            
-            % Setup the text type for the window
-            Screen('TextFont', window, 'Ariel');
-            Screen('TextSize', window, 36);
-            
-            % Get the centre coordinate of the window
-            [xCenter, yCenter] = RectCenter(screen_rect);
-            
-            % Here we set the size of the arms of our fixation cross
-            fixCrossDimPix = 40;
-            
-            % Now we set the coordinates (these are all relative to zero we will let
-            % the drawing routine center the cross in the center of our monitor for us)
-            xCoords = [-fixCrossDimPix fixCrossDimPix 0 0];
-            yCoords = [0 0 -fixCrossDimPix fixCrossDimPix];
-            allCoords = [xCoords; yCoords];
-
-            % Set the line width for our fixation cross
-            lineWidthPix = 4;
-            
-            % Draw the fixation cross in white, set it to the center of our screen and
-            % set good quality antialiasing
-            Screen('DrawLines', window, allCoords,...
-                lineWidthPix, white, [xCenter yCenter], 2);
-            
-            % Flip to the screen
-            Screen('Flip', window);
-            
-            % Show fixation cross for specified amount of time
-            WaitSecs(2);
-            
+%             % add the fixation cross
+% 
+%             % Set up alpha-blending for smooth (anti-aliased) lines
+%             Screen('BlendFunction', window, 'GL_SRC_ALPHA', 'GL_ONE_MINUS_SRC_ALPHA');
+%             
+%             % Setup the text type for the window
+%             Screen('TextFont', window, 'Ariel');
+%             Screen('TextSize', window, 36);
+%             
+%             % Get the centre coordinate of the window
+%             [xCenter, yCenter] = RectCenter(screen_rect);
+%             
+%             % Here we set the size of the arms of our fixation cross
+%             fixCrossDimPix = 40;
+%             
+%             % Now we set the coordinates (these are all relative to zero we will let
+%             % the drawing routine center the cross in the center of our monitor for us)
+%             xCoords = [-fixCrossDimPix fixCrossDimPix 0 0];
+%             yCoords = [0 0 -fixCrossDimPix fixCrossDimPix];
+%             allCoords = [xCoords; yCoords];
+% 
+%             % Set the line width for our fixation cross
+%             lineWidthPix = 4;
+%             
+%             % Draw the fixation cross in white, set it to the center of our screen and
+%             % set good quality antialiasing
+%             Screen('DrawLines', window, allCoords,...
+%                 lineWidthPix, white, [xCenter yCenter], 2);
+%             
+%             % Flip to the screen
+%             Screen('Flip', window);
+%             
+%             % Show fixation cross for specified amount of time
+%             WaitSecs(2);
+%             
             Screen('Flip', window);
             
             phase = 3;
