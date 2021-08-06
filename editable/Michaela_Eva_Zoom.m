@@ -295,7 +295,6 @@ ShowCursor;
 
 %% Practice Run
 
-<<<<<<< Updated upstream
 fprintf('\n----------------------------------------------\nWaiting for return key (%s) to start the practice run or exit key (%s) to skip...\n----------------------------------------------\n\n', p.KEYS.RUN.NAME, p.KEYS.EXIT.NAME);
 while 1
     [~,keys] = KbWait(-1);
@@ -354,67 +353,6 @@ while 1
         break;
     end
 end
-=======
-% fprintf('\n----------------------------------------------\nWaiting for return key (%s) to start the practice run or exit key (%s) to skip...\n----------------------------------------------\n\n', p.KEYS.RUN.NAME, p.KEYS.EXIT.NAME);
-% while 1
-%     [~,keys] = KbWait(-1);
-%     if any(keys(p.KEYS.RUN.VALUE))
-%         for practice_trial = 1:4
-%             practice_movie_filepath = sprintf('%s%d_question.mp4', p.DIR_VIDEOSTIMS_PRACTICE, practice_trial);
-%             movie = Screen('OpenMovie', window, practice_movie_filepath);
-%             rate = 1;
-%             WaitSecs(1); %Give the display a moment to recover from change of display mode
-%             
-%             Screen(window, 'Flip');
-%             Screen('PlayMovie', movie, rate, 0, 1.0);
-%             movie_start = GetSecs;
-%             
-%             while(GetSecs - movie_start < movieDur -.2)
-%                 % Wait for next movie frame, retrieve texture handle to it
-%                 tex = Screen('GetMovieImage', window, movie);
-%                 % Valid texture returned? A negative value means end of movie reached:
-%                 if tex<=0
-%                     % done, break
-%                     break;
-%                 end
-%                 % Draw the new texture immediately to screen:
-%                 Screen('DrawTexture', window, tex);
-%                 % Update display:
-%                 Screen(window, 'Flip');
-%                 % Release texture:
-%                 Screen('Close', tex);
-%             end
-%             Screen(window, 'Flip');
-%             
-%             [~,keys] = KbWait(-1);
-%             %display image response if in pre-recorded conditions
-%             if any(keys(p.KEYS.YES.VALUE))
-%                 correct_response_image_practice = imread('C:\Users\CulhmanLab\Documents\GitHub\Zoom_ToM\editable\ImageResponses\correct_response_03.jpeg');
-%                 imageTexture = Screen('MakeTexture', window, correct_response_image_practice);
-%                 Screen('DrawTexture', window, imageTexture, [], [], 0);
-%                 Screen('Flip', window);
-%                 
-%                 WaitSecs(1);
-%                 
-%                 Screen('Flip', window);
-%             elseif any(keys(p.KEYS.NO.VALUE))
-%                 incorrect_response_image_practice = imread('C:\Users\CulhmanLab\Documents\GitHub\Zoom_ToM\editable\ImageResponses\incorrect_response_03.jpeg');
-%                 imageTexture = Screen('MakeTexture', window, incorrect_response_image_practice);
-%                 Screen('DrawTexture', window, imageTexture, [], [], 0);
-%                 Screen('Flip', window);
-%                 
-%                 WaitSecs(1);
-%                 Screen('Flip', window);
-%             elseif any(keys(p.KEYS.ABORT.VALUE))
-%                 error('Abort key pressed');
-%             end
-%         end
-%         break;
-%     elseif any(keys(p.KEYS.ABORT.VALUE))
-%         break;
-%     end
-% end
->>>>>>> Stashed changes
 
 %% Start Eyetracking Recording 
     Eyelink('StartRecording')
