@@ -10,9 +10,6 @@ function Michaela_Eva_Zoom (participant_number , run_number)
 % 3 = pre-recorded + human 
 % 4 = pre-recorded + memoji 
 
-%% Output files (8 characters) 
-% cd('C:\Users\evade\Documents\Zoom_project\Memoji_Zoom_Data')
-
 %% Debug Settings
 p.USE_EYELINK = false;
 p.TRIGGER_STIM_TRACKER = false;
@@ -31,7 +28,6 @@ end
 filepath_participant_edf = sprintf('PAR%02d', participant_number);
 
 % screen_rect [ 0 0 width length]
-% 0 is both, 1 is likely laptop and 2 is likely second screen F
 screen_number = max(Screen('Screens'));
 screen_rect = [0 0 500 500];
 screen_colour_background = [0 0 0];
@@ -70,6 +66,10 @@ p.KEYS.NO.NAME = 'N';
 p.KEYS.EXIT.NAME = 'H'; 
 p.KEYS.STOP.NAME = 'SPACE';
 p.KEYS.ABORT.NAME = 'P';
+
+%sound
+p.SOUND.LATENCY = .060;
+p.SOUND.VOLUME = 1; %1 = 100%
 
 %%  Check Requirements
 %psychtoolbox
@@ -144,6 +144,9 @@ d.filename_edf_on_system = sprintf('P%02d%s', d.participant_number, d.timestamp_
 d.filepath_run_edf = sprintf('%sParticipant_%02d_Run%03d_%s', p.DIR_PARTICIPANT_EDF, d.participant_number, d.run_number, d.timestamp);
 d.filepath_correct_image_response = sprintf('%scorrect_response_%02d.jpeg', p.DIR_IMAGES, p.condition_number); 
 d.filepath_incorrect_image_response = sprintf('%sincorrect_response_%02d.jpeg', p.DIR_IMAGES, p.condition_number); 
+d.filepath_practice_image_correct = sprintf('%scorrect_response_03.jpeg', p.DIR_IMAGES);
+d.filepath_practice_image_incorrect = sprintf('%sincorrect_response_03.jpeg', p.DIR_IMAGES);
+
 
 %create output directories
 if ~exist(p.DIR_DATA, 'dir'), mkdir(p.DIR_DATA); end
@@ -322,7 +325,7 @@ while 1
             [~,keys] = KbWait(-1);
             %display image response if in pre-recorded conditions
             if any(keys(p.KEYS.YES.VALUE))
-                correct_response_image_practice = imread('C:\Users\CulhmanLab\Documents\GitHub\Zoom_ToM\editable\ImageResponses\correct_response_03.jpeg');
+                correct_response_image_practice = imread(d.filepath_practice_image_correct);
                 imageTexture = Screen('MakeTexture', window, correct_response_image_practice);
                 Screen('DrawTexture', window, imageTexture, [], [], 0);
                 Screen('Flip', window);
@@ -331,7 +334,7 @@ while 1
                 
                 Screen('Flip', window);
             elseif any(keys(p.KEYS.NO.VALUE))
-                incorrect_response_image_practice = imread('C:\Users\CulhmanLab\Documents\GitHub\Zoom_ToM\editable\ImageResponses\incorrect_response_03.jpeg');
+                incorrect_response_image_practice = imread(d.filepath_practice_image_incorrect);
                 imageTexture = Screen('MakeTexture', window, incorrect_response_image_practice);
                 Screen('DrawTexture', window, imageTexture, [], [], 0);
                 Screen('Flip', window);
@@ -393,6 +396,28 @@ for trial = 1: p.number_trials
     while trial_in_progress
         [~,keys] = KbWait(-1); 
         if any(keys(p.KEYS.QUESTION.VALUE)) && phase == 0 && (p.condition_number == 1 || p.condition_number == 2)
+            %Play a beep to tell the confederate the trial has begun 
+            %clear prior audio
+            try
+                PsychPortAudio('Close');
+            catch
+            end
+            
+            %sound
+            p.SOUND.LATENCY = .060;
+            p.SOUND.VOLUME = 1; %1 = 100%
+            
+            %prepare start/stop beeps
+            freq = 48000;
+            beep_duration = 0.5;
+            beep_start = MakeBeep(500,beep_duration,freq);
+            sound_handle_beep_start = PsychPortAudio('Open', [], 1, [], freq, size(beep_start,1), [], p.SOUND.LATENCY);
+            PsychPortAudio('Volume', sound_handle_beep_start, p.SOUND.VOLUME);
+            PsychPortAudio('FillBuffer', sound_handle_beep_start, beep_start);
+                        
+            %start beep
+            PsychPortAudio('Start', sound_handle_beep_start);
+                        
             fprintf('Start of question period %d...\n', trial);
             
             sca
