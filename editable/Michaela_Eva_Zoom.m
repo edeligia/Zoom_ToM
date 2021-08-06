@@ -34,6 +34,10 @@ screen_colour_background = [0 0 0];
 screen_colour_text = [255 255 255];
 screen_font_size = 30;
 
+% Define black and white
+white = WhiteIndex(screen_number);
+black = BlackIndex(screen_number);
+
 %Work around to turn off sync 
 Screen('Preference','SkipSyncTests', 1);
 
@@ -291,6 +295,7 @@ ShowCursor;
 
 %% Practice Run
 
+<<<<<<< Updated upstream
 fprintf('\n----------------------------------------------\nWaiting for return key (%s) to start the practice run or exit key (%s) to skip...\n----------------------------------------------\n\n', p.KEYS.RUN.NAME, p.KEYS.EXIT.NAME);
 while 1
     [~,keys] = KbWait(-1);
@@ -349,6 +354,67 @@ while 1
         break;
     end
 end
+=======
+% fprintf('\n----------------------------------------------\nWaiting for return key (%s) to start the practice run or exit key (%s) to skip...\n----------------------------------------------\n\n', p.KEYS.RUN.NAME, p.KEYS.EXIT.NAME);
+% while 1
+%     [~,keys] = KbWait(-1);
+%     if any(keys(p.KEYS.RUN.VALUE))
+%         for practice_trial = 1:4
+%             practice_movie_filepath = sprintf('%s%d_question.mp4', p.DIR_VIDEOSTIMS_PRACTICE, practice_trial);
+%             movie = Screen('OpenMovie', window, practice_movie_filepath);
+%             rate = 1;
+%             WaitSecs(1); %Give the display a moment to recover from change of display mode
+%             
+%             Screen(window, 'Flip');
+%             Screen('PlayMovie', movie, rate, 0, 1.0);
+%             movie_start = GetSecs;
+%             
+%             while(GetSecs - movie_start < movieDur -.2)
+%                 % Wait for next movie frame, retrieve texture handle to it
+%                 tex = Screen('GetMovieImage', window, movie);
+%                 % Valid texture returned? A negative value means end of movie reached:
+%                 if tex<=0
+%                     % done, break
+%                     break;
+%                 end
+%                 % Draw the new texture immediately to screen:
+%                 Screen('DrawTexture', window, tex);
+%                 % Update display:
+%                 Screen(window, 'Flip');
+%                 % Release texture:
+%                 Screen('Close', tex);
+%             end
+%             Screen(window, 'Flip');
+%             
+%             [~,keys] = KbWait(-1);
+%             %display image response if in pre-recorded conditions
+%             if any(keys(p.KEYS.YES.VALUE))
+%                 correct_response_image_practice = imread('C:\Users\CulhmanLab\Documents\GitHub\Zoom_ToM\editable\ImageResponses\correct_response_03.jpeg');
+%                 imageTexture = Screen('MakeTexture', window, correct_response_image_practice);
+%                 Screen('DrawTexture', window, imageTexture, [], [], 0);
+%                 Screen('Flip', window);
+%                 
+%                 WaitSecs(1);
+%                 
+%                 Screen('Flip', window);
+%             elseif any(keys(p.KEYS.NO.VALUE))
+%                 incorrect_response_image_practice = imread('C:\Users\CulhmanLab\Documents\GitHub\Zoom_ToM\editable\ImageResponses\incorrect_response_03.jpeg');
+%                 imageTexture = Screen('MakeTexture', window, incorrect_response_image_practice);
+%                 Screen('DrawTexture', window, imageTexture, [], [], 0);
+%                 Screen('Flip', window);
+%                 
+%                 WaitSecs(1);
+%                 Screen('Flip', window);
+%             elseif any(keys(p.KEYS.ABORT.VALUE))
+%                 error('Abort key pressed');
+%             end
+%         end
+%         break;
+%     elseif any(keys(p.KEYS.ABORT.VALUE))
+%         break;
+%     end
+% end
+>>>>>>> Stashed changes
 
 %% Start Eyetracking Recording 
     Eyelink('StartRecording')
@@ -513,8 +579,7 @@ for trial = 1: p.number_trials
                     d.number_trials = trial;
                     error('Abort key pressed');
                 end
-            phase = 3;
-        %in pre-recorded conditions wait for the answer key end to trigger 
+            phase = 3; 
         elseif any(keys(p.KEYS.ANSWER.VALUE)) && phase == 1 && (p.condition_number == 3 || p.condition_number == 4)
             fprintf('Start of answer period %d...\n', trial);
             
@@ -532,6 +597,7 @@ for trial = 1: p.number_trials
                     d.number_trials = trial;
                     error('Abort key pressed');
                 end
+                fprintf('End of answer period %d...\n', trial);
                 phase = 2;
        %display image response if in pre-recorded conditions
         elseif any(keys(p.KEYS.YES.VALUE)) && phase >= 2 && (d.trial_data(trial).correct_response ~= true) && (p.condition_number == 3 || p.condition_number == 4)
@@ -552,11 +618,46 @@ for trial = 1: p.number_trials
             
             d.trial_data(trial).correct_response = true;
             
-            phase = 3;
-            
             WaitSecs(1);
+            % add the fixation cross
+
+            % Set up alpha-blending for smooth (anti-aliased) lines
+            Screen('BlendFunction', window, 'GL_SRC_ALPHA', 'GL_ONE_MINUS_SRC_ALPHA');
+            
+            % Setup the text type for the window
+            Screen('TextFont', window, 'Ariel');
+            Screen('TextSize', window, 36);
+            
+            % Get the centre coordinate of the window
+            [xCenter, yCenter] = RectCenter(screen_rect);
+            
+            % Here we set the size of the arms of our fixation cross
+            fixCrossDimPix = 40;
+            
+            % Now we set the coordinates (these are all relative to zero we will let
+            % the drawing routine center the cross in the center of our monitor for us)
+            xCoords = [-fixCrossDimPix fixCrossDimPix 0 0];
+            yCoords = [0 0 -fixCrossDimPix fixCrossDimPix];
+            allCoords = [xCoords; yCoords];
+
+            % Set the line width for our fixation cross
+            lineWidthPix = 4;
+            
+            % Draw the fixation cross in white, set it to the center of our screen and
+            % set good quality antialiasing
+            Screen('DrawLines', window, allCoords,...
+                lineWidthPix, white, [xCenter yCenter], 2);
+            
+            % Flip to the screen
+            Screen('Flip', window);
+            
+            % Wait for a specified amount of time 
+            WaitSecs(2);
             
             Screen('Flip', window);
+            
+            phase = 3;
+            
         elseif any(keys(p.KEYS.NO.VALUE)) && phase >= 2 && (d.trial_data(trial).correct_response ~= false) && (p.condition_number == 3 || p.condition_number == 4)
             incorrect_response_image = imread(d.filepath_incorrect_image_response);
             
@@ -574,10 +675,48 @@ for trial = 1: p.number_trials
             end
             
             d.trial_data(trial).correct_response = false;
-
-            phase = 3; 
+ 
             WaitSecs(1);
+            
+            % add the fixation cross
+
+            % Set up alpha-blending for smooth (anti-aliased) lines
+            Screen('BlendFunction', window, 'GL_SRC_ALPHA', 'GL_ONE_MINUS_SRC_ALPHA');
+            
+            % Setup the text type for the window
+            Screen('TextFont', window, 'Ariel');
+            Screen('TextSize', window, 36);
+            
+            % Get the centre coordinate of the window
+            [xCenter, yCenter] = RectCenter(screen_rect);
+            
+            % Here we set the size of the arms of our fixation cross
+            fixCrossDimPix = 40;
+            
+            % Now we set the coordinates (these are all relative to zero we will let
+            % the drawing routine center the cross in the center of our monitor for us)
+            xCoords = [-fixCrossDimPix fixCrossDimPix 0 0];
+            yCoords = [0 0 -fixCrossDimPix fixCrossDimPix];
+            allCoords = [xCoords; yCoords];
+
+            % Set the line width for our fixation cross
+            lineWidthPix = 4;
+            
+            % Draw the fixation cross in white, set it to the center of our screen and
+            % set good quality antialiasing
+            Screen('DrawLines', window, allCoords,...
+                lineWidthPix, white, [xCenter yCenter], 2);
+            
+            % Flip to the screen
             Screen('Flip', window);
+            
+            % Show fixation cross for specified amount of time
+            WaitSecs(2);
+            
+            Screen('Flip', window);
+            
+            phase = 3;
+            
         %triggers the end of the current trial 
         elseif any(keys(p.KEYS.STOP.VALUE)) && phase == 3
             

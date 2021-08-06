@@ -4,7 +4,7 @@ close all;
 clearvars;
 
 %skip sync tests for now
-Screen('Preference', 'SkipSyncTests', 1); 
+%Screen('Preference', 'SkipSyncTests', 1); 
 
 % Here we call some default settings for setting up Psychtoolbox
 PsychDefaultSetup(2);
@@ -15,7 +15,7 @@ screens = Screen('Screens');
 % Draw to the external screen if avaliable
 screenNumber = max(screens);
 
-% Define black and white
+% Define black and white for the fixation cross
 white = WhiteIndex(screenNumber);
 black = BlackIndex(screenNumber);
 
@@ -26,7 +26,7 @@ black = BlackIndex(screenNumber);
 [screenXpixels, screenYpixels] = Screen('WindowSize', window);
 
 % Query the frame duration
-ifi = Screen('GetFlipInterval', window);
+%ifi = Screen('GetFlipInterval', window);
 
 % Set up alpha-blending for smooth (anti-aliased) lines
 Screen('BlendFunction', window, 'GL_SRC_ALPHA', 'GL_ONE_MINUS_SRC_ALPHA');
