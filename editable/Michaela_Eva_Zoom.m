@@ -349,6 +349,7 @@ while 1
                 error('Abort key pressed');
             end
         end
+        break;
     elseif any(keys(p.KEYS.ABORT.VALUE))
         break;
     end
