@@ -11,8 +11,8 @@ function Michaela_Eva_Zoom (participant_number , run_number)
 % 4 = pre-recorded + memoji 
 
 %% Debug Settings
-p.USE_EYELINK = true;
-p.TRIGGER_STIM_TRACKER = true;
+p.USE_EYELINK = false;
+p.TRIGGER_STIM_TRACKER = false;
 
 if ~p.TRIGGER_STIM_TRACKER    
     warning('One or more debug settings is active!')
@@ -29,7 +29,7 @@ filepath_participant_edf = sprintf('PAR%02d', participant_number);
 
 % screen_rect [ 0 0 width length]
 screen_number = max(Screen('Screens'));
-screen_rect = [];
+screen_rect = [0 0 500 500];
 screen_colour_background = [0 0 0];
 screen_colour_text = [255 255 255];
 screen_font_size = 30;
@@ -57,8 +57,8 @@ p.DIR_VIDEOSTIMS_PRACTICE = [pwd filesep 'VideoStims' filesep 'Practice_Stims' f
 p.TRIGGER_CABLE_COM_STRING = 'COM3';
 
 %timings
-p.DURATION_BASELINE = 30;
-p.DURATION_BASELINE_FINAL = 30;
+p.DURATION_BASELINE = 2;
+p.DURATION_BASELINE_FINAL = 2;
 
 %buttons
 p.KEYS.RUN.NAME = 'RETURN';
@@ -237,7 +237,7 @@ else
 end
 
 %% Wait for Run Start 
-fprintf('\n----------------------------------------------\nWaiting for run key (%s) or exit key (%s)...\n----------------------------------------------\n\n', p.KEYS.RUN.NAME, p.KEYS.EXIT.NAME);
+fprintf('\n----------------------------------------------\nWaiting for run key (%s) or exit key (%s) to start run...\n----------------------------------------------\n\n', p.KEYS.RUN.NAME, p.KEYS.EXIT.NAME);
 while 1 
     [~,keys] = KbWait(-1);
     if any(keys(p.KEYS.RUN.VALUE))
@@ -291,7 +291,6 @@ fprintf('Baseline complete...\n');
 % sca
 % sca
 ShowCursor;
-
 
 %% Practice Run
 
@@ -437,7 +436,7 @@ end
     end
     
     %% Enter trial phase
- fprintf('\n----------------------------------------------\nWaiting for run key (%s) or exit key (%s)...\n----------------------------------------------\n\n', p.KEYS.RUN.NAME, p.KEYS.EXIT.NAME);
+ fprintf('\n----------------------------------------------\nWaiting for run key (%s) or exit key (%s) to start the trial period...\n----------------------------------------------\n\n', p.KEYS.RUN.NAME, p.KEYS.EXIT.NAME);
 while 1 
     [~,keys] = KbWait(-1);
     if any(keys(p.KEYS.RUN.VALUE))
@@ -500,6 +499,7 @@ for trial = 1: p.number_trials
             sca
             sca
             
+            %TRIGGER QUESTION START LIVE CONDITIONS
             if p.TRIGGER_STIM_TRACKER
                 fwrite(sport,['mh',bin2dec('00000010'),0]); %turn question period trigger on (for StimTracker)
                 d.trial_data(trial).timing.trigger.question_period_start = GetSecs - t0;
@@ -526,6 +526,7 @@ for trial = 1: p.number_trials
             movie = Screen('OpenMovie', window, movie_filepath);
             rate = 1; 
             
+            %TRIGGER QUESTION START PRERECORDED CONDITIONS
             if p.TRIGGER_STIM_TRACKER
                 fwrite(sport,['mh',bin2dec('00000010'),0]); %turn question period trigger on (for StimTracker)
                 d.trial_data(trial).timing.trigger.question_period_start = GetSecs - t0;
@@ -560,19 +561,16 @@ for trial = 1: p.number_trials
             Screen(window, 'Flip');
             
             fprintf('End of question period %d...\n', trial);
-            
-            if p.TRIGGER_STIM_TRACKER
-                fwrite(sport,['mh',bin2dec('00000010'),0]); %turn question period trigger on (for StimTracker)
-                d.trial_data(trial).timing.trigger.question_period_end = GetSecs - t0;
-                fwrite(sport,['mh',bin2dec('00000000'),0]); %turn question period trigger off (for StimTracker)
-            end
+           
+            d.trial_data(trial).timing.trigger.question_period_end = GetSecs - t0;
             
             Eyelink('Message','End of Question Period %d', trial);
             phase = 1;    
-        %end the live condition without the use of answer key end 
+ 
         elseif any(keys(p.KEYS.ANSWER.VALUE)) && phase == 1 && (p.condition_number == 1 || p.condition_number == 2)
             fprintf('Start of answer period %d...\n', trial);
             
+            %TRIGGER START OF ANSWER PERIOD LIVE
             if p.TRIGGER_STIM_TRACKER
                 fwrite(sport,['mh',bin2dec('00000100'),0]); %turn question period trigger on (for StimTracker)
                 d.trial_data(trial).timing.trigger.answer_period_start = GetSecs - t0;
@@ -594,6 +592,7 @@ for trial = 1: p.number_trials
         elseif any(keys(p.KEYS.ANSWER.VALUE)) && phase == 1 && (p.condition_number == 3 || p.condition_number == 4)
             fprintf('Start of answer period %d...\n', trial);
             
+            %TRIGGER START OF ANSWER PERIOD PRERECORDED 
             if p.TRIGGER_STIM_TRACKER
                 fwrite(sport,['mh',bin2dec('00000100'),0]); %turn question period trigger on (for StimTracker)
                 d.trial_data(trial).timing.trigger.answer_period_start = GetSecs - t0;
@@ -621,6 +620,7 @@ for trial = 1: p.number_trials
 
             Eyelink('Message','Answer correct for trial %d', trial);
             
+            %TRIGGER REACTION PRERECORDED
             if p.TRIGGER_STIM_TRACKER
                 fwrite(sport,['mh',bin2dec('00001000'),0]);
                 d.trial_data(trial).timing.trigger.reaction(end+1) = GetSecs - t0;
@@ -630,40 +630,6 @@ for trial = 1: p.number_trials
             d.trial_data(trial).correct_response = true;
             
             WaitSecs(1);
-%             % add the fixation cross
-% 
-%             % Set up alpha-blending for smooth (anti-aliased) lines
-%             Screen('BlendFunction', window, 'GL_SRC_ALPHA', 'GL_ONE_MINUS_SRC_ALPHA');
-%             
-%             % Setup the text type for the window
-%             Screen('TextFont', window, 'Ariel');
-%             Screen('TextSize', window, 36);
-%             
-%             % Get the centre coordinate of the window
-%             [xCenter, yCenter] = RectCenter(screen_rect);
-%             
-%             % Here we set the size of the arms of our fixation cross
-%             fixCrossDimPix = 40;
-%             
-%             % Now we set the coordinates (these are all relative to zero we will let
-%             % the drawing routine center the cross in the center of our monitor for us)
-%             xCoords = [-fixCrossDimPix fixCrossDimPix 0 0];
-%             yCoords = [0 0 -fixCrossDimPix fixCrossDimPix];
-%             allCoords = [xCoords; yCoords];
-% 
-%             % Set the line width for our fixation cross
-%             lineWidthPix = 4;
-%             
-%             % Draw the fixation cross in white, set it to the center of our screen and
-%             % set good quality antialiasing
-%             Screen('DrawLines', window, allCoords,...
-%                 lineWidthPix, white, [xCenter yCenter], 2);
-%             
-%             % Flip to the screen
-%             Screen('Flip', window);
-%             
-%             % Wait for a specified amount of time 
-%             WaitSecs(2);
             
             Screen('Flip', window);
             
@@ -689,42 +655,40 @@ for trial = 1: p.number_trials
  
             WaitSecs(1);
             
-%             % add the fixation cross
-% 
-%             % Set up alpha-blending for smooth (anti-aliased) lines
-%             Screen('BlendFunction', window, 'GL_SRC_ALPHA', 'GL_ONE_MINUS_SRC_ALPHA');
-%             
-%             % Setup the text type for the window
-%             Screen('TextFont', window, 'Ariel');
-%             Screen('TextSize', window, 36);
-%             
-%             % Get the centre coordinate of the window
-%             [xCenter, yCenter] = RectCenter(screen_rect);
-%             
-%             % Here we set the size of the arms of our fixation cross
-%             fixCrossDimPix = 40;
-%             
-%             % Now we set the coordinates (these are all relative to zero we will let
-%             % the drawing routine center the cross in the center of our monitor for us)
-%             xCoords = [-fixCrossDimPix fixCrossDimPix 0 0];
-%             yCoords = [0 0 -fixCrossDimPix fixCrossDimPix];
-%             allCoords = [xCoords; yCoords];
-% 
-%             % Set the line width for our fixation cross
-%             lineWidthPix = 4;
-%             
-%             % Draw the fixation cross in white, set it to the center of our screen and
-%             % set good quality antialiasing
-%             Screen('DrawLines', window, allCoords,...
-%                 lineWidthPix, white, [xCenter yCenter], 2);
-%             
-%             % Flip to the screen
-%             Screen('Flip', window);
-%             
-%             % Show fixation cross for specified amount of time
-%             WaitSecs(2);
-%             
             Screen('Flip', window);
+            
+            phase = 3;
+            
+        elseif any(keys(p.KEYS.YES.VALUE)) && phase >= 2 && (d.trial_data(trial).correct_response ~= true) && (p.condition_number == 1 || p.condition_number == 2)
+            
+            Eyelink('Message','Answer correct for trial %d', trial);
+            
+            %TRIGGER REACTION PRERECORDED
+            if p.TRIGGER_STIM_TRACKER
+                fwrite(sport,['mh',bin2dec('00001000'),0]);
+                d.trial_data(trial).timing.trigger.reaction(end+1) = GetSecs - t0;
+                fwrite(sport,['mh',bin2dec('00000000'),0]);
+            end
+            
+            d.trial_data(trial).correct_response = true;
+            
+            WaitSecs(1);
+            
+            phase = 3;
+            
+        elseif any(keys(p.KEYS.NO.VALUE)) && phase >= 2 && (d.trial_data(trial).correct_response ~= false) && (p.condition_number == 1 || p.condition_number == 2)
+            
+            Eyelink('Message','Answer incorrect for trial %d', trial);
+            
+            if p.TRIGGER_STIM_TRACKER
+                fwrite(sport,['mh',bin2dec('00001000'),0]);
+                d.trial_data(trial).timing.trigger.reaction(end+1) = GetSecs - t0;
+                fwrite(sport,['mh',bin2dec('00000000'),0]);
+            end
+            
+            d.trial_data(trial).correct_response = false;
+            
+            WaitSecs(1);
             
             phase = 3;
             
@@ -800,7 +764,7 @@ while 1
     end 
 end
 
-%% trigger stim tracker (end of exp)
+%% trigger stim tracker (end of exp which is also end of baseline)
 if p.TRIGGER_STIM_TRACKER
     fwrite(sport, ['mh',bin2dec('00000001'),0]);
     WaitSecs(0.1);
