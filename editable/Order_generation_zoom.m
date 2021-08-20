@@ -1,6 +1,6 @@
 number_questions_total = 38;
 number_runs = 4;
-number_participants = 1;
+number_participants = 30;
 number_conditions_total = 4;
 
 folder_output = [pwd filesep 'Orders' filesep];

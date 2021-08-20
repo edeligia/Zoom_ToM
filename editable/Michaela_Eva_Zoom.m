@@ -27,9 +27,12 @@ end
 %Folder to save EDF file to 
 filepath_participant_edf = sprintf('PAR%02d', participant_number);
 
+%Folder for participant specific data
+filepath_participant_mat = sprintf('PAR%02d', participant_number);
+
 % screen_rect [ 0 0 width length]
 screen_number = max(Screen('Screens'));
-screen_rect = [0 0 500 500];
+screen_rect = [];
 screen_colour_background = [0 0 0];
 screen_colour_text = [255 255 255];
 screen_font_size = 30;
@@ -42,9 +45,9 @@ black = BlackIndex(screen_number);
 Screen('Preference','SkipSyncTests', 1);
 
 %directories 
-p.DIR_DATA = [pwd filesep 'Data' filesep];
+p.DIR_DATA = [pwd filesep 'Data' filesep filepath_participant_mat filesep];
 p.DIR_DATA_EDF = [pwd filesep 'Data_EDF' filesep];
-p.DIR_ORDERS = [pwd filesep 'Orders' filesep];
+p.DIR_ORDERS = [pwd filesep 'Orders' filesep 'Mat Orders' filesep];
 p.DIR_VIDEOSTIMS_HUMAN = [pwd filesep 'VideoStims' filesep 'Human' filesep]; 
 p.DIR_VIDEOSTIMS_MEMOJI = [pwd filesep 'VideoStims' filesep 'Memoji' filesep]; 
 p.DIR_PARTICIPANT_EDF = [pwd filesep 'Data_EDF' filesep filepath_participant_edf filesep];
@@ -103,34 +106,22 @@ end
 
 %% Prepare Orders
 
-orderfilepath = sprintf('%sPAR%02d_RUN%02d.xlsx', p.DIR_ORDERS, participant_number, run_number);
-
-[numbers_only_info,~,all_info_cell_matrix] = xlsread(orderfilepath);
-
-%get header info
-% order_headers = all_info_cell_matrix(1,:);
-
-%get number of rows (ie. number of trials) excluding headers 
-order_data = all_info_cell_matrix(2:end,:);
-
-%get number of trials from order  
-p.number_trials = size(order_data, 1);
-
-%get condition number from order 
-p.condition_number = all_info_cell_matrix{2, 3};
-
-%save condition type in data 
-if p.condition_number == 1
-    d.condition_type = sprintf('live_human');
-elseif p.condition_number == 2
-    d.condition_type = sprintf('live_memoji');
-elseif p.condition_number == 3
-    d.condition_type = sprintf('prerecorded_human');
-elseif p.condition_number == 4
-    d.condition_type = sprintf('prerecorded_memoji');
-elseif ~p.condition_number
-    error('No condition type available');
-end
+% orderfilepath = sprintf('%sPAR%02d_RUN%02d.xlsx', p.DIR_ORDERS, participant_number, run_number);
+% 
+% [numbers_only_info,~,all_info_cell_matrix] = xlsread(orderfilepath);
+% d.order.raw = all_info_cell_matrix; 
+% 
+% %get header info
+% % order_headers = all_info_cell_matrix(1,:);
+% 
+% %get number of rows (ie. number of trials) excluding headers 
+% order_data = all_info_cell_matrix(2:end,:);
+% 
+% %get number of trials from order  
+% p.number_trials = size(order_data, 1);
+% 
+% %get condition number from order 
+% p.condition_number = all_info_cell_matrix{2, 3};
 
 %% Prep 
 
@@ -142,12 +133,11 @@ d.participant_number = participant_number;
 d.run_number = run_number;
 
 %filenames 
+d.filepath_order = sprintf('%sPAR%02d_RUN%02d.mat', p.DIR_ORDERS, d.participant_number, d.run_number);
 d.filepath_data = sprintf('%sPAR%02d_RUN%02d_%s.mat', p.DIR_DATA, d.participant_number, d.run_number, d.timestamp_start_script);
 d.filepath_error = strrep(d.filepath_data, '.mat', '_ERROR.mat');
 d.filename_edf_on_system = sprintf('P%02d%s', d.participant_number, d.timestamp_edf);
 d.filepath_run_edf = sprintf('%sParticipant_%02d_Run%03d_%s', p.DIR_PARTICIPANT_EDF, d.participant_number, d.run_number, d.timestamp);
-d.filepath_correct_image_response = sprintf('%scorrect_response_%02d.jpeg', p.DIR_IMAGES, p.condition_number); 
-d.filepath_incorrect_image_response = sprintf('%sincorrect_response_%02d.jpeg', p.DIR_IMAGES, p.condition_number); 
 d.filepath_practice_image_correct = sprintf('%scorrect_response_03.jpeg', p.DIR_IMAGES);
 d.filepath_practice_image_incorrect = sprintf('%sincorrect_response_03.jpeg', p.DIR_IMAGES);
 
@@ -172,7 +162,35 @@ end
 
 movieDur = 15;
 
-        
+%Read orders 
+load(d.filepath_order);
+d.order.raw = xls;
+d.order.headers = xls(1,:);
+d.order.data = xls(2:end,:);
+
+%get number of trials from order  
+d.number_trials = size(d.order.data, 1);
+
+%get condition number from order 
+d.condition_number = xls{2, 3};
+
+%save condition type in data 
+if d.condition_number == 1
+    d.condition_type = sprintf('live_human');
+elseif d.condition_number == 2
+    d.condition_type = sprintf('live_memoji');
+elseif d.condition_number == 3
+    d.condition_type = sprintf('prerecorded_human');
+elseif d.condition_number == 4
+    d.condition_type = sprintf('prerecorded_memoji');
+elseif ~d.condition_number
+    error('No condition type available');
+end
+
+%filepaths dependent on knowing the condition number (this is an
+%unsophisticated work around)
+d.filepath_correct_image_response = sprintf('%scorrect_response_%02d.jpeg', p.DIR_IMAGES, d.condition_number); 
+d.filepath_incorrect_image_response = sprintf('%sincorrect_response_%02d.jpeg', p.DIR_IMAGES, d.condition_number); 
 %% Calibrate Eyetracker 
 %create window for calibration
 
@@ -335,41 +353,41 @@ while 1
                 
                 WaitSecs(1);
                 
-%                 Screen('Flip', window);
-%                 % add the fixation cross
-% 
-%             % Set up alpha-blending for smooth (anti-aliased) lines
-%             Screen('BlendFunction', window, 'GL_SRC_ALPHA', 'GL_ONE_MINUS_SRC_ALPHA');
-%             
-%             % Setup the text type for the window
-%             Screen('TextFont', window, 'Ariel');
-%             Screen('TextSize', window, 36);
-%             
-%             % Get the centre coordinate of the window
-%             [xCenter, yCenter] = RectCenter(Screen('Rect',window));
-%             
-%             % Here we set the size of the arms of our fixation cross
-%             fixCrossDimPix = 40;
-%             
-%             % Now we set the coordinates (these are all relative to zero we will let
-%             % the drawing routine center the cross in the center of our monitor for us)
-%             xCoords = [-fixCrossDimPix fixCrossDimPix 0 0];
-%             yCoords = [0 0 -fixCrossDimPix fixCrossDimPix];
-%             allCoords = [xCoords; yCoords];
-% 
-%             % Set the line width for our fixation cross
-%             lineWidthPix = 4;
-%             
-%             % Draw the fixation cross in white, set it to the center of our screen and
-%             % set good quality antialiasing
-%             Screen('DrawLines', window, allCoords,...
-%                 lineWidthPix, white, [xCenter yCenter], 2);
-%             
-%             % Flip to the screen
-%             Screen('Flip', window);
-%             
-%             % Wait for a specified amount of time 
-%             WaitSecs(2);
+                Screen('Flip', window);
+                % add the fixation cross
+
+            % Set up alpha-blending for smooth (anti-aliased) lines
+            Screen('BlendFunction', window, 'GL_SRC_ALPHA', 'GL_ONE_MINUS_SRC_ALPHA');
+            
+            % Setup the text type for the window
+            Screen('TextFont', window, 'Ariel');
+            Screen('TextSize', window, 36);
+            
+            % Get the centre coordinate of the window
+            [xCenter, yCenter] = RectCenter(Screen('Rect',window));
+            
+            % Here we set the size of the arms of our fixation cross
+            fixCrossDimPix = 40;
+            
+            % Now we set the coordinates (these are all relative to zero we will let
+            % the drawing routine center the cross in the center of our monitor for us)
+            xCoords = [-fixCrossDimPix fixCrossDimPix 0 0];
+            yCoords = [0 0 -fixCrossDimPix fixCrossDimPix];
+            allCoords = [xCoords; yCoords];
+
+            % Set the line width for our fixation cross
+            lineWidthPix = 4;
+            
+            % Draw the fixation cross in white, set it to the center of our screen and
+            % set good quality antialiasing
+            Screen('DrawLines', window, allCoords,...
+                lineWidthPix, white, [xCenter yCenter+540], 2);
+            
+            % Flip to the screen
+            Screen('Flip', window);
+            
+            % Wait for a specified amount of time 
+            WaitSecs(2);
             
             Screen('Flip', window);
             elseif any(keys(p.KEYS.NO.VALUE))
@@ -448,7 +466,7 @@ end
 
     fprintf('Starting Run...\n');
    
-for trial = 1: p.number_trials 
+for trial = 1: d.number_trials 
     d.trial_data(trial).timing.onset = GetSecs - t0;
     d.latest_trial = trial;
        
@@ -457,9 +475,9 @@ for trial = 1: p.number_trials
     
     question_number = numbers_only_info(trial, 2);
    
-    if p.condition_number == 3
+    if d.condition_number == 3
         movie_filepath = sprintf('%s%d_question.mp4', p.DIR_VIDEOSTIMS_HUMAN, question_number);
-    elseif p.condition_number == 4
+    elseif d.condition_number == 4
         movie_filepath = sprintf('%s%d_question.mp4', p.DIR_VIDEOSTIMS_MEMOJI, question_number);
     end
 
@@ -471,7 +489,7 @@ for trial = 1: p.number_trials
     
     while trial_in_progress
         [~,keys] = KbWait(-1); 
-        if any(keys(p.KEYS.QUESTION.VALUE)) && phase == 0 && (p.condition_number == 1 || p.condition_number == 2)
+        if any(keys(p.KEYS.QUESTION.VALUE)) && phase == 0 && (d.condition_number == 1 || d.condition_number == 2)
             %Play a beep to tell the confederate the trial has begun 
             %clear prior audio
             try
@@ -520,7 +538,7 @@ for trial = 1: p.number_trials
                 end
             phase = 1;
 
-        elseif any(keys(p.KEYS.QUESTION.VALUE)) && phase == 0 && (p.condition_number == 3 || p.condition_number == 4)
+        elseif any(keys(p.KEYS.QUESTION.VALUE)) && phase == 0 && (d.condition_number == 3 || d.condition_number == 4)
 %             window = Screen('OpenWindow', screen_number, screen_colour_background, screen_rect);
 %             Screen(window, 'Flip');	
             movie = Screen('OpenMovie', window, movie_filepath);
@@ -567,7 +585,7 @@ for trial = 1: p.number_trials
             Eyelink('Message','End of Question Period %d', trial);
             phase = 1;    
  
-        elseif any(keys(p.KEYS.ANSWER.VALUE)) && phase == 1 && (p.condition_number == 1 || p.condition_number == 2)
+        elseif any(keys(p.KEYS.ANSWER.VALUE)) && phase == 1 && (d.condition_number == 1 || d.condition_number == 2)
             fprintf('Start of answer period %d...\n', trial);
             
             %TRIGGER START OF ANSWER PERIOD LIVE
@@ -589,7 +607,7 @@ for trial = 1: p.number_trials
                     error('Abort key pressed');
                 end
             phase = 3; 
-        elseif any(keys(p.KEYS.ANSWER.VALUE)) && phase == 1 && (p.condition_number == 3 || p.condition_number == 4)
+        elseif any(keys(p.KEYS.ANSWER.VALUE)) && phase == 1 && (d.condition_number == 3 || d.condition_number == 4)
             fprintf('Start of answer period %d...\n', trial);
             
             %TRIGGER START OF ANSWER PERIOD PRERECORDED 
@@ -610,7 +628,7 @@ for trial = 1: p.number_trials
                 fprintf('End of answer period %d...\n', trial);
                 phase = 2;
        %display image response if in pre-recorded conditions
-        elseif any(keys(p.KEYS.YES.VALUE)) && phase >= 2 && (d.trial_data(trial).correct_response ~= true) && (p.condition_number == 3 || p.condition_number == 4)
+        elseif any(keys(p.KEYS.YES.VALUE)) && phase >= 2 && (d.trial_data(trial).correct_response ~= true) && (d.condition_number == 3 || d.condition_number == 4)
             correct_response_image = imread(d.filepath_correct_image_response);
             
 %             window = Screen('OpenWindow', screen_number, screen_colour_background, screen_rect);
@@ -635,7 +653,7 @@ for trial = 1: p.number_trials
             
             phase = 3;
             
-        elseif any(keys(p.KEYS.NO.VALUE)) && phase >= 2 && (d.trial_data(trial).correct_response ~= false) && (p.condition_number == 3 || p.condition_number == 4)
+        elseif any(keys(p.KEYS.NO.VALUE)) && phase >= 2 && (d.trial_data(trial).correct_response ~= false) && (d.condition_number == 3 || d.condition_number == 4)
             incorrect_response_image = imread(d.filepath_incorrect_image_response);
             
 %             window = Screen('OpenWindow', screen_number, screen_colour_background, screen_rect);
@@ -659,7 +677,7 @@ for trial = 1: p.number_trials
             
             phase = 3;
             
-        elseif any(keys(p.KEYS.YES.VALUE)) && phase >= 2 && (d.trial_data(trial).correct_response ~= true) && (p.condition_number == 1 || p.condition_number == 2)
+        elseif any(keys(p.KEYS.YES.VALUE)) && phase >= 2 && (d.trial_data(trial).correct_response ~= true) && (d.condition_number == 1 || d.condition_number == 2)
             
             Eyelink('Message','Answer correct for trial %d', trial);
             
@@ -676,7 +694,7 @@ for trial = 1: p.number_trials
             
             phase = 3;
             
-        elseif any(keys(p.KEYS.NO.VALUE)) && phase >= 2 && (d.trial_data(trial).correct_response ~= false) && (p.condition_number == 1 || p.condition_number == 2)
+        elseif any(keys(p.KEYS.NO.VALUE)) && phase >= 2 && (d.trial_data(trial).correct_response ~= false) && (d.condition_number == 1 || d.condition_number == 2)
             
             Eyelink('Message','Answer incorrect for trial %d', trial);
             
