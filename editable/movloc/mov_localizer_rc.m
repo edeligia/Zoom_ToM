@@ -227,7 +227,7 @@ end
 Screen('PlayMovie', movie, rate, 0, 1.0);
 
 fwrite(sport,['mh',1,0]); %send trigger to Stim Tracker
-WaitSecs(0.1); %PTB command, could use built-in, doesn't have to be 1sec, a few msec is fine
+WaitSecs(0.1); 
 fwrite(sport,['mh',0,0]); %turn trigger off (for StimTracker)
 
 p.trialStart = GetSecs;
@@ -256,8 +256,20 @@ end
 Screen('CloseMovie', movie);
 Screen(w, 'Flip');
 
+fwrite(sport,['mh',1,0]); %send trigger to Stim Tracker
+WaitSecs(0.1); %PTB command, could use built-in, doesn't have to be 1sec, a few msec is fine
+fwrite(sport,['mh',0,0]); %turn trigger off (for StimTracker)
 
 p.experimentEnd = GetSecs;
+
+tfinal = p.experimentEnd + p.DURATION_BASELINE;
+while 1
+    tf = GetSecs;
+    if tf > tfinal
+        break;
+    end
+end
+
 p.experimentDuration = p.experimentEnd - p.experimentStart;
 
 % close connection
