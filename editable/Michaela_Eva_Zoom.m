@@ -11,8 +11,8 @@ function Michaela_Eva_Zoom (participant_number , run_number)
 % 4 = pre-recorded + memoji 
 
 %% Debug Settings
-p.USE_EYELINK = false;
-p.TRIGGER_STIM_TRACKER = false;
+p.USE_EYELINK = true;
+p.TRIGGER_STIM_TRACKER = true;
 
 if ~p.TRIGGER_STIM_TRACKER    
     warning('One or more debug settings is active!')
@@ -32,7 +32,7 @@ filepath_participant_mat = sprintf('PAR%02d', participant_number);
 
 % screen_rect [ 0 0 width length]
 screen_number = max(Screen('Screens'));
-screen_rect = [];
+screen_rect = [ ];
 screen_colour_background = [0 0 0];
 screen_colour_text = [255 255 255];
 screen_font_size = 30;
@@ -60,8 +60,8 @@ p.DIR_VIDEOSTIMS_PRACTICE = [pwd filesep 'VideoStims' filesep 'Practice_Stims' f
 p.TRIGGER_CABLE_COM_STRING = 'COM3';
 
 %timings
-p.DURATION_BASELINE = 2;
-p.DURATION_BASELINE_FINAL = 2;
+p.DURATION_BASELINE = 30;
+p.DURATION_BASELINE_FINAL = 30;
 
 %buttons
 p.KEYS.RUN.NAME = 'RETURN';
@@ -356,40 +356,40 @@ while 1
                 Screen('Flip', window);
                 % add the fixation cross
 
-            % Set up alpha-blending for smooth (anti-aliased) lines
-            Screen('BlendFunction', window, 'GL_SRC_ALPHA', 'GL_ONE_MINUS_SRC_ALPHA');
-            
-            % Setup the text type for the window
-            Screen('TextFont', window, 'Ariel');
-            Screen('TextSize', window, 36);
-            
-            % Get the centre coordinate of the window
-            [xCenter, yCenter] = RectCenter(Screen('Rect',window));
-            
-            % Here we set the size of the arms of our fixation cross
-            fixCrossDimPix = 40;
-            
-            % Now we set the coordinates (these are all relative to zero we will let
-            % the drawing routine center the cross in the center of our monitor for us)
-            xCoords = [-fixCrossDimPix fixCrossDimPix 0 0];
-            yCoords = [0 0 -fixCrossDimPix fixCrossDimPix];
-            allCoords = [xCoords; yCoords];
-
-            % Set the line width for our fixation cross
-            lineWidthPix = 4;
-            
-            % Draw the fixation cross in white, set it to the center of our screen and
-            % set good quality antialiasing
-            Screen('DrawLines', window, allCoords,...
-                lineWidthPix, white, [xCenter yCenter+540], 2);
-            
-            % Flip to the screen
-            Screen('Flip', window);
-            
-            % Wait for a specified amount of time 
-            WaitSecs(2);
-            
-            Screen('Flip', window);
+%             % Set up alpha-blending for smooth (anti-aliased) lines
+%             Screen('BlendFunction', window, 'GL_SRC_ALPHA', 'GL_ONE_MINUS_SRC_ALPHA');
+%             
+%             % Setup the text type for the window
+%             Screen('TextFont', window, 'Ariel');
+%             Screen('TextSize', window, 36);
+%             
+%             % Get the centre coordinate of the window
+%             [xCenter, yCenter] = RectCenter(Screen('Rect',window));
+%             
+%             % Here we set the size of the arms of our fixation cross
+%             fixCrossDimPix = 40;
+%             
+%             % Now we set the coordinates (these are all relative to zero we will let
+%             % the drawing routine center the cross in the center of our monitor for us)
+%             xCoords = [-fixCrossDimPix fixCrossDimPix 0 0];
+%             yCoords = [0 0 -fixCrossDimPix fixCrossDimPix];
+%             allCoords = [xCoords; yCoords];
+% 
+%             % Set the line width for our fixation cross
+%             lineWidthPix = 4;
+%             
+%             % Draw the fixation cross in white, set it to the center of our screen and
+%             % set good quality antialiasing
+%             Screen('DrawLines', window, allCoords,...
+%                 lineWidthPix, white, [xCenter yCenter+540], 2);
+%             
+%             % Flip to the screen
+%             Screen('Flip', window);
+%             
+%             % Wait for a specified amount of time 
+%             WaitSecs(10);
+%             
+%             Screen('Flip', window);
             elseif any(keys(p.KEYS.NO.VALUE))
                 incorrect_response_image_practice = imread(d.filepath_practice_image_incorrect);
                 imageTexture = Screen('MakeTexture', window, incorrect_response_image_practice);
@@ -473,7 +473,7 @@ for trial = 1: d.number_trials
     Eyelink('Message',sprintf('Event: Start of trial %03d\n', trial));
     fprintf('\nTrial %d (%g sec)\n', trial, d.trial_data(trial).timing.onset); 
     
-    question_number = numbers_only_info(trial, 2);
+    question_number = d.order.data{trial, 2};
    
     if d.condition_number == 3
         movie_filepath = sprintf('%s%d_question.mp4', p.DIR_VIDEOSTIMS_HUMAN, question_number);
@@ -746,6 +746,31 @@ for trial = 1: d.number_trials
     save(d.filepath_data, 'p', 'd')
 end
 
+%% Drift Check 
+try
+  window = Screen('OpenWindow', screen_number, screen_colour_background, screen_rect);
+  Screen('TextSize', window, screen_font_size);
+  HideCursor;
+catch err
+  warning('An error occured while opening the Screen(not related to Eyelink)');
+  rethrow(err);
+end
+
+DrawFormattedText(window, 'Fixate on the centre of the dot on the bottom middle of the screen', 'center', 'center', screen_colour_text);
+Screen('Flip', window);
+
+WaitSecs(3);
+
+Screen('Flip', window);
+Eyelink('Message',sprintf('Drift Check'));
+
+WaitSecs(1);
+
+DrawFormattedText(window, 'Thank you we are now going into a baseline period, please remain still', 'center', 'center', screen_colour_text);
+Screen('Flip', window);
+
+WaitSecs(3);
+
 %% Stop eyelink recording
 fprintf('Eyelink Close');   
 
@@ -757,16 +782,16 @@ end
 
 %% Final Baseline
 %Open blank screen for final baseline
-try
-  window = Screen('OpenWindow', screen_number, screen_colour_background, screen_rect); 
-  Screen('TextSize', window, screen_font_size);
-  HideCursor;
-catch err
-  warning('An error occured while opening the Screen(not related to Eyelink)');
-  rethrow(err);
-end
+% try
+%   window = Screen('OpenWindow', screen_number, screen_colour_background, screen_rect); 
+%   Screen('TextSize', window, screen_font_size);
+%   HideCursor;
+% catch err
+%   warning('An error occured while opening the Screen(not related to Eyelink)');
+%   rethrow(err);
+% end
 
-Screen('Flip', window);
+% Screen('Flip', window);
 
 fprintf('Final baseline...\n');
 tend = GetSecs + p.DURATION_BASELINE_FINAL;
