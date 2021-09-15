@@ -11,8 +11,8 @@ function Michaela_Eva_Zoom (participant_number , run_number)
 % 4 = pre-recorded + memoji 
 
 %% Debug Settings
-p.USE_EYELINK = false;
-p.TRIGGER_STIM_TRACKER = false;
+p.USE_EYELINK = true;
+p.TRIGGER_STIM_TRACKER = true;
 
 if ~p.TRIGGER_STIM_TRACKER    
     warning('One or more debug settings is active!')
@@ -32,7 +32,7 @@ filepath_participant_mat = sprintf('PAR%02d', participant_number);
 
 % screen_rect [ 0 0 width length]
 screen_number = max(Screen('Screens'));
-screen_rect = [0 0 500 500];
+screen_rect = [ ];
 screen_colour_background = [0 0 0];
 screen_colour_text = [255 255 255];
 screen_font_size = 30;
@@ -60,8 +60,8 @@ p.DIR_VIDEOSTIMS_PRACTICE = [pwd filesep 'VideoStims' filesep 'Practice_Stims' f
 p.TRIGGER_CABLE_COM_STRING = 'COM3';
 
 %timings
-p.DURATION_BASELINE = 2;
-p.DURATION_BASELINE_FINAL = 2;
+p.DURATION_BASELINE = 30;
+p.DURATION_BASELINE_FINAL = 30;
 
 %buttons
 p.KEYS.RUN.NAME = 'RETURN';
