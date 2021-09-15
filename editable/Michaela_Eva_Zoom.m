@@ -727,7 +727,7 @@ for trial = 1: d.number_trials
 
     
     %jitter the trial ITI (add a save of the variable) 
-    ITI = [6 7 8 9];
+    ITI = [1 2 3 4];
     ITI_index = randi(numel(ITI));
     d.trial_data(trial).trial_end_wait = ITI(ITI_index);
     WaitSecs(d.trial_data(trial).trial_end_wait);
