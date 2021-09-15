@@ -11,8 +11,8 @@ function Michaela_Eva_Zoom (participant_number , run_number)
 % 4 = pre-recorded + memoji 
 
 %% Debug Settings
-p.USE_EYELINK = true;
-p.TRIGGER_STIM_TRACKER = true;
+p.USE_EYELINK = false;
+p.TRIGGER_STIM_TRACKER = false;
 
 if ~p.TRIGGER_STIM_TRACKER    
     warning('One or more debug settings is active!')
@@ -32,7 +32,7 @@ filepath_participant_mat = sprintf('PAR%02d', participant_number);
 
 % screen_rect [ 0 0 width length]
 screen_number = max(Screen('Screens'));
-screen_rect = [ ];
+screen_rect = [0 0 500 500];
 screen_colour_background = [0 0 0];
 screen_colour_text = [255 255 255];
 screen_font_size = 30;
@@ -60,8 +60,8 @@ p.DIR_VIDEOSTIMS_PRACTICE = [pwd filesep 'VideoStims' filesep 'Practice_Stims' f
 p.TRIGGER_CABLE_COM_STRING = 'COM3';
 
 %timings
-p.DURATION_BASELINE = 30;
-p.DURATION_BASELINE_FINAL = 30;
+p.DURATION_BASELINE = 2;
+p.DURATION_BASELINE_FINAL = 2;
 
 %buttons
 p.KEYS.RUN.NAME = 'RETURN';
@@ -191,6 +191,17 @@ end
 %unsophisticated work around)
 d.filepath_correct_image_response = sprintf('%scorrect_response_%02d.jpeg', p.DIR_IMAGES, d.condition_number); 
 d.filepath_incorrect_image_response = sprintf('%sincorrect_response_%02d.jpeg', p.DIR_IMAGES, d.condition_number); 
+
+%prepare start/stop beeps
+freq = 48000;
+beep_duration = 0.5;
+beep_start = MakeBeep(500,beep_duration,freq);
+sound_handle_beep_start = PsychPortAudio('Open', [], 1, [], freq, size(beep_start,1), [], p.SOUND.LATENCY);
+PsychPortAudio('Volume', sound_handle_beep_start, p.SOUND.VOLUME);
+PsychPortAudio('FillBuffer', sound_handle_beep_start, beep_start);
+
+%% Try 
+try
 %% Calibrate Eyetracker 
 %create window for calibration
 
@@ -202,10 +213,10 @@ catch err
   warning('An error occured while opening the Screen(not related to Eyelink)');
   rethrow(err);
 end
+Screen('Flip', window);
 
 %init
-DrawFormattedText(window, 'Eyelink Connect', 'center', 'center', screen_colour_text);
-Screen('Flip', window);
+fprintf('Eyelink Connect...\n');
 if p.USE_EYELINK 
     Eyelink.Collection.Connect
 else
@@ -213,8 +224,7 @@ else
 end 
     
 %set window used
-DrawFormattedText(window, 'Eyelink Set Window', 'center', 'center', screen_colour_text);
-Screen('Flip', window);
+fprintf('Eyelink Set Window...\n');
 if p.USE_EYELINK 
     Eyelink.Collection.SetupScreen(window)
 else
@@ -222,8 +232,7 @@ else
 end 
 
 %set file to write to
-DrawFormattedText(window, 'Eyelink Set EDF', 'center', 'center', screen_colour_text);
-Screen('Flip', window);
+fprintf('Eyelink Set EDF...\n');
 if p.USE_EYELINK 
     Eyelink.Collection.SetEDF(d.filename_edf_on_system)
 else
@@ -231,20 +240,15 @@ else
 end
 
 %calibrate
-DrawFormattedText(window, 'Eyelink Calibration', 'center', 'center', screen_colour_text);
-Screen('Flip', window);
+fprintf('Eyelink Calibration...\n');
 if p.USE_EYELINK 
     Eyelink.Collection.Calibration
 else
     Eyelink('InitializeDummy');
 end
 
-%add another screen to say press R to begin 
-DrawFormattedText(window, 'Waiting for RETURN key to run or H key to exit', 'center', 'center', screen_colour_text);
 Screen('Flip', window);
 
-%% Try 
-try
 %% open serial port for stim tracker
 if p.TRIGGER_STIM_TRACKER
     %sport=serial('/dev/tty.usbserial-00001014','BaudRate',115200);
@@ -255,7 +259,7 @@ else
 end
 
 %% Wait for Run Start 
-fprintf('\n----------------------------------------------\nWaiting for run key (%s) or exit key (%s) to start run...\n----------------------------------------------\n\n', p.KEYS.RUN.NAME, p.KEYS.EXIT.NAME);
+fprintf('\n----------------------------------------------\nWaiting for run key (%s) to start run or exit key (%s) to error out...\n----------------------------------------------\n\n', p.KEYS.RUN.NAME, p.KEYS.EXIT.NAME);
 while 1 
     [~,keys] = KbWait(-1);
     if any(keys(p.KEYS.RUN.VALUE))
@@ -264,6 +268,11 @@ while 1
         error ('Exit Key Pressed');
     end
 end
+
+DrawFormattedText(window, 'We are now performing a 30 second baseline, please remain still', 'center', 'center', screen_colour_text);
+Screen('Flip', window);
+
+WaitSecs(5);
 
 fprintf('Starting...\n');
 Screen('Flip', window);
@@ -312,7 +321,7 @@ ShowCursor;
 
 %% Practice Run
 
-fprintf('\n----------------------------------------------\nWaiting for return key (%s) to start the practice run or exit key (%s) to skip...\n----------------------------------------------\n\n', p.KEYS.RUN.NAME, p.KEYS.EXIT.NAME);
+fprintf('\n----------------------------------------------\nWaiting for run key (%s) to start the practice run or exit key (%s) to skip...\n----------------------------------------------\n\n', p.KEYS.RUN.NAME, p.KEYS.EXIT.NAME);
 while 1
     [~,keys] = KbWait(-1,3);
     if any(keys(p.KEYS.RUN.VALUE))
@@ -454,7 +463,7 @@ end
     end
     
     %% Enter trial phase
- fprintf('\n----------------------------------------------\nWaiting for run key (%s) or exit key (%s) to start the trial period...\n----------------------------------------------\n\n', p.KEYS.RUN.NAME, p.KEYS.EXIT.NAME);
+ fprintf('\n----------------------------------------------\nWaiting for run key (%s) to start the trial period or exit key (%s) to error out...\n----------------------------------------------\n\n', p.KEYS.RUN.NAME, p.KEYS.EXIT.NAME);
 while 1 
     [~,keys] = KbWait(-1);
     if any(keys(p.KEYS.RUN.VALUE))
@@ -491,24 +500,6 @@ for trial = 1: d.number_trials
         [~,keys] = KbWait(-1); 
         if any(keys(p.KEYS.QUESTION.VALUE)) && phase == 0 && (d.condition_number == 1 || d.condition_number == 2)
             %Play a beep to tell the confederate the trial has begun 
-            %clear prior audio
-            try
-                PsychPortAudio('Close');
-            catch
-            end
-            
-            %sound
-            p.SOUND.LATENCY = .060;
-            p.SOUND.VOLUME = 1; %1 = 100%
-            
-            %prepare start/stop beeps
-            freq = 48000;
-            beep_duration = 0.5;
-            beep_start = MakeBeep(500,beep_duration,freq);
-            sound_handle_beep_start = PsychPortAudio('Open', [], 1, [], freq, size(beep_start,1), [], p.SOUND.LATENCY);
-            PsychPortAudio('Volume', sound_handle_beep_start, p.SOUND.VOLUME);
-            PsychPortAudio('FillBuffer', sound_handle_beep_start, beep_start);
-                        
             %start beep
             PsychPortAudio('Start', sound_handle_beep_start);
                         
@@ -541,6 +532,9 @@ for trial = 1: d.number_trials
         elseif any(keys(p.KEYS.QUESTION.VALUE)) && phase == 0 && (d.condition_number == 3 || d.condition_number == 4)
 %             window = Screen('OpenWindow', screen_number, screen_colour_background, screen_rect);
 %             Screen(window, 'Flip');	
+            
+            PsychPortAudio('Start', sound_handle_beep_start);
+
             movie = Screen('OpenMovie', window, movie_filepath);
             rate = 1; 
             
@@ -759,7 +753,7 @@ end
 DrawFormattedText(window, 'Fixate on the centre of the dot on the bottom middle of the screen', 'center', 'center', screen_colour_text);
 Screen('Flip', window);
 
-WaitSecs(3);
+WaitSecs(5);
 
 Screen('Flip', window);
 Eyelink('Message',sprintf('Drift Check'));
