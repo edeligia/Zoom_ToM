@@ -18,14 +18,7 @@ p.DIR_VIDEOSTIMS_MEMOJI = [pwd filesep 'VideoStims' filesep 'Memoji' filesep];
 
 %buttons
 p.KEYS.RUN.NAME = 'RETURN';
-p.KEYS.QUESTION.NAME = 'Q';
-p.KEYS.ANSWER.NAME = 'A';
-p.KEYS.END.NAME = 'E';
-p.KEYS.YES.NAME = 'Y';
-p.KEYS.NO.NAME = 'N';
-p.KEYS.EXIT.NAME = 'H'; 
-p.KEYS.STOP.NAME = 'SPACE';
-p.KEYS.ABORT.NAME = 'P';
+p.KEYS.EXIT.NAME = 'SPACE'; 
 
 %%  Check Requirements
 %psychtoolbox
