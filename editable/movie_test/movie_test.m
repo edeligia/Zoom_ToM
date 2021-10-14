@@ -8,9 +8,7 @@ screen_colour_background = [0 0 0];
 screen_colour_text = [255 255 255];
 screen_font_size = 30;
 
-%Work around to turn off sy
-
-
+%Work around to turn off sync
 Screen('Preference','SkipSyncTests', 1);
 
 %Directories
@@ -114,6 +112,8 @@ for trial = 1: d.number_trials
         if any(keys(p.KEYS.RUN.VALUE))
             break;
         else any(keys(p.KEYS.EXIT.VALUE))
+            sca
+            sca
             error ('Exit Key Pressed');
         end
     end
