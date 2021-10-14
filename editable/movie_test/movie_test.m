@@ -106,7 +106,7 @@ for trial = 1: d.number_trials
         movie_filepath = sprintf('%s%d_question.mp4', p.DIR_VIDEOSTIMS_MEMOJI, question_number);
     end
     
-    
+ fprintf('\n----------------------------------------------\nWaiting for run key (%s) to start the next trial or exit key (%s) to error out...\n----------------------------------------------\n\n', p.KEYS.RUN.NAME, p.KEYS.EXIT.NAME);    
     while 1
         [~,keys] = KbWait(-1);
         if any(keys(p.KEYS.RUN.VALUE))
