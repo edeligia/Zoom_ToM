@@ -15,7 +15,7 @@ order_data = all_info_cell_matrix(2:end,:);
 %% Parameters 
 
 screen_number = max(Screen('Screens'));
-screen_rect = [0 0 1920 500];
+screen_rect = [0 0 850 500];
 screen_colour_background = [0 0 0];
 % screen_colour_text = [255 255 255];
 screen_font_size = 30;
@@ -96,7 +96,18 @@ for trial = 1:number_trials
 %         end
 %     end
 end
- 
+
+while 1
+    [~,keys] = KbWait(-1, 2);
+    if any(keys(KEYS.START.VALUE))
+        break;
+    elseif any(keys(KEYS.ESCAPE.VALUE))
+        number_trials = trial;
+        error('Escape Key Pressed');
+    end
+end
+    
+
 sca
 sca
 
