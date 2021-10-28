@@ -462,7 +462,7 @@ end
     fwrite(sport, ['mh', bin2dec('00000000'), 0]);
     end
     
-    %% Enter trial phase
+%% Enter trial phase
  fprintf('\n----------------------------------------------\nWaiting for run key (%s) to start the trial period or exit key (%s) to error out...\n----------------------------------------------\n\n', p.KEYS.RUN.NAME, p.KEYS.EXIT.NAME);
 while 1 
     [~,keys] = KbWait(-1);
