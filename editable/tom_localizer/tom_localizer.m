@@ -154,6 +154,11 @@ function tom_localizer(subjID, run)
 %			   period. 
 %__________________________________________________________________________
 %
+
+
+%Work around to turn off sync 
+Screen('Preference','SkipSyncTests', 1);
+
 %% Variables unique to scanner / computer
 
 [rootdir b c]		= fileparts(mfilename('fullpath'));			% path to the directory containing the behavioural / stimuli directories. If this script is not in that directory, this line must be changed. 
@@ -296,11 +301,16 @@ try
 			%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 			%--------------------------SEE NOTE 2-----------------------------%
 			%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-			button						= intersect([89:92], find(keyCode));   
-			if(RT(trial,1) == 0) & ~isempty(button)
-				RT(trial,1)				= GetSecs - responseStart;
-				key(trial,1)			= str2num(KbName(button));
-			end
+% 			button						= intersect([89:92], find(keyCode));   
+% 			if(RT(trial,1) == 0) & ~isempty(button)
+% 				RT(trial,1)				= GetSecs - responseStart;
+% 				key(trial,1)			= str2num(KbName(button));
+% 			end
+            button = find(keyCode);
+            if(RT(trial,1) == 0) & ~isempty(button)
+                RT(trial,1) = GetSecs - responseStart;
+                key(trial,1) = str2num(KbName(button));
+            end
 		end
 
 		%%%%%%%%% Save information in the event of a crash %%%%%%%%%
