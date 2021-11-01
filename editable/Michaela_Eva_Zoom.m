@@ -31,8 +31,8 @@ filepath_participant_edf = sprintf('PAR%02d', participant_number);
 filepath_participant_mat = sprintf('PAR%02d', participant_number);
 
 % screen_rect [ 0 0 width length]
-screen_number = Screen('Screens',1);
-screen_rect = [0 0 500 500];
+screen_number = max(Screen('Screens'));
+screen_rect = [ ];
 screen_colour_background = [0 0 0];
 screen_colour_text = [255 255 255];
 screen_font_size = 30;
