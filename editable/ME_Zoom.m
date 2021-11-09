@@ -161,6 +161,7 @@ end
 
 %Read orders 
 load(d.filepath_order);
+xls = xls;
 d.order.raw = xls;
 d.order.headers = xls(1,:);
 d.order.data = xls(2:end,:);
@@ -250,7 +251,7 @@ sca
 %% Wait for Run Start 
 fprintf('\n----------------------------------------------\nWaiting for run key (%s) to start run or exit key (%s) to error out...\n----------------------------------------------\n\n', p.KEYS.RUN.NAME, p.KEYS.EXIT.NAME);
 while 1 
-    [~,keys] = KbWait(-1);
+    [~,keys] = KbWait(-1,3);
     if any(keys(p.KEYS.RUN.VALUE))
       break;   
     else any(keys(p.KEYS.EXIT.VALUE))
@@ -267,7 +268,7 @@ d.timestamp_start_experiment = GetTimestamp;
 fprintf('\n----------------------------------------------\nWaiting for run key (%s) to start the baseline or exit key (%s) to skip practice run...\n----------------------------------------------\n\n', p.KEYS.RUN.NAME, p.KEYS.EXIT.NAME);
 
 while 1
-    [~,keys] = KbWait(-1);
+    [~,keys] = KbWait(-1,3);
     if any(keys(p.KEYS.RUN.VALUE))
         fprintf('\nCan error out of practice run with abort key (%s)...\n----------------------------------------------\n\n', p.KEYS.ABORT.NAME);
 
@@ -297,7 +298,6 @@ while 1
                 error('Abort key pressed');
             end
         end
-        
         break;
     elseif any(keys(p.KEYS.EXIT.VALUE))
         break;
@@ -343,10 +343,12 @@ end
 fprintf('Initial baseline...\n');
 tend = t0 + p.DURATION_BASELINE;
 
+while 1
     ti = GetSecs;
     if ti > tend
         break;
     end
+end
 
 %Check for abort key to end run
 [~,~,keys] = KbCheck(-1);
