@@ -4,6 +4,8 @@ function ME_Zoom(participant_number, run_number)
 %1 = live 
 %2 = pre-recorded 
 
+%tester
+
 % condition numbers 
 % 1 = live + human
 % 2 = live + memoji 
