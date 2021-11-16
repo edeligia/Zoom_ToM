@@ -34,7 +34,7 @@ filepath_participant_mat = sprintf('PAR%02d', participant_number);
 
 % screen_rect [ 0 0 width length]
 screen_number = max(Screen('Screens'));
-screen_rect = [0 0 500 500];
+screen_rect = [ ];
 screen_colour_background = [0 0 0];
 screen_font_size = 30;
 
@@ -166,25 +166,6 @@ d.order.data = xls(2:end,:);
 d.number_trials = size(d.order.data, 1);
 
 %get condition number from order 
-d.condition_number = xls{2, 3};
-
-%save condition type in data 
-if d.condition_number == 1
-    d.condition_type = sprintf('live_human');
-elseif d.condition_number == 2
-    d.condition_type = sprintf('live_memoji');
-elseif d.condition_number == 3
-    d.condition_type = sprintf('prerecorded_human');
-elseif d.condition_number == 4
-    d.condition_type = sprintf('prerecorded_memoji');
-elseif ~d.condition_number
-    error('No condition type available');
-end
-
-%filepaths dependent on knowing the condition number (this is an
-%unsophisticated work around)
-d.filepath_correct_image_response = sprintf('%scorrect_response_%02d.jpeg', p.DIR_IMAGES, d.condition_number); 
-d.filepath_incorrect_image_response = sprintf('%sincorrect_response_%02d.jpeg', p.DIR_IMAGES, d.condition_number); 
 
 %prepare start/stop beeps
 freq = 48000;
@@ -394,6 +375,27 @@ for trial = 1: d.number_trials
     
     question_number = d.order.data{trial, 2};
    
+    d.condition_number = xls{trial + 1, 3};
+
+    %save condition type in data
+    if d.condition_number == 1
+        d.condition_type = sprintf('live_human');
+    elseif d.condition_number == 2
+        d.condition_type = sprintf('live_memoji');
+    elseif d.condition_number == 3
+        d.condition_type = sprintf('prerecorded_human');
+    elseif d.condition_number == 4
+        d.condition_type = sprintf('prerecorded_memoji');
+    elseif ~d.condition_number
+        error('No condition type available');
+    end
+    
+    %filepaths dependent on knowing the condition number (this is an
+    %unsophisticated work around)
+    d.filepath_correct_image_response = sprintf('%scorrect_response_%02d.jpeg', p.DIR_IMAGES, d.condition_number);
+    d.filepath_incorrect_image_response = sprintf('%sincorrect_response_%02d.jpeg', p.DIR_IMAGES, d.condition_number);
+
+    
     if d.condition_number == 3
         movie_filepath = sprintf('%s%d_question.mp4', p.DIR_VIDEOSTIMS_HUMAN, question_number);
     elseif d.condition_number == 4
@@ -533,7 +535,7 @@ for trial = 1: d.number_trials
                 fwrite(sport,['mh',bin2dec('00000000'),0]);
             end
             
-            WaitSecs(0.5);
+            WaitSecs(1);
             
             message = "DISPLAY-PICTURE-BLACK_FRAME";
             Send(client, message);
@@ -556,7 +558,7 @@ for trial = 1: d.number_trials
                 fwrite(sport,['mh',bin2dec('00000000'),0]);
             end
             
-            WaitSecs(0.5);
+            WaitSecs(1);
             
             message = "DISPLAY-PICTURE-BLACK_FRAME";
             Send(client, message);
