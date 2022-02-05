@@ -1,4 +1,4 @@
-function story_display(participant_number, run_number)
+function FB_localizer(participant_number, run_number)
 
 cd('C:\Users\evade\Documents\GitHub\Zoom_ToM\editable\tom_localizer\FB_text_files');
 
@@ -33,6 +33,13 @@ d.filepath_data = sprintf('%sPAR%02d_RUN%02d_%s.mat', p.DIR_DATA, d.participant_
 
 %create output directories
 if ~exist(p.DIR_DATA, 'dir'), mkdir(p.DIR_DATA); end
+
+%% Debug 
+p.TRIGGER_STIM_TRACKER = false;
+
+if ~p.TRIGGER_STIM_TRACKER    
+    warning('One or more debug settings is active!')
+end
 %% Parameters 
 screen_number = max(Screen('Screens'));
 screen_rect = [ ];
@@ -51,6 +58,14 @@ p.KEYS.START.NAME = 'RETURN';
 p.KEYS.EXIT.NAME = 'ESCAPE';
 p.KEYS.TRUE.NAME = 'T';
 p.KEYS.FALSE.NAME = 'F';
+
+%stim tracker
+%the left port on Eva's laptop is COM3 and on the culham lab msi laptop 
+p.TRIGGER_CABLE_COM_STRING = 'COM3';
+
+%timings
+p.DURATION_BASELINE = 2;
+p.DURATION_BASELINE_FINAL = 2;
 %%  Check Requirements
 %psychtoolbox
 try
@@ -92,7 +107,48 @@ d.time_start_experiment = t0;
 d.timestamp_start_experiment = GetTimestamp;
 
 d.number_trials = size(d.order_data, 1);
+%% Initial Baseline 
+fprintf('\n----------------------------------------------\nWaiting for RUN key (%s) to start the baseline or ABORT key (%s)...\n----------------------------------------------\n\n', p.KEYS.RUN.NAME, p.KEYS.ABORT.NAME);
+while 1
+    [~,keys] = KbWait(-1);
+    if any(keys(p.KEYS.START.VALUE))
+        break;
+    else any(keys(p.KEYS.EXIT.VALUE))
+        error ('Exit Key Pressed');
+    end
+end
 
+if p.TRIGGER_STIM_TRACKER
+    fwrite(sport, ['mh',bin2dec('10000000'),0]);
+    WaitSecs(0.1);
+    fwrite(sport, ['mh', bin2dec('00000000'), 0]); 
+end
+
+fprintf('Initial baseline...\n');
+tend = t0 + p.DURATION_BASELINE;
+
+while 1
+    ti = GetSecs;
+    if ti > tend
+        break;
+    end
+end
+
+%Check for abort key to end run
+[~,~,keys] = KbCheck(-1);
+if any(keys(p.KEYS.EXIT.VALUE))
+    error('Exit Key Pressed');
+end
+
+if p.TRIGGER_STIM_TRACKER     
+    fwrite(sport, ['mh',bin2dec('10000000'),0]); %turn off 2 
+    WaitSecs(0.1);
+    fwrite(sport, ['mh', bin2dec('00000000'), 0]);
+end   
+
+fprintf('Baseline complete...\n'); 
+
+%% Enter trial phase
 for trial = 1:d.number_trials
     d.trial_data(trial).timing.onset = GetSecs - t0;
     d.latest_trial = trial;
@@ -117,8 +173,19 @@ for trial = 1:d.number_trials
     fclose(textfid);
     Screen('Flip', window);
     
+    if p.TRIGGER_STIM_TRACKER
+        fwrite(sport,['mh',bin2dec('00000001'),0]); %turn story period trigger on (for StimTracker)
+        d.trial_data(trial).timing.trigger.story_period_start = GetSecs - t0;
+        fwrite(sport,['mh',bin2dec('00000000'),0]); %turn story period trigger off (for StimTracker)
+    end
+    
     WaitSecs(d.story_disp);
     
+    if p.TRIGGER_STIM_TRACKER
+        fwrite(sport,['mh',bin2dec('00000001'),0]); %turn story period trigger on (for StimTracker)
+        d.trial_data(trial).timing.trigger.story_period_end = GetSecs - t0;
+        fwrite(sport,['mh',bin2dec('00000000'),0]); %turn story period trigger off (for StimTracker)
+    end
 %% Display Question
 %get trial number and story number
     %1 = FB and 2 = photo
@@ -137,7 +204,13 @@ for trial = 1:d.number_trials
     
     fclose(textfid);
     Screen('Flip', window);
-    d.trial_data(trial).timing.question = GetSecs - t0;
+    
+     if p.TRIGGER_STIM_TRACKER
+        fwrite(sport,['mh',bin2dec('00000010'),0]); %turn story period trigger on (for StimTracker)
+        d.trial_data(trial).timing.trigger.question_period_start = GetSecs - t0;
+        fwrite(sport,['mh',bin2dec('00000000'),0]); %turn story period trigger off (for StimTracker)
+     end
+    
     question_display_start = GetSecs;
     
     %record behavioural data 1 = true and 2 = false and 0 = no response
@@ -151,10 +224,37 @@ for trial = 1:d.number_trials
           error('Exit key pressed');
         end
     end
-    Screen('Flip', window);  
+    Screen('Flip', window);
+    
+    if p.TRIGGER_STIM_TRACKER
+        fwrite(sport,['mh',bin2dec('00000010'),0]); %turn story period trigger on (for StimTracker)
+        d.trial_data(trial).timing.trigger.story_period_start = GetSecs - t0;
+        fwrite(sport,['mh',bin2dec('00000000'),0]); %turn story period trigger off (for StimTracker)
+    end
     
     % ITI
     WaitSecs(ITI);
+end
+%% Final Baseline
+fprintf('Final baseline...\n');
+tend = GetSecs + p.DURATION_BASELINE_FINAL;
+while 1
+    ti = GetSecs;
+    if ti > tend
+        break;
+    end
+    
+    [~,~,keys] = KbCheck(-1);  
+    if any(keys(p.KEYS.EXIT.VALUE))
+        error('Exit Key Pressed');
+    end 
+end
+
+%% trigger stim tracker (end of exp which is also end of baseline)
+if p.TRIGGER_STIM_TRACKER
+    fwrite(sport, ['mh',bin2dec('10000000'),0]);
+    WaitSecs(0.1);
+    fwrite(sport, ['mh', bin2dec('10000000'), 0]); 
 end
 
 %% End
