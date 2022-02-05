@@ -343,19 +343,21 @@ try
             Screen(w, 'Flip');
             fprintf('question period...\n');
         end
-
+        
+        WaitSecs(2);
+        
 		responseStart	= GetSecs;
 
 		%%%%%%%%% Collect Response %%%%%%%%%
         %true is saved as 1 and false is saved as 0 
-        while ( GetSecs - responseStart ) < questDur
-            [keyIsDown,secs,keyCode]	= KbCheck;					% check to see if a key is being pressed
-            if any(keyIsDown(p.KEYS.TRUE.VALUE))
-                d.trial_number(trial) = 1;
-            elseif any(keyIsDown(p.KEYS.FALSE.VALUE))
-                d.trial_number(trial) = 0;
-            end
-        end
+%         while ( GetSecs - responseStart ) < questDur
+%             [keyIsDown,secs,keyCode]	= KbCheck;					% check to see if a key is being pressed
+%             if any(keyIsDown(p.KEYS.TRUE.VALUE))
+%                 d.trial_number(trial) = 1;
+%             elseif any(keyIsDown(p.KEYS.FALSE.VALUE))
+%                 d.trial_number(trial) = 0;
+%             end
+%         end
 			%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 			%--------------------------SEE NOTE 2-----------------------------%
 			%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
