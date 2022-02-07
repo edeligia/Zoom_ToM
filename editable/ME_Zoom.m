@@ -13,7 +13,7 @@ function ME_Zoom(participant_number, run_number)
 % 4 = pre-recorded + memoji 
 
 %% Debug Settings
-p.USE_EYELINK = false;
+p.USE_EYELINK = true;
 p.TRIGGER_STIM_TRACKER = false;
 
 if ~p.TRIGGER_STIM_TRACKER    

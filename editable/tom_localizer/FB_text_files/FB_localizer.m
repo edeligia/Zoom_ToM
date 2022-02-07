@@ -1,6 +1,6 @@
 function FB_localizer(participant_number, run_number)
 
-cd('C:\Users\evade\Documents\GitHub\Zoom_ToM\editable\tom_localizer\FB_text_files');
+cd('C:\Users\CulhmanLab\Documents\GitHub\Zoom_ToM\editable\tom_localizer\FB_text_files');
 
 %% Prepare Orders
 fol_out = [pwd filesep 'Orders' filesep];
@@ -41,10 +41,10 @@ if ~p.TRIGGER_STIM_TRACKER
     warning('One or more debug settings is active!')
 end
 %% Parameters 
-screen_number = max(Screen('Screens'));
+screen_number = 1;
 screen_rect = [ ];
 screen_colour_background = [0 0 0];
-% screen_colour_text = [255 255 255];
+screen_colour_text = [255 255 255];
 screen_font_size = 30;
 Screen('Preference', 'SkipSyncTests', 1);
 scrnRes     = Screen('Resolution',screen_number);               % Get Screen resolution
@@ -91,7 +91,10 @@ Screen('TextSize', window, screen_font_size);
 Screen('Flip', window);
 
 %% Wait for Run Start
-     
+
+DrawFormattedText(window, 'Press ENTER to start run', 'center', 'center', screen_colour_text);
+Screen('Flip', window);     
+
 while 1
     [~,keys] = KbWait(-1, 3);
     if any(keys(p.KEYS.START.VALUE))
@@ -108,15 +111,9 @@ d.timestamp_start_experiment = GetTimestamp;
 
 d.number_trials = size(d.order_data, 1);
 %% Initial Baseline 
-fprintf('\n----------------------------------------------\nWaiting for RUN key (%s) to start the baseline or ABORT key (%s)...\n----------------------------------------------\n\n', p.KEYS.RUN.NAME, p.KEYS.ABORT.NAME);
-while 1
-    [~,keys] = KbWait(-1);
-    if any(keys(p.KEYS.START.VALUE))
-        break;
-    else any(keys(p.KEYS.EXIT.VALUE))
-        error ('Exit Key Pressed');
-    end
-end
+
+DrawFormattedText(window, 'We will now have a 30 second baseline. Please remain still.', 'center', 'center', screen_colour_text);
+Screen('Flip', window);     
 
 if p.TRIGGER_STIM_TRACKER
     fwrite(sport, ['mh',bin2dec('10000000'),0]);
@@ -134,7 +131,7 @@ while 1
     end
 end
 
-%Check for abort key to end run
+%Check for exit key to end run
 [~,~,keys] = KbCheck(-1);
 if any(keys(p.KEYS.EXIT.VALUE))
     error('Exit Key Pressed');
@@ -166,7 +163,7 @@ for trial = 1:d.number_trials
     while 1
         tline		= fgetl(textfid);							% read line from text file.
         if ~ischar(tline), break, end
-        Screen('DrawText',window, tline, x0-600, y0-500+lCounter*45,[255]);
+        Screen('DrawText',window, tline, x0-300, y0-200+lCounter*45,[255]);
         lCounter	= lCounter + 1;
     end
     
@@ -198,7 +195,7 @@ for trial = 1:d.number_trials
     while 1
         tline		= fgetl(textfid);							% read line from text file.
         if ~ischar(tline), break, end
-        Screen('DrawText',window, tline, x0-600, y0-500+lCounter*45,[255]);
+        Screen('DrawText',window, tline, x0-300, y0-200+lCounter*45,[255]);
         lCounter	= lCounter + 1;
     end
     
@@ -237,6 +234,10 @@ for trial = 1:d.number_trials
 end
 %% Final Baseline
 fprintf('Final baseline...\n');
+
+DrawFormattedText(window, 'We will now have a 30 second baseline. Please remain still.', 'center', 'center', screen_colour_text);
+Screen('Flip', window);
+
 tend = GetSecs + p.DURATION_BASELINE_FINAL;
 while 1
     ti = GetSecs;

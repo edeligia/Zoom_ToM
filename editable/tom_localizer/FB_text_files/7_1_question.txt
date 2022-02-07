@@ -1,4 +1,4 @@
 When the hikers arrive they see no 
 one in their cabin.
 
-True			False
+True        False
