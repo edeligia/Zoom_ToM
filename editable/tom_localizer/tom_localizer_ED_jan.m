@@ -157,7 +157,7 @@ function tom_localizer(participant_number, run_number)
 
 
 %Work around to turn off sync 
-% Screen('Preference','SkipSyncTests', 1);
+Screen('Preference','SkipSyncTests', 1);
 
 %% Variables unique to scanner / computer
 

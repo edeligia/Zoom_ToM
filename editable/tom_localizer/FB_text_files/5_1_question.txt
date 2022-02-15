@@ -1,4 +1,4 @@
 Susie sees the minivan in 
 the driveway.
 
-True			False
+True        False

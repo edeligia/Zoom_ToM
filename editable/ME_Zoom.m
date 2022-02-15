@@ -13,7 +13,7 @@ function ME_Zoom(participant_number, run_number)
 % 4 = pre-recorded + memoji 
 
 %% Debug Settings
-p.USE_EYELINK = false;
+p.USE_EYELINK = true;
 p.TRIGGER_STIM_TRACKER = false;
 
 if ~p.TRIGGER_STIM_TRACKER    
@@ -48,7 +48,7 @@ p.DIR_ORDERS = [pwd filesep 'Orders' filesep 'Mat Orders' filesep];
 p.DIR_VIDEOSTIMS_HUMAN = [pwd filesep 'VideoStims' filesep 'Human' filesep]; 
 p.DIR_VIDEOSTIMS_MEMOJI = [pwd filesep 'VideoStims' filesep 'Memoji' filesep]; 
 p.DIR_PARTICIPANT_EDF = [pwd filesep 'Data_EDF' filesep filepath_participant_edf filesep];
-p.DIR_IMAGES = [pwd filesep 'ImageResponses' filesep];
+p.DIR_IMAGES = [pwd filesep 'Images' filesep];
 p.DIR_VIDEOSTIMS_PRACTICE = [pwd filesep 'VideoStims' filesep 'Practice_Stims' filesep]; 
 
 %stim tracker
@@ -135,6 +135,8 @@ d.filename_edf_on_system = sprintf('P%02d%s', d.participant_number, d.timestamp_
 d.filepath_run_edf = sprintf('%sParticipant_%02d_Run%03d_%s', p.DIR_PARTICIPANT_EDF, d.participant_number, d.run_number, d.timestamp);
 d.filepath_practice_image_correct = sprintf('%scorrect_response_03.jpeg', p.DIR_IMAGES);
 d.filepath_practice_image_incorrect = sprintf('%sincorrect_response_03.jpeg', p.DIR_IMAGES);
+d.filepath_drift_check_image = sprintf('%sdrift_check.png', p.DIR_IMAGES);
+d.filepath_fixation_image = sprintf('%sfixation.png', p.DIR_IMAGES);
 
 
 %create output directories
@@ -177,6 +179,25 @@ PsychPortAudio('FillBuffer', sound_handle_beep_start, beep_start);
 
 %% Try 
 try
+
+%% Participant Instructions
+
+message = "DISPLAY-LIVE_NORMAL";
+Send(client, message);
+
+fprintf('\n----------------------------------------------\nWaiting for run key (%s) to start calibration or exit key (%s) to error out...\n----------------------------------------------\n\n', p.KEYS.RUN.NAME, p.KEYS.EXIT.NAME);
+while 1
+    [~,keys] = KbWait(-1,3);
+    if any(keys(p.KEYS.RUN.VALUE))
+        break;
+    else any(keys(p.KEYS.EXIT.VALUE))
+        error ('Exit Key Pressed');
+    end
+end
+
+message = "DISPLAY-PICTURE-BLACK_FRAME";
+Send(client, message);
+
 %% Calibrate Eyetracker 
 %create window for calibration
 try
@@ -258,6 +279,9 @@ while 1
             Send(client, message);
             
             WaitSecs(10);
+            
+            message = "STOP-VIDEO_NORMAL";
+            Send(client, message);
             
             message = "DISPLAY-PICTURE-BLACK_FRAME";
             Send(client, message);
@@ -376,6 +400,32 @@ for trial = 1: d.number_trials
     d.trial_data(trial).timing.onset = GetSecs - t0;
     d.latest_trial = trial;
     
+    %jitter the trial ITI (save the variable)
+    ITI = [1 2 3 4];
+    ITI_index = randi(numel(ITI));
+    d.trial_data(trial).trial_end_wait = ITI(ITI_index);
+    
+    %Calculate length of trial and send to unity 
+    trial_length = 14 +  d.trial_data(trial).trial_end_wait;
+    message = strcat("DURATION_TRIAL-",string(trial_length)); 
+    Send(client, message);
+    
+%     %Calculate time until next live trial and send to unity 
+%     while 1
+%         next_condition_number = xls{trial + 2,3};
+%         if next_condition_number == 1 || next_condition_number == 2
+%         message = strcat("DURATION_LIVE-",string(trial_length));
+%         Send(client, message);
+%         break;
+%         else 
+%             next_condition_number = next_condition_number + 1;
+%         end
+%     end
+%         
+%     next_live_trial_number = 
+%     message = strcat("DURATION_LIVE-",string(10));
+%     Send(client, message);
+%     
     Eyelink('Message',sprintf('Event: Start of trial %03d\n', trial));
     fprintf('\nTrial %d (%g sec)\n', trial, d.trial_data(trial).timing.onset);
     
@@ -465,6 +515,9 @@ for trial = 1: d.number_trials
                 
                 WaitSecs(movie_duration);
                 
+                message = "STOP-VIDEO_NORMAL";
+                Send(client, message);
+                
             elseif d.condition_number == 4
                 message = "DISPLAY-VIDEO_MEMOJI";
                 Send(client, message);
@@ -482,6 +535,9 @@ for trial = 1: d.number_trials
                 movie_duration = video_info.Duration;
                 
                 WaitSecs(movie_duration);
+                
+                message = "STOP-VIDEO_MEMOJI";
+                Send(client, message);
             end
             
             [~,~,keys] = KbCheck(-1);
@@ -495,7 +551,7 @@ for trial = 1: d.number_trials
             end
             phase = 1;
             
-            message = "DISPLAY-PICTURE-FIXATION";
+            message = strcat("DISPLAY-PICTURE-FILE", "-", d.filepath_fixation_image);
             Send(client, message);
             
             Eyelink('Message','End of Question Period %d', trial);
@@ -504,7 +560,7 @@ for trial = 1: d.number_trials
             %elseif any(keys(p.KEYS.ANSWER.VALUE)) && phase == 1
             fprintf('Start of answer period %d...\n', trial);
             
-            %TRIGGER START OF ANSWER PERIOD LIVE
+            %TRIGGER START OF ANSWER PERIOD 
             if p.TRIGGER_STIM_TRACKER
                 fwrite(sport,['mh',bin2dec('00010000'),0]); %turn question period trigger on (for StimTracker)
                 d.trial_data(trial).timing.trigger.answer_period_start = GetSecs - t0;
@@ -543,7 +599,7 @@ for trial = 1: d.number_trials
             
             WaitSecs(1);
             
-            message = "DISPLAY-PICTURE-FIXATION";
+            message = strcat("PLAY-VIDEO_MEMOJI", "-", movie_filepath);
             Send(client, message);
             
             d.trial_data(trial).correct_response = true;
@@ -566,7 +622,7 @@ for trial = 1: d.number_trials
             
             WaitSecs(1);
             
-            message = "DISPLAY-PICTURE-FIXATION";
+            message = strcat("DISPLAY-PICTURE-FILE", "-", d.filepath_fixation_image);
             Send(client, message);
             
             d.trial_data(trial).correct_response = true;
@@ -597,7 +653,7 @@ for trial = 1: d.number_trials
             
             WaitSecs(1);
             
-            message = "DISPLAY-PICTURE-FIXATION";
+            message = strcat("DISPLAY-PICTURE-FILE", "-", d.filepath_fixation_image);
             Send(client, message);
             
             phase = 3;
@@ -624,7 +680,7 @@ for trial = 1: d.number_trials
             
             WaitSecs(1);
             
-            message = "DISPLAY-PICTURE-FIXATION";
+            message = strcat("DISPLAY-PICTURE-FILE", "-", d.filepath_fixation_image);
             Send(client, message);
             
             phase = 3;
@@ -650,10 +706,6 @@ for trial = 1: d.number_trials
     end
     
     %ITI
-    %jitter the trial ITI (save the variable)
-    ITI = [1 2 3 4];
-    ITI_index = randi(numel(ITI));
-    d.trial_data(trial).trial_end_wait = ITI(ITI_index);
     WaitSecs(d.trial_data(trial).trial_end_wait);
     
     if p.TRIGGER_STIM_TRACKER
@@ -676,13 +728,15 @@ WaitSecs(3);
 message = "DISPLAY-TEXT-CLEAR";
 Send(client, message);
 
-message = "DISPLAY-PICTURE-DRIFT_CHECK";
+message = strcat("DISPLAY-PICTURE-FILE", "-", d.filepath_drift_check_image);
 Send(client, message);
 
 Eyelink('Message',sprintf('Drift Check'));
 
 WaitSecs(2);
 
+message = "DISPLAY-PICTURE-BLACK_FRAME";
+Send(client, message);
 %% Stop eyelink recording
 fprintf('Eyelink Close');   
 
