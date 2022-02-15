@@ -464,8 +464,6 @@ for trial = 1: d.number_trials
     trial_in_progress = true;
     phase = 0;
     while trial_in_progress
-        [~,keys] = KbWait(-1,3);
-        if any(keys(p.KEYS.QUESTION.VALUE)) && phase == 0
             %Play a beep to tell the confederate the trial has begun
             %start beep
             PsychPortAudio('Start', sound_handle_beep_start);
@@ -583,7 +581,9 @@ for trial = 1: d.number_trials
             fprintf('End of answer period %d...\n', trial);
             phase = 3;
             %display image response if in pre-recorded conditions
-        elseif any(keys(p.KEYS.YES.VALUE)) && phase >= 2 && (d.trial_data(trial).correct_response ~= true) && (d.condition_number == 3 || d.condition_number == 4)
+        while 1     
+            [~,keys] = KbWait(-1);
+            if any(keys(p.KEYS.YES.VALUE)) && phase >= 2 && (d.trial_data(trial).correct_response ~= true) && (d.condition_number == 3 || d.condition_number == 4)
             
             message = strcat("DISPLAY-PICTURE-FILE", "-", d.filepath_correct_image_response);
             Send(client, message);
@@ -599,8 +599,9 @@ for trial = 1: d.number_trials
             
             WaitSecs(1);
             
-            message = strcat("PLAY-VIDEO_MEMOJI", "-", movie_filepath);
+            message = strcat("DISPLAY-PICTURE-FILE", "-", d.filepath_fixation_image);
             Send(client, message);
+
             
             d.trial_data(trial).correct_response = true;
             
@@ -657,7 +658,7 @@ for trial = 1: d.number_trials
             Send(client, message);
             
             phase = 3;
-        elseif any(keys(p.KEYS.YES.VALUE)) && phase >= 2 && (d.trial_data(trial).correct_response ~= true) && (d.condition_number == 1 || d.condition_number == 2)
+        elseif any(keys(p.KEYS.NO.VALUE)) && phase >= 2 && (d.trial_data(trial).correct_response ~= true) && (d.condition_number == 1 || d.condition_number == 2)
             
             if d.condition_number == 1
                 message = "DISPLAY-LIVE_NORMAL";
@@ -702,6 +703,7 @@ for trial = 1: d.number_trials
         elseif any(keys(p.KEYS.ABORT.VALUE)) %error out of the run
             d.number_trials = trial;
             error('Abort key pressed');
+        end
         end
     end
     
