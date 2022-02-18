@@ -13,7 +13,7 @@ function ME_Zoom(participant_number, run_number)
 % 4 = pre-recorded + memoji 
 
 %% Debug Settings
-p.USE_EYELINK = true;
+p.USE_EYELINK = false;
 p.TRIGGER_STIM_TRACKER = false;
 
 if ~p.TRIGGER_STIM_TRACKER    
@@ -463,7 +463,6 @@ for trial = 1: d.number_trials
     
     trial_in_progress = true;
     phase = 0;
-    while trial_in_progress
             %Play a beep to tell the confederate the trial has begun
             %start beep
             PsychPortAudio('Start', sound_handle_beep_start);
@@ -607,6 +606,8 @@ for trial = 1: d.number_trials
             
             phase = 2;
             
+            break;
+
         elseif any(keys(p.KEYS.NO.VALUE)) && phase >= 2 && (d.trial_data(trial).correct_response ~= false) && (d.condition_number == 3 || d.condition_number == 4)
             
             message = strcat("DISPLAY-PICTURE-FILE", "-", d.filepath_incorrect_image_response);
@@ -630,8 +631,10 @@ for trial = 1: d.number_trials
             
             phase = 3;
             
+            break;
+
             %display live video feed for reaction response
-        elseif any(keys(p.KEYS.YES.VALUE)) && phase >= 2 && (d.trial_data(trial).correct_response ~= true) && (d.condition_number == 3 || d.condition_number == 4)
+        elseif any(keys(p.KEYS.YES.VALUE)) && phase >= 2 && (d.trial_data(trial).correct_response ~= true) && (d.condition_number == 1 || d.condition_number == 2)
             
             if d.condition_number == 1
                 message = "DISPLAY-LIVE_NORMAL";
@@ -658,6 +661,9 @@ for trial = 1: d.number_trials
             Send(client, message);
             
             phase = 3;
+            
+            break;
+
         elseif any(keys(p.KEYS.NO.VALUE)) && phase >= 2 && (d.trial_data(trial).correct_response ~= true) && (d.condition_number == 1 || d.condition_number == 2)
             
             if d.condition_number == 1
@@ -686,6 +692,7 @@ for trial = 1: d.number_trials
             
             phase = 3;
             
+            break;
             %triggers the end of the current run
         elseif any(keys(p.KEYS.STOP.VALUE)) && phase == 3
             
@@ -705,8 +712,7 @@ for trial = 1: d.number_trials
             error('Abort key pressed');
         end
         end
-    end
-    
+     
     %ITI
     WaitSecs(d.trial_data(trial).trial_end_wait);
     
