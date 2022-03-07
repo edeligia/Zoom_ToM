@@ -95,8 +95,20 @@ end
 
 %Setup a network connection to the Unity application so messages can be
 %sent
-client = tcpip('127.0.0.1',55001,'NetworkRole','Client');
-set(client, 'Timeout', 30);
+% Create the UDP connection to broadcast messages on port 7000
+sharedPort = 7000;
+% Note the submask of 255.255.255.255 might not work everywhere.  Will have to contact
+% Haitao for the one used in the WIRB
+udpSender = udp('255.255,255,255', sharedPort,...
+                'LocalPort', sharedPort);
+            
+% Enable port sharing to allow multiple clients on the same PC to bind to 
+% the same port
+udpSender.EnablePortSharing = 'on';
+udpSender.Terminator = 'CR';
+udpSender.BytesAvailableFcnMode = 'terminator';
+udpSender.BytesAvailableFcn = @(~,~)fprintf('Message "%s" at %s\n', fgetl(udpSender), datestr(now));
+fopen(udpSender);
 
 %% Prepare Orders
 
@@ -132,8 +144,8 @@ d.filepath_data = sprintf('%sPAR%02d_RUN%02d_%s.mat', p.DIR_DATA, d.participant_
 d.filepath_error = strrep(d.filepath_data, '.mat', '_ERROR.mat');
 d.filename_edf_on_system = sprintf('P%02d%s', d.participant_number, d.timestamp_edf);
 d.filepath_run_edf = sprintf('%sParticipant_%02d_Run%03d_%s', p.DIR_PARTICIPANT_EDF, d.participant_number, d.run_number, d.timestamp);
-d.filepath_practice_image_correct = sprintf('%scorrect_response_03.jpeg', p.DIR_IMAGES);
-d.filepath_practice_image_incorrect = sprintf('%sincorrect_response_03.jpeg', p.DIR_IMAGES);
+d.filepath_practice_image_correct = 'Pictures/Human/correct';
+d.filepath_practice_image_incorrect = 'Pictures/Human/incorrect';
 d.filepath_drift_check_image = sprintf('%sdrift_check.png', p.DIR_IMAGES);
 d.filepath_fixation_image = sprintf('%sfixation.png', p.DIR_IMAGES);
 
@@ -274,32 +286,33 @@ while 1
             message = "STOP-VIDEO_NORMAL";
             Send(client, message);
             
-            message = "DISPLAY-PICTURE-BLACK_FRAME";
-            Send(client, message);
+            address = '/display/clear';
+            oscsend(udpSender,address);
             
             while 1
                 [~,keys] = KbWait(-1,3);
                 if any(keys(p.KEYS.YES.VALUE))
                     % correct_response_image_practice = imread(d.filepath_practice_image_correct);
                     
-                    message = strcat("DISPLAY-PICTURE-FILE", "-", d.filepath_practice_image_correct);
-                    Send(client, message);
-                    
+                    address = '/display/picture';
+                    oscsend(udpSender,address,'s', d.filepath_practice_image_correct);
+
                     WaitSecs(1);
                     
-                    message = "DISPLAY-PICTURE-BLACK_FRAME";
-                    Send(client, message);
+                    address = '/display/clear';
+                    oscsend(udpSender,address);
                     break;
                 elseif any(keys(p.KEYS.NO.VALUE))
                     %incorrect_response_image_practice = imread(d.filepath_practice_image_incorrect);
                     
-                    message = strcat("DISPLAY-PICTURE-FILE", "-", d.filepath_practice_image_incorrect);
-                    Send(client, message);
+                    address = '/display/picture';
+                    oscsend(udpSender,address,'s', d.filepath_practice_image_incorrect);
+
                     
                     WaitSecs(1);
                     
-                    message = "DISPLAY-PICTURE-BLACK_FRAME";
-                    Send(client, message);
+                    address = '/display/clear';
+                    oscsend(udpSender,address);
                     break;
                 elseif any(keys(p.KEYS.ABORT.VALUE))
                     error('Abort key pressed');
@@ -331,16 +344,17 @@ while 1
         error ('Abort Key Pressed');
     end
 end
-message = "DISPLAY-TEXT-MESSAGE-We will now begin a 30 second baseline, please remain as still as possible";
-Send(client, message);
+%Display a text message to the screen.  Can also just send text with nothing for
+%a clear message.
+
+message = 'We will now begin a 30 second baseline, please remain as still as possible';
+address = '/display/message';
+oscsend(udpSender,address,'s', message);
 
 WaitSecs(3);
 
-message = "DISPLAY-TEXT-CLEAR";
-Send(client, message);
-
-message = "DISPLAY-PICTURE-BLACK_FRAME";
-Send(client, message);
+address = '/display/clear';
+oscsend(udpSender,address);
 
 if p.TRIGGER_STIM_TRACKER
     fwrite(sport, ['mh',bin2dec('01000000'),0]);
@@ -405,11 +419,12 @@ for trial = 1: d.number_trials
         error('Abort key pressed');
     end
     
-    %Calculate length of trial and send to unity
+    %Calculate length of trial 
     trial_length = 14 +  d.trial_data(trial).trial_end_wait;
-    message = strcat("DURATION_TRIAL-",string(trial_length));
-    Send(client, message);
-    
+    %Send the amount of tile for the current trial. 
+    address = '/duration/trial';
+    oscsend(udpSender,address,'i', trial_length);
+
     %     %Calculate time until next live trial and send to unity
     %     while 1
     %         next_condition_number = xls{trial + 2,3};
@@ -435,27 +450,28 @@ for trial = 1: d.number_trials
     
     %save condition type in data
     if d.condition_number == 1
-        d.condition_type = sprintf('live_human');
+        d.trial_data(trial).condition_type = sprintf('live_human');
     elseif d.condition_number == 2
-        d.condition_type = sprintf('live_memoji');
+        d.trial_data(trial).condition_type = sprintf('live_memoji');
     elseif d.condition_number == 3
-        d.condition_type = sprintf('prerecorded_human');
+        d.trial_data(trial).condition_type = sprintf('prerecorded_human');
     elseif d.condition_number == 4
-        d.condition_type = sprintf('prerecorded_memoji');
+        d.trial_data(trial).condition_type = sprintf('prerecorded_memoji');
     elseif ~d.condition_number
         error('No condition type available');
     end
     
     %filepaths dependent on knowing the condition number (this is an
     %unsophisticated work around)
-    d.filepath_correct_image_response = sprintf('%scorrect_response_%02d.jpeg', p.DIR_IMAGES, d.condition_number);
-    d.filepath_incorrect_image_response = sprintf('%sincorrect_response_%02d.jpeg', p.DIR_IMAGES, d.condition_number);
+      
+    d.filepath_correct_image_response = sprintf('%s/correct_response_%02d.jpeg', 'Images', d.condition_number);
+    d.filepath_incorrect_image_response = sprintf('%s/incorrect_response_%02d.jpeg', 'Images', d.condition_number);
     
     
     if d.condition_number == 3
-        movie_filepath = sprintf('%s%d_question.mp4', p.DIR_VIDEOSTIMS_HUMAN, question_number);
+        movie_filepath = sprintf('%s/%d_question.mp4', 'Videos/Human' , question_number);
     elseif d.condition_number == 4
-        movie_filepath = sprintf('%s%d_question.mp4', p.DIR_VIDEOSTIMS_MEMOJI, question_number);
+        movie_filepath = sprintf('%s/%d_question.mp4', 'Videos/Memoji', question_number);
     end
     
     d.trial_data(trial).correct_response = nan;
@@ -469,8 +485,9 @@ for trial = 1: d.number_trials
     
     %TRIGGER STORY START
     if d.condition_number == 1
-        message = "DISPLAY-LIVE_NORMAL";
-        Send(client, message);
+        %Display a live video feed of the researcher
+        address = '/display/live';
+        oscsend(udpSender,address,'s','researcher');
         
         if p.TRIGGER_STIM_TRACKER
             fwrite(sport,['mh',bin2dec('00000001'),0]); %turn question period trigger on (for StimTracker)
@@ -481,8 +498,9 @@ for trial = 1: d.number_trials
         WaitSecs(10);
         
     elseif d.condition_number == 2
-        message = "DISPLAY-LIVE_MEMOJI";
-        Send(client, message);
+        %Display a live video feed of the memoji user
+        address = '/display/live';
+        oscsend(udpSender,address,'s','memoji');
         
         if p.TRIGGER_STIM_TRACKER
             fwrite(sport,['mh',bin2dec('00000010'),0]); %turn question period trigger on (for StimTracker)
@@ -493,12 +511,9 @@ for trial = 1: d.number_trials
         WaitSecs(10);
         
     elseif d.condition_number == 3
-        message = "DISPLAY-VIDEO_NORMAL";
-        Send(client, message);
-        
-        message = strcat("PLAY-VIDEO_NORMAL", "-", movie_filepath);
-        Send(client, message);
-        
+        address = '/duration/video';
+        oscsend(udpSender,address,'s', movie_filepath);
+                
         if p.TRIGGER_STIM_TRACKER
             fwrite(sport,['mh',bin2dec('00000100'),0]); %turn question period trigger on (for StimTracker)
             d.trial_data(trial).timing.trigger.question_period_start = GetSecs - t0;
@@ -510,15 +525,9 @@ for trial = 1: d.number_trials
         
         WaitSecs(movie_duration);
         
-        message = "STOP-VIDEO_NORMAL";
-        Send(client, message);
-        
     elseif d.condition_number == 4
-        message = "DISPLAY-VIDEO_MEMOJI";
-        Send(client, message);
-        
-        message = strcat("PLAY-VIDEO_MEMOJI", "-", movie_filepath);
-        Send(client, message);
+        address = '/duration/video';
+        oscsend(udpSender,address,'s', movie_filepath);
         
         if p.TRIGGER_STIM_TRACKER
             fwrite(sport,['mh',bin2dec('00001000'),0]); %turn question period trigger on (for StimTracker)
@@ -530,9 +539,6 @@ for trial = 1: d.number_trials
         movie_duration = video_info.Duration;
         
         WaitSecs(movie_duration);
-        
-        message = "STOP-VIDEO_MEMOJI";
-        Send(client, message);
     end
     
     [~,~,keys] = KbCheck(-1);
@@ -709,13 +715,14 @@ for trial = 1: d.number_trials
 end
 
 %% Drift Check 
-message = "DISPLAY-TEXT-MESSAGE-Fixate on the centre of the dot on the bottom middle of the screen";
-Send(client, message);
+message = 'Fixate on the centre of the dot on the bottom middle of the screen';
+address = '/display/message';
+oscsend(udpSender,address,'s', message);
 
 WaitSecs(3);
 
-message = "DISPLAY-TEXT-CLEAR";
-Send(client, message);
+address = '/display/clear';
+oscsend(udpSender,address);
 
 message = strcat("DISPLAY-PICTURE-FILE", "-", d.filepath_drift_check_image);
 Send(client, message);
@@ -724,8 +731,8 @@ Eyelink('Message',sprintf('Drift Check'));
 
 WaitSecs(2);
 
-message = "DISPLAY-PICTURE-BLACK_FRAME";
-Send(client, message);
+address = '/display/clear';
+oscsend(udpSender,address);
 %% Stop eyelink recording
 fprintf('Eyelink Close');   
 
@@ -735,16 +742,14 @@ else
     Eyelink('InitializeDummy');
 end 
 %% Final Baseline
-message = "DISPLAY-TEXT-MESSAGE-We will now begin a 30 second baseline, please remain as still as possible";
-Send(client, message);
+message = 'We will now begin a 30 second baseline, please remain as still as possible';
+address = '/display/message';
+oscsend(udpSender,address,'s', message);
 
 WaitSecs(3);
 
-message = "DISPLAY-TEXT-CLEAR";
-Send(client, message);
-
-message = "DISPLAY-PICTURE-BLACK_FRAME";
-Send(client, message);
+address = '/display/clear';
+oscsend(udpSender,address);
 
 fprintf('Final baseline...\n');
 tend = GetSecs + p.DURATION_BASELINE_FINAL;
@@ -808,6 +813,11 @@ else
     Eyelink('InitializeDummy');
 end
 
+%% Clean up - close unity connection
+fclose(udpSender);
+delete(udpSender);
+clear udpSender;
+
 %done
 disp('Run complete!');
 
@@ -819,8 +829,8 @@ catch err
     sca
     sca
     
-    message = "DISPLAY-PICTURE-BLACK_FRAME";
-    Send(client, message);
+    address = '/display/clear';
+    oscsend(udpSender,address);
     
     %save everything
     save(['ErrorDump_' d.timestamp_start_script])
@@ -853,6 +863,11 @@ catch err
         
     end 
     
+    %Close Unity Connection
+    fclose(udpSender);
+    delete(udpSender);
+    clear udpSender;
+    
     %rethrow error for troubleshooting
     rethrow(err)
 end 
@@ -863,11 +878,108 @@ timestamp = sprintf('%d-%d-%d_%d-%d_%d',c([4 5 6 3 2 1]));
 timestamp_edf = sprintf('%02d%02d', c(5:6));
 end 
 
-function Send(client, message)
-    fopen(client);
-    fwrite(client, message);
-    fclose(client);
-    fprintf('%s\n',message);
+function oscsend(u,path,varargin)
+% Sends a Open Sound Control (OSC) message through a UDP connection
+%
+% oscsend(u,path)
+% oscsend(u,path,types,arg1,arg2,...)
+% oscsedn(u,path,types,[args])
+%
+% u = UDP object with open connection.
+% path = path-string
+% types = string with types of arguments,
+%    supported:
+%       i = integer
+%       f = float
+%       s = string
+%       N = Null (ignores corresponding argument)
+%       I = Impulse (ignores corresponding argument)
+%       T = True (ignores corresponding argument)
+%       F = False (ignores corresponding argument)
+%       B = boolean (not official: converts argument to T/F in the type)
+%    not supported:
+%       b = blob
+%
+% args = arguments as specified by types.
+%
+% EXAMPLE
+%       u = udp('127.0.0.1',7488);  
+%       fopen(u);
+%       oscsend(u,'/test','ifsINBTF', 1, 3.14, 'hello',[],[],false,[],[]);
+%       fclose(u);
+%
+% See http://opensoundcontrol.org/ for more information about OSC.
+
+% MARK MARIJNISSEN 10 may 2011 (markmarijnissen@gmail.com)
+    
+    %figure out little endian for int/float conversion
+    [~, ~, endian] = computer;
+    littleEndian = endian == 'L';
+
+    % set type
+    if nargin >= 2,
+        types = oscstr([',' varargin{1}]);
+    else
+        types = oscstr(',');
+    end;
+    
+    % set args (either a matrix, or varargin)
+    if nargin == 3 && length(types) > 2
+        args = varargin{2};
+    else
+        args = varargin(2:end);
+    end;
+
+    % convert arguments to the right bytes
+    data = [];
+    for i=1:length(args)
+        switch(types(i+1))
+            case 'i'
+                data = [data oscint(args{i},littleEndian)];
+            case 'f'
+                data = [data oscfloat(args{i},littleEndian)];
+            case 's'
+                data = [data oscstr(args{i})];
+            case 'B'
+                if args{i}
+                    types(i+1) = 'T';
+                else
+                    types(i+1) = 'F';
+                end;
+            case {'N','I','T','F'}
+                %ignore data
+            otherwise
+                warning(['Unsupported type: ' types(i+1)]);
+        end;
+    end;
+    
+    %write data to UDP
+    data = [oscstr(path) types data];
+    fwrite(u,data);
+end
+
+%Conversion from double to float
+function float = oscfloat(float,littleEndian)
+   if littleEndian
+        float = typecast(swapbytes(single(float)),'uint8');
+   else
+        float = typecast(single(float),'uint8');
+   end;
+end
+
+%Conversion to int
+function int = oscint(int,littleEndian)
+   if littleEndian
+        int = typecast(swapbytes(int32(int)),'uint8');
+   else
+        int = typecast(int32(int),'uint8');
+   end;
+end
+
+%Conversion to string (null-terminated, in multiples of 4 bytes)
+function string = oscstr(string)
+    string = [string 0 0 0 0];
+    string = string(1:end-mod(length(string),4));
 end
 end 
 
