@@ -397,14 +397,14 @@ for trial = 1: d.number_trials
     d.trial_data(trial).trial_end_wait = ITI(ITI_index);
     
     [~,~,keys] = KbCheck(-1);
-    if any(keys(p.KEYS.STOP.VALUE))
-        %ends current trial
+    if any(keys(p.KEYS.STOP.VALUE))%ends current trial
+        d.trial_data(trial).flag = true; 
+        save(d.filepath_data, 'p', 'd')
         break;
     elseif any(keys(p.KEYS.ABORT.VALUE))
         d.number_trials = trial;
         error('Abort key pressed');
     end
-    
     %Calculate length of trial and send to unity
     trial_length = 14 +  d.trial_data(trial).trial_end_wait;
     message = strcat("DURATION_TRIAL-",string(trial_length));
@@ -538,6 +538,8 @@ for trial = 1: d.number_trials
     [~,~,keys] = KbCheck(-1);
     if any(keys(p.KEYS.STOP.VALUE)) %break is currently breaking out of the larger while loop as well
         %ends current trial
+        d.trial_data(trial).flag = true; 
+        save(d.filepath_data, 'p', 'd')
         break;
     elseif any(keys(p.KEYS.ABORT.VALUE))
         d.number_trials = trial;
@@ -569,6 +571,8 @@ for trial = 1: d.number_trials
     [~,~,keys] = KbCheck(-1);
     if any(keys(p.KEYS.STOP.VALUE))
         %ends current trial
+        d.trial_data(trial).flag = true;
+        save(d.filepath_data, 'p', 'd')
         break;
     elseif any(keys(p.KEYS.ABORT.VALUE))
         d.number_trials = trial;
@@ -682,14 +686,15 @@ for trial = 1: d.number_trials
             Send(client, message);
             
             break;
-            %triggers the end of the current run            
-        elseif any(keys(p.KEYS.STOP.VALUE))
-            %end of trial and save data
+            %triggers the end of the current trial             
+        elseif any(keys(p.KEYS.STOP.VALUE)) %end of trial
             fprintf('End of trial %03d\n', trial)
-            
+            d.trial_data(trial).flag = true; 
+            save(d.filepath_data, 'p', 'd')
             break;
         elseif any(keys(p.KEYS.ABORT.VALUE)) %error out of the run
             d.number_trials = trial;
+            save(d.filepath_data, 'p', 'd')
             error('Abort key pressed');
         end
     end
