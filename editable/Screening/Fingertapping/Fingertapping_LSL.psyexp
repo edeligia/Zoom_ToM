@@ -127,7 +127,7 @@
         <Param name="Begin Experiment" updates="constant" val="" valType="extendedCode"/>
         <Param name="Begin JS Experiment" updates="constant" val="" valType="extendedCode"/>
         <Param name="Begin JS Routine" updates="constant" val="" valType="extendedCode"/>
-        <Param name="Begin Routine" updates="constant" val="outlet.push_sample(x=[marker])" valType="extendedCode"/>
+        <Param name="Begin Routine" updates="constant" val="d.activate_line(lines=[1])" valType="extendedCode"/>
         <Param name="Code Type" updates="None" val="Py" valType="str"/>
         <Param name="Each Frame" updates="constant" val="" valType="extendedCode"/>
         <Param name="Each JS Frame" updates="constant" val="" valType="extendedCode"/>
@@ -205,6 +205,23 @@
         <Param name="units" updates="None" val="from exp settings" valType="str"/>
         <Param name="wrapWidth" updates="constant" val="" valType="code"/>
       </TextComponent>
+      <CodeComponent name="code_4">
+        <Param name="Before Experiment" updates="constant" val="" valType="extendedCode"/>
+        <Param name="Before JS Experiment" updates="constant" val="" valType="extendedCode"/>
+        <Param name="Begin Experiment" updates="constant" val="d.activate_line(lines=[2])" valType="extendedCode"/>
+        <Param name="Begin JS Experiment" updates="constant" val="d.activate_line({&quot;lines&quot;: [2]});&amp;#10;" valType="extendedCode"/>
+        <Param name="Begin JS Routine" updates="constant" val="" valType="extendedCode"/>
+        <Param name="Begin Routine" updates="constant" val="" valType="extendedCode"/>
+        <Param name="Code Type" updates="None" val="Auto-&gt;JS" valType="str"/>
+        <Param name="Each Frame" updates="constant" val="" valType="extendedCode"/>
+        <Param name="Each JS Frame" updates="constant" val="" valType="extendedCode"/>
+        <Param name="End Experiment" updates="constant" val="" valType="extendedCode"/>
+        <Param name="End JS Experiment" updates="constant" val="" valType="extendedCode"/>
+        <Param name="End JS Routine" updates="constant" val="" valType="extendedCode"/>
+        <Param name="End Routine" updates="constant" val="" valType="extendedCode"/>
+        <Param name="disabled" updates="None" val="False" valType="bool"/>
+        <Param name="name" updates="None" val="code_4" valType="code"/>
+      </CodeComponent>
     </Routine>
     <Routine name="Countdown">
       <TextComponent name="text_5">
@@ -322,6 +339,23 @@
         <Param name="units" updates="None" val="from exp settings" valType="str"/>
         <Param name="wrapWidth" updates="constant" val="" valType="code"/>
       </TextComponent>
+      <CodeComponent name="code_3">
+        <Param name="Before Experiment" updates="constant" val="" valType="extendedCode"/>
+        <Param name="Before JS Experiment" updates="constant" val="" valType="extendedCode"/>
+        <Param name="Begin Experiment" updates="constant" val="import pyxid2&amp;#10;import time&amp;#10;devices = pyxid2.get_xid_devices()&amp;#10;assert len(devices) &gt; 0&amp;#10;d = devices[0]&amp;#10;d.init_device()&amp;#10;d.set_pulse_duration(1000)&amp;#10;" valType="extendedCode"/>
+        <Param name="Begin JS Experiment" updates="constant" val="import * as pyxid2 from 'pyxid2';&amp;#10;import * as time from 'time';&amp;#10;var _pj;&amp;#10;var d, devices;&amp;#10;function _pj_snippets(container) {&amp;#10;    function _assert(comp, msg) {&amp;#10;        function PJAssertionError(message) {&amp;#10;            this.name = &quot;PJAssertionError&quot;;&amp;#10;            this.message = (message || &quot;Custom error PJAssertionError&quot;);&amp;#10;            if (((typeof Error.captureStackTrace) === &quot;function&quot;)) {&amp;#10;                Error.captureStackTrace(this, this.constructor);&amp;#10;            } else {&amp;#10;                this.stack = new Error(message).stack;&amp;#10;            }&amp;#10;        }&amp;#10;        PJAssertionError.prototype = Object.create(Error.prototype);&amp;#10;        PJAssertionError.prototype.constructor = PJAssertionError;&amp;#10;        msg = (msg || &quot;Assertion failed.&quot;);&amp;#10;        if ((! comp)) {&amp;#10;            throw new PJAssertionError(msg);&amp;#10;        }&amp;#10;    }&amp;#10;    container[&quot;_assert&quot;] = _assert;&amp;#10;    return container;&amp;#10;}&amp;#10;_pj = {};&amp;#10;_pj_snippets(_pj);&amp;#10;devices = pyxid2.get_xid_devices();&amp;#10;_pj._assert((devices.length &gt; 0), null);&amp;#10;d = devices[0];&amp;#10;d.init_device();&amp;#10;d.set_pulse_duration(1000);&amp;#10;" valType="extendedCode"/>
+        <Param name="Begin JS Routine" updates="constant" val="" valType="extendedCode"/>
+        <Param name="Begin Routine" updates="constant" val="" valType="extendedCode"/>
+        <Param name="Code Type" updates="None" val="Auto-&gt;JS" valType="str"/>
+        <Param name="Each Frame" updates="constant" val="" valType="extendedCode"/>
+        <Param name="Each JS Frame" updates="constant" val="" valType="extendedCode"/>
+        <Param name="End Experiment" updates="constant" val="" valType="extendedCode"/>
+        <Param name="End JS Experiment" updates="constant" val="" valType="extendedCode"/>
+        <Param name="End JS Routine" updates="constant" val="" valType="extendedCode"/>
+        <Param name="End Routine" updates="constant" val="" valType="extendedCode"/>
+        <Param name="disabled" updates="None" val="False" valType="bool"/>
+        <Param name="name" updates="None" val="code_3" valType="code"/>
+      </CodeComponent>
     </Routine>
     <Routine name="Wait_Begin">
       <TextComponent name="text_9">

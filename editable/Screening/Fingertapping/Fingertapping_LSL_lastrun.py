@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2021.2.0),
-    on March 07, 2022, at 16:44
+    on March 11, 2022, at 09:53
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -127,6 +127,14 @@ text_8 = visual.TextStim(win=win, name='text_8',
     color='white', colorSpace='rgb', opacity=1, 
     languageStyle='LTR',
     depth=-4.0);
+import pyxid2
+import time
+devices = pyxid2.get_xid_devices()
+assert len(devices) > 0
+d = devices[0]
+d.init_device()
+d.set_pulse_duration(1000)
+
 
 # Initialize components for Routine "Start_Trial"
 Start_TrialClock = core.Clock()
@@ -167,6 +175,7 @@ text_3 = visual.TextStim(win=win, name='text_3',
     color='white', colorSpace='rgb', opacity=1, 
     languageStyle='LTR',
     depth=-2.0);
+d.activate_line(lines=[2])
 
 # Create some handy timers
 globalClock = core.Clock()  # to track the time since experiment started
@@ -439,7 +448,7 @@ for thisTrial in trials:
     text.setText(textstim)
     sound_1.setSound(sound, secs=3.0, hamming=True)
     sound_1.setVolume(1, log=False)
-    outlet.push_sample(x=[marker])
+    d.activate_line(lines=[1])
     # keep track of which components have finished
     Start_TrialComponents = [text, sound_1, text_4]
     for thisComponent in Start_TrialComponents:

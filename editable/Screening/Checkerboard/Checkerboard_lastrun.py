@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2021.2.0),
-    on March 07, 2022, at 16:36
+    on March 11, 2022, at 10:12
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -79,12 +79,15 @@ ioDevice = ioConfig = ioSession = ioServer = eyetracker = None
 # create a default keyboard (e.g. to check for escape)
 defaultKeyboard = keyboard.Keyboard()
 
-# Initialize components for Routine "Load_LSL"
-Load_LSLClock = core.Clock()
-from pylsl import StreamInfo, StreamOutlet # import required classes
-info = StreamInfo(name='TriggerStream', type='Markers', channel_count=1, channel_format='int32', source_id='Example') # sets variables for object info
-outlet = StreamOutlet(info) # initialize stream.
-
+# Initialize components for Routine "Load_TTL"
+Load_TTLClock = core.Clock()
+import pyxid2
+import time
+devices = pyxid2.get_xid_devices()
+assert len(devices) > 0
+d = devices[0]
+d.init_device()
+d.set_pulse_duration(1000)
 
 # Initialize components for Routine "Wait_Begin"
 Wait_BeginClock = core.Clock()
@@ -117,6 +120,12 @@ text_3 = visual.TextStim(win=win, name='text_3',
     languageStyle='LTR',
     depth=-1.0);
 
+# Initialize components for Routine "start"
+startClock = core.Clock()
+sound_1 = sound.Sound('Audio/Start.wav', secs=-1, stereo=True, hamming=True,
+    name='sound_1')
+sound_1.setVolume(1.0)
+
 # Initialize components for Routine "trial"
 trialClock = core.Clock()
 Checkerboard = visual.ImageStim(
@@ -140,12 +149,12 @@ Checkerboard2 = visual.ImageStim(
 globalClock = core.Clock()  # to track the time since experiment started
 routineTimer = core.CountdownTimer()  # to track time remaining of each (non-slip) routine 
 
-# ------Prepare to start Routine "Load_LSL"-------
+# ------Prepare to start Routine "Load_TTL"-------
 continueRoutine = True
 # update component parameters for each repeat
 # keep track of which components have finished
-Load_LSLComponents = []
-for thisComponent in Load_LSLComponents:
+Load_TTLComponents = []
+for thisComponent in Load_TTLComponents:
     thisComponent.tStart = None
     thisComponent.tStop = None
     thisComponent.tStartRefresh = None
@@ -155,14 +164,14 @@ for thisComponent in Load_LSLComponents:
 # reset timers
 t = 0
 _timeToFirstFrame = win.getFutureFlipTime(clock="now")
-Load_LSLClock.reset(-_timeToFirstFrame)  # t0 is time of first possible flip
+Load_TTLClock.reset(-_timeToFirstFrame)  # t0 is time of first possible flip
 frameN = -1
 
-# -------Run Routine "Load_LSL"-------
+# -------Run Routine "Load_TTL"-------
 while continueRoutine:
     # get current time
-    t = Load_LSLClock.getTime()
-    tThisFlip = win.getFutureFlipTime(clock=Load_LSLClock)
+    t = Load_TTLClock.getTime()
+    tThisFlip = win.getFutureFlipTime(clock=Load_TTLClock)
     tThisFlipGlobal = win.getFutureFlipTime(clock=None)
     frameN = frameN + 1  # number of completed frames (so 0 is the first frame)
     # update/draw components on each frame
@@ -175,7 +184,7 @@ while continueRoutine:
     if not continueRoutine:  # a component has requested a forced-end of Routine
         break
     continueRoutine = False  # will revert to True if at least one component still running
-    for thisComponent in Load_LSLComponents:
+    for thisComponent in Load_TTLComponents:
         if hasattr(thisComponent, "status") and thisComponent.status != FINISHED:
             continueRoutine = True
             break  # at least one component has not yet finished
@@ -184,11 +193,11 @@ while continueRoutine:
     if continueRoutine:  # don't flip if this routine is over or we'll get a blank screen
         win.flip()
 
-# -------Ending Routine "Load_LSL"-------
-for thisComponent in Load_LSLComponents:
+# -------Ending Routine "Load_TTL"-------
+for thisComponent in Load_TTLComponents:
     if hasattr(thisComponent, "setAutoDraw"):
         thisComponent.setAutoDraw(False)
-# the Routine "Load_LSL" was not non-slip safe, so reset the non-slip timer
+# the Routine "Load_TTL" was not non-slip safe, so reset the non-slip timer
 routineTimer.reset()
 
 # ------Prepare to start Routine "Wait_Begin"-------
@@ -379,7 +388,7 @@ for thisExperiment in Experiment:
     continueRoutine = True
     routineTimer.add(0.500000)
     # update component parameters for each repeat
-    outlet.push_sample(x=[1])
+    d.activate_line(lines=[1])
     # keep track of which components have finished
     fNIRS_triggerComponents = [text_3]
     for thisComponent in fNIRS_triggerComponents:
@@ -444,6 +453,76 @@ for thisExperiment in Experiment:
             thisComponent.setAutoDraw(False)
     Experiment.addData('text_3.started', text_3.tStartRefresh)
     Experiment.addData('text_3.stopped', text_3.tStopRefresh)
+    
+    # ------Prepare to start Routine "start"-------
+    continueRoutine = True
+    routineTimer.add(3.000000)
+    # update component parameters for each repeat
+    sound_1.setSound('Audio/Start.wav', secs=3.0, hamming=True)
+    sound_1.setVolume(1.0, log=False)
+    # keep track of which components have finished
+    startComponents = [sound_1]
+    for thisComponent in startComponents:
+        thisComponent.tStart = None
+        thisComponent.tStop = None
+        thisComponent.tStartRefresh = None
+        thisComponent.tStopRefresh = None
+        if hasattr(thisComponent, 'status'):
+            thisComponent.status = NOT_STARTED
+    # reset timers
+    t = 0
+    _timeToFirstFrame = win.getFutureFlipTime(clock="now")
+    startClock.reset(-_timeToFirstFrame)  # t0 is time of first possible flip
+    frameN = -1
+    
+    # -------Run Routine "start"-------
+    while continueRoutine and routineTimer.getTime() > 0:
+        # get current time
+        t = startClock.getTime()
+        tThisFlip = win.getFutureFlipTime(clock=startClock)
+        tThisFlipGlobal = win.getFutureFlipTime(clock=None)
+        frameN = frameN + 1  # number of completed frames (so 0 is the first frame)
+        # update/draw components on each frame
+        # start/stop sound_1
+        if sound_1.status == NOT_STARTED and tThisFlip >= 0.0-frameTolerance:
+            # keep track of start time/frame for later
+            sound_1.frameNStart = frameN  # exact frame index
+            sound_1.tStart = t  # local t and not account for scr refresh
+            sound_1.tStartRefresh = tThisFlipGlobal  # on global time
+            sound_1.play(when=win)  # sync with win flip
+        if sound_1.status == STARTED:
+            # is it time to stop? (based on global clock, using actual start)
+            if tThisFlipGlobal > sound_1.tStartRefresh + 3.0-frameTolerance:
+                # keep track of stop time/frame for later
+                sound_1.tStop = t  # not accounting for scr refresh
+                sound_1.frameNStop = frameN  # exact frame index
+                win.timeOnFlip(sound_1, 'tStopRefresh')  # time at next scr refresh
+                sound_1.stop()
+        
+        # check for quit (typically the Esc key)
+        if endExpNow or defaultKeyboard.getKeys(keyList=["escape"]):
+            core.quit()
+        
+        # check if all components have finished
+        if not continueRoutine:  # a component has requested a forced-end of Routine
+            break
+        continueRoutine = False  # will revert to True if at least one component still running
+        for thisComponent in startComponents:
+            if hasattr(thisComponent, "status") and thisComponent.status != FINISHED:
+                continueRoutine = True
+                break  # at least one component has not yet finished
+        
+        # refresh the screen
+        if continueRoutine:  # don't flip if this routine is over or we'll get a blank screen
+            win.flip()
+    
+    # -------Ending Routine "start"-------
+    for thisComponent in startComponents:
+        if hasattr(thisComponent, "setAutoDraw"):
+            thisComponent.setAutoDraw(False)
+    sound_1.stop()  # ensure sound has stopped at end of routine
+    Experiment.addData('sound_1.started', sound_1.tStartRefresh)
+    Experiment.addData('sound_1.stopped', sound_1.tStopRefresh)
     
     # set up handler to look after randomisation of conditions etc
     block = data.TrialHandler(nReps=10, method='random', 

@@ -39,8 +39,8 @@ Screen('Preference','SkipSyncTests', 1);
 p.DIR_DATA = [pwd filesep 'Data' filesep filepath_participant_mat filesep];
 p.DIR_DATA_EDF = [pwd filesep 'Data_EDF' filesep];
 p.DIR_ORDERS = [pwd filesep 'Orders' filesep 'Mat Orders' filesep];
-% p.DIR_VIDEOSTIMS_HUMAN = [pwd filesep 'VideoStims' filesep 'Human' filesep]; 
-% p.DIR_VIDEOSTIMS_MEMOJI = [pwd filesep 'VideoStims' filesep 'Memoji' filesep]; 
+p.DIR_VIDEOSTIMS_HUMAN = [pwd filesep 'VideoStims' filesep 'Human' filesep]; 
+p.DIR_VIDEOSTIMS_MEMOJI = [pwd filesep 'VideoStims' filesep 'Memoji' filesep]; 
 p.DIR_PARTICIPANT_EDF = [pwd filesep 'Data_EDF' filesep filepath_participant_edf filesep];
 p.DIR_IMAGES = [pwd filesep 'Images' filesep];
 p.DIR_VIDEOSTIMS_PRACTICE = ['Videos' filesep 'Practice_Stims' filesep]; 
@@ -87,11 +87,17 @@ end
 
 %Setup a network connection to the Unity application so messages can be
 %sent
-% Create the UDP connection to broadcast messages on port 7000
+% Get localhost address of the computer
+[~,hostName] = system('hostname');
+% Convert hostname to fully-qualified domain name
+[~,hostAddress] = resolvehost([strtrim(hostName) '172.23.32.213']);
+% Compute broadcast address. This assumes a subnet mask of 255.255.255.0,
+% which implies that address xxx.xxx.xxx.255 is the broadcast address
+expression = '(?<=\d+[.]\d+[.]\d+[.])\d+';
+broadcastAddress = regexprep(hostAddress, expression, '255');
+% Create the UDP connection to broadcast messages on port 31416
 sharedPort = 7000;
-% Note the submask of 255.255.255.255 might not work everywhere.  Will have to contact
-% Haitao for the one used in the WIRB
-udpSender = udp('255.255,255,255', sharedPort,...
+udpSender = udp('255.255.255.255', sharedPort,...
                 'LocalPort', sharedPort);
             
 % Enable port sharing to allow multiple clients on the same PC to bind to 
@@ -272,13 +278,13 @@ while 1
         fprintf('\nCan error out of practice run with abort key (%s)...\n----------------------------------------------\n\n', p.KEYS.ABORT.NAME);
         
         for practice_trial = 1:4
-            practice_movie_filepath = sprintf('%s/%d_question.mp4', p.DIR_VIDEOSTIMS_PRACTICE, practice_trial);
-            address = '/duration/video';
+            practice_movie_filepath = sprintf('%s%d_question.mp4', p.DIR_VIDEOSTIMS_PRACTICE, practice_trial);
+            address = '/display/video'           
             oscsend(udpSender,address,'s', practice_movie_filepath);
             
             WaitSecs(10);
             
-            address = '/display/clear';
+            address = '/display/clear'
             oscsend(udpSender,address);
             
             while 1
@@ -286,7 +292,7 @@ while 1
                 if any(keys(p.KEYS.YES.VALUE))
                     % correct_response_image_practice = imread(d.filepath_practice_image_correct);
                     
-                    address = '/display/picture';
+                    address = '/display/picture'
                     oscsend(udpSender,address,'s', d.filepath_practice_image_correct);
 
                     WaitSecs(1);
@@ -477,6 +483,12 @@ for trial = 1: d.number_trials
         movie_filepath = sprintf('%s/%d_question.mp4', 'Videos/Memoji', question_number);
     end
     
+     if d.condition_number == 3
+        movie_filepath_matlab = sprintf('%s%d_question.mp4', p.DIR_VIDEOSTIMS_HUMAN, question_number);
+    elseif d.condition_number == 4
+        movie_filepath_matlab = sprintf('%s%d_question.mp4', p.DIR_VIDEOSTIMS_MEMOJI, question_number);
+    end
+    
     d.trial_data(trial).correct_response = nan;
     d.trial_data(trial).timing.trigger.reaction = [];
     
@@ -514,7 +526,7 @@ for trial = 1: d.number_trials
         WaitSecs(10);
         
     elseif d.condition_number == 3
-        address = '/duration/video';
+        address = '/display/video';
         oscsend(udpSender,address,'s', movie_filepath);
                 
         if p.TRIGGER_STIM_TRACKER
@@ -523,13 +535,13 @@ for trial = 1: d.number_trials
             fwrite(sport,['mh',bin2dec('00000000'),0]); %turn question period trigger off (for StimTracker)
         end
         
-        video_info = VideoReader(movie_filepath);
+        video_info = VideoReader(movie_filepath_matlab);
         movie_duration = video_info.Duration;
         
         WaitSecs(movie_duration);
         
     elseif d.condition_number == 4
-        address = '/duration/video';
+        address = '/display/video';
         oscsend(udpSender,address,'s', movie_filepath);
         
         if p.TRIGGER_STIM_TRACKER
@@ -538,7 +550,7 @@ for trial = 1: d.number_trials
             fwrite(sport,['mh',bin2dec('00000000'),0]); %turn question period trigger off (for StimTracker)
         end
         
-        video_info = VideoReader(movie_filepath);
+        video_info = VideoReader(movie_filepath_matlab);
         movie_duration = video_info.Duration;
         
         WaitSecs(movie_duration);
@@ -851,8 +863,8 @@ catch err
     sca
     sca
     
-    address = '/display/clear';
-    oscsend(udpSender,address);
+%     address = '/display/clear';
+%     oscsend(udpSender,address);
     
     %save everything
     save(['ErrorDump_' d.timestamp_start_script])
@@ -939,7 +951,7 @@ function oscsend(u,path,varargin)
     littleEndian = endian == 'L';
 
     % set type
-    if nargin >= 2,
+    if nargin >= 3,
         types = oscstr([',' varargin{1}]);
     else
         types = oscstr(',');

@@ -1,0 +1,795 @@
+1.5251 	WARNING 	We strongly recommend you activate the PTB sound engine in PsychoPy prefs as the preferred audio engine. Its timing is vastly superior. Your prefs are currently set to use ['sounddevice', 'PTB', 'pyo', 'pygame'] (in that order).
+4.8444 	EXP 	Created window1 = Window(allowGUI=False, allowStencil=False, autoLog=True, backendConf=UNKNOWN, bitsMode=UNKNOWN, blendMode='avg', bpc=(8, 8, 8), color=array([1, 1, 1]), colorSpace='rgb', depthBits=8, fullscr=<method-wrapper '__getattribute__' of attributeSetter object at 0x0000016140A1DF28>, gamma=None, gammaErrorPolicy='raise', lms=UNKNOWN, monitor=<psychopy.monitors.calibTools.Monitor object at 0x000001614082E630>, multiSample=False, name='window1', numSamples=2, pos=[0.0, 0.0], screen=0, size=array([1920, 1080]), stencilBits=0, stereo=False, units='norm', useFBO=True, useRetina=False, viewOri=0.0, viewPos=None, viewScale=None, waitBlanking=True, winType='pyglet')
+4.8447 	EXP 	window1: mouseVisible = True
+4.8448 	EXP 	window1: recordFrameIntervals = False
+5.0108 	EXP 	window1: recordFrameIntervals = True
+5.1948 	EXP 	window1: recordFrameIntervals = False
+5.5854 	EXP 	Created text_2 = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoLog=True, bold=False, color=array([-1, -1, -1]), colorSpace='rgb', contrast=1.0, depth=0.0, flipHoriz=False, flipVert=False, font='Arial', fontFiles=[], height=0.1, italic=False, languageStyle='LTR', name='text_2', opacity=1, ori=0, pos=array([0., 0.]), rgb=UNKNOWN, text=str(...), units='norm', win=Window(...), wrapWidth=1)
+5.5877 	EXP 	Created text = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoLog=True, bold=False, color=array([1, 1, 1]), colorSpace='rgb', contrast=1.0, depth=0.0, flipHoriz=False, flipVert=False, font='Arial', fontFiles=[], height=0.1, italic=False, languageStyle='LTR', name='text', opacity=1, ori=0, pos=array([0., 0.]), rgb=UNKNOWN, text='+', units='norm', win=Window(...), wrapWidth=1)
+5.5883 	EXP 	Created text_3 = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoLog=True, bold=False, color=array([1, 1, 1]), colorSpace='rgb', contrast=1.0, depth=-1.0, flipHoriz=False, flipVert=False, font='Arial', fontFiles=[], height=0.1, italic=False, languageStyle='LTR', name='text_3', opacity=1, ori=0, pos=array([0., 0.]), rgb=UNKNOWN, text='', units='norm', win=Window(...), wrapWidth=1)
+5.6145 	EXP 	Sound sound_1 set volume 1.000
+5.7600 	EXP 	Created Checkerboard = ImageStim(__class__=<class 'psychopy.visual.image.ImageStim'>, autoLog=True, color=array([1, 1, 1]), colorSpace='rgb', contrast=1.0, depth=0.0, flipHoriz=False, flipVert=False, image='stimuli/checkerboard.bmp', interpolate=True, mask=None, maskParams=None, name='Checkerboard', opacity=1, ori=0.0, pos=array([0., 0.]), size=array([1.125, 2.   ]), texRes=128, units='norm', win=Window(...))
+5.8957 	EXP 	Created Checkerboard2 = ImageStim(__class__=<class 'psychopy.visual.image.ImageStim'>, autoLog=True, color=array([1, 1, 1]), colorSpace='rgb', contrast=1.0, depth=-1.0, flipHoriz=False, flipVert=False, image='stimuli/checkerboard2.bmp', interpolate=True, mask=None, maskParams=None, name='Checkerboard2', opacity=1, ori=0.0, pos=array([0., 0.]), size=array([1.125, 2.   ]), texRes=128, units='norm', win=Window(...))
+5.9708 	EXP 	text_2: autoDraw = True
+7.8644 	EXP 	Created sequence: random, trialTypes=1, nReps=10, seed=None
+7.8646 	EXP 	New trial (rep=0, index=0): None
+7.8672 	DATA 	Keypress: space
+7.8776 	EXP 	text_2: autoDraw = False
+7.8776 	EXP 	text: autoDraw = True
+22.8935 	EXP 	text: autoDraw = False
+22.8935 	EXP 	text_3: autoDraw = True
+23.3933 	EXP 	text_3: autoDraw = False
+23.9790 	EXP 	Created sequence: random, trialTypes=1, nReps=10, seed=None
+23.9792 	EXP 	New trial (rep=0, index=0): None
+23.9932 	EXP 	Checkerboard: autoDraw = True
+24.5768 	EXP 	Checkerboard2: autoDraw = True
+24.5931 	EXP 	Checkerboard: autoDraw = False
+25.1623 	EXP 	New trial (rep=1, index=0): None
+25.1766 	EXP 	Checkerboard2: autoDraw = False
+25.1766 	EXP 	Checkerboard: autoDraw = False
+25.1766 	EXP 	Checkerboard2: autoDraw = False
+25.1766 	EXP 	Checkerboard: autoDraw = True
+25.7596 	EXP 	Checkerboard2: autoDraw = True
+25.7762 	EXP 	Checkerboard: autoDraw = False
+26.3450 	EXP 	New trial (rep=2, index=0): None
+26.3596 	EXP 	Checkerboard2: autoDraw = False
+26.3596 	EXP 	Checkerboard: autoDraw = False
+26.3596 	EXP 	Checkerboard2: autoDraw = False
+26.3596 	EXP 	Checkerboard: autoDraw = True
+26.9430 	EXP 	Checkerboard2: autoDraw = True
+26.9595 	EXP 	Checkerboard: autoDraw = False
+27.5287 	EXP 	New trial (rep=3, index=0): None
+27.5430 	EXP 	Checkerboard2: autoDraw = False
+27.5430 	EXP 	Checkerboard: autoDraw = False
+27.5430 	EXP 	Checkerboard2: autoDraw = False
+27.5430 	EXP 	Checkerboard: autoDraw = True
+28.1262 	EXP 	Checkerboard2: autoDraw = True
+28.1430 	EXP 	Checkerboard: autoDraw = False
+28.7117 	EXP 	New trial (rep=4, index=0): None
+28.7260 	EXP 	Checkerboard2: autoDraw = False
+28.7260 	EXP 	Checkerboard: autoDraw = False
+28.7260 	EXP 	Checkerboard2: autoDraw = False
+28.7260 	EXP 	Checkerboard: autoDraw = True
+29.3095 	EXP 	Checkerboard2: autoDraw = True
+29.3267 	EXP 	Checkerboard: autoDraw = False
+29.8948 	EXP 	New trial (rep=5, index=0): None
+29.9097 	EXP 	Checkerboard2: autoDraw = False
+29.9097 	EXP 	Checkerboard: autoDraw = False
+29.9097 	EXP 	Checkerboard2: autoDraw = False
+29.9097 	EXP 	Checkerboard: autoDraw = True
+30.4930 	EXP 	Checkerboard2: autoDraw = True
+30.5092 	EXP 	Checkerboard: autoDraw = False
+31.0784 	EXP 	New trial (rep=6, index=0): None
+31.0926 	EXP 	Checkerboard2: autoDraw = False
+31.0926 	EXP 	Checkerboard: autoDraw = False
+31.0926 	EXP 	Checkerboard2: autoDraw = False
+31.0926 	EXP 	Checkerboard: autoDraw = True
+31.6763 	EXP 	Checkerboard2: autoDraw = True
+31.6927 	EXP 	Checkerboard: autoDraw = False
+32.2611 	EXP 	New trial (rep=7, index=0): None
+32.2762 	EXP 	Checkerboard2: autoDraw = False
+32.2762 	EXP 	Checkerboard: autoDraw = False
+32.2762 	EXP 	Checkerboard2: autoDraw = False
+32.2762 	EXP 	Checkerboard: autoDraw = True
+32.8590 	EXP 	Checkerboard2: autoDraw = True
+32.8762 	EXP 	Checkerboard: autoDraw = False
+33.4445 	EXP 	New trial (rep=8, index=0): None
+33.4591 	EXP 	Checkerboard2: autoDraw = False
+33.4591 	EXP 	Checkerboard: autoDraw = False
+33.4591 	EXP 	Checkerboard2: autoDraw = False
+33.4591 	EXP 	Checkerboard: autoDraw = True
+34.0428 	EXP 	Checkerboard2: autoDraw = True
+34.0595 	EXP 	Checkerboard: autoDraw = False
+34.6281 	EXP 	New trial (rep=9, index=0): None
+34.6425 	EXP 	Checkerboard2: autoDraw = False
+34.6425 	EXP 	Checkerboard: autoDraw = False
+34.6425 	EXP 	Checkerboard2: autoDraw = False
+34.6425 	EXP 	Checkerboard: autoDraw = True
+35.2261 	EXP 	Checkerboard2: autoDraw = True
+35.2426 	EXP 	Checkerboard: autoDraw = False
+35.8113 	EXP 	New trial (rep=1, index=0): None
+35.8259 	EXP 	Checkerboard2: autoDraw = False
+35.8259 	EXP 	Checkerboard: autoDraw = False
+35.8259 	EXP 	Checkerboard2: autoDraw = False
+35.8259 	EXP 	text: autoDraw = True
+50.8249 	EXP 	text: autoDraw = False
+50.8249 	EXP 	text: autoDraw = False
+50.8249 	EXP 	text_3: autoDraw = True
+51.3250 	EXP 	text_3: autoDraw = False
+51.3250 	EXP 	text_3: autoDraw = False
+51.8943 	EXP 	Created sequence: random, trialTypes=1, nReps=10, seed=None
+51.8945 	EXP 	New trial (rep=0, index=0): None
+51.9086 	EXP 	Checkerboard: autoDraw = True
+52.4917 	EXP 	Checkerboard2: autoDraw = True
+52.5082 	EXP 	Checkerboard: autoDraw = False
+53.0769 	EXP 	New trial (rep=1, index=0): None
+53.0915 	EXP 	Checkerboard2: autoDraw = False
+53.0915 	EXP 	Checkerboard: autoDraw = False
+53.0915 	EXP 	Checkerboard2: autoDraw = False
+53.0915 	EXP 	Checkerboard: autoDraw = True
+53.6749 	EXP 	Checkerboard2: autoDraw = True
+53.6915 	EXP 	Checkerboard: autoDraw = False
+54.2610 	EXP 	New trial (rep=2, index=0): None
+54.2748 	EXP 	Checkerboard2: autoDraw = False
+54.2748 	EXP 	Checkerboard: autoDraw = False
+54.2748 	EXP 	Checkerboard2: autoDraw = False
+54.2748 	EXP 	Checkerboard: autoDraw = True
+54.8581 	EXP 	Checkerboard2: autoDraw = True
+54.8747 	EXP 	Checkerboard: autoDraw = False
+55.4429 	EXP 	New trial (rep=3, index=0): None
+55.4580 	EXP 	Checkerboard2: autoDraw = False
+55.4580 	EXP 	Checkerboard: autoDraw = False
+55.4580 	EXP 	Checkerboard2: autoDraw = False
+55.4580 	EXP 	Checkerboard: autoDraw = True
+56.0415 	EXP 	Checkerboard2: autoDraw = True
+56.0580 	EXP 	Checkerboard: autoDraw = False
+56.6273 	EXP 	New trial (rep=4, index=0): None
+56.6414 	EXP 	Checkerboard2: autoDraw = False
+56.6414 	EXP 	Checkerboard: autoDraw = False
+56.6414 	EXP 	Checkerboard2: autoDraw = False
+56.6414 	EXP 	Checkerboard: autoDraw = True
+57.2248 	EXP 	Checkerboard2: autoDraw = True
+57.2416 	EXP 	Checkerboard: autoDraw = False
+57.8109 	EXP 	New trial (rep=5, index=0): None
+57.8246 	EXP 	Checkerboard2: autoDraw = False
+57.8246 	EXP 	Checkerboard: autoDraw = False
+57.8246 	EXP 	Checkerboard2: autoDraw = False
+57.8246 	EXP 	Checkerboard: autoDraw = True
+58.4078 	EXP 	Checkerboard2: autoDraw = True
+58.4245 	EXP 	Checkerboard: autoDraw = False
+58.9931 	EXP 	New trial (rep=6, index=0): None
+59.0077 	EXP 	Checkerboard2: autoDraw = False
+59.0077 	EXP 	Checkerboard: autoDraw = False
+59.0077 	EXP 	Checkerboard2: autoDraw = False
+59.0077 	EXP 	Checkerboard: autoDraw = True
+59.5911 	EXP 	Checkerboard2: autoDraw = True
+59.6082 	EXP 	Checkerboard: autoDraw = False
+60.1766 	EXP 	New trial (rep=7, index=0): None
+60.1910 	EXP 	Checkerboard2: autoDraw = False
+60.1910 	EXP 	Checkerboard: autoDraw = False
+60.1910 	EXP 	Checkerboard2: autoDraw = False
+60.1910 	EXP 	Checkerboard: autoDraw = True
+60.7745 	EXP 	Checkerboard2: autoDraw = True
+60.7910 	EXP 	Checkerboard: autoDraw = False
+61.3601 	EXP 	New trial (rep=8, index=0): None
+61.3745 	EXP 	Checkerboard2: autoDraw = False
+61.3745 	EXP 	Checkerboard: autoDraw = False
+61.3745 	EXP 	Checkerboard2: autoDraw = False
+61.3745 	EXP 	Checkerboard: autoDraw = True
+61.9580 	EXP 	Checkerboard2: autoDraw = True
+61.9748 	EXP 	Checkerboard: autoDraw = False
+62.5433 	EXP 	New trial (rep=9, index=0): None
+62.5576 	EXP 	Checkerboard2: autoDraw = False
+62.5576 	EXP 	Checkerboard: autoDraw = False
+62.5576 	EXP 	Checkerboard2: autoDraw = False
+62.5576 	EXP 	Checkerboard: autoDraw = True
+63.1410 	EXP 	Checkerboard2: autoDraw = True
+63.1575 	EXP 	Checkerboard: autoDraw = False
+63.7265 	EXP 	New trial (rep=2, index=0): None
+63.7409 	EXP 	Checkerboard2: autoDraw = False
+63.7409 	EXP 	Checkerboard: autoDraw = False
+63.7409 	EXP 	Checkerboard2: autoDraw = False
+63.7409 	EXP 	text: autoDraw = True
+78.7402 	EXP 	text: autoDraw = False
+78.7402 	EXP 	text: autoDraw = False
+78.7402 	EXP 	text_3: autoDraw = True
+79.2403 	EXP 	text_3: autoDraw = False
+79.2403 	EXP 	text_3: autoDraw = False
+79.8090 	EXP 	Created sequence: random, trialTypes=1, nReps=10, seed=None
+79.8091 	EXP 	New trial (rep=0, index=0): None
+79.8236 	EXP 	Checkerboard: autoDraw = True
+80.4069 	EXP 	Checkerboard2: autoDraw = True
+80.4235 	EXP 	Checkerboard: autoDraw = False
+80.9922 	EXP 	New trial (rep=1, index=0): None
+81.0069 	EXP 	Checkerboard2: autoDraw = False
+81.0069 	EXP 	Checkerboard: autoDraw = False
+81.0069 	EXP 	Checkerboard2: autoDraw = False
+81.0069 	EXP 	Checkerboard: autoDraw = True
+81.5901 	EXP 	Checkerboard2: autoDraw = True
+81.6069 	EXP 	Checkerboard: autoDraw = False
+82.1759 	EXP 	New trial (rep=2, index=0): None
+82.1902 	EXP 	Checkerboard2: autoDraw = False
+82.1902 	EXP 	Checkerboard: autoDraw = False
+82.1902 	EXP 	Checkerboard2: autoDraw = False
+82.1902 	EXP 	Checkerboard: autoDraw = True
+82.7734 	EXP 	Checkerboard2: autoDraw = True
+82.7902 	EXP 	Checkerboard: autoDraw = False
+83.3594 	EXP 	New trial (rep=3, index=0): None
+83.3734 	EXP 	Checkerboard2: autoDraw = False
+83.3734 	EXP 	Checkerboard: autoDraw = False
+83.3734 	EXP 	Checkerboard2: autoDraw = False
+83.3734 	EXP 	Checkerboard: autoDraw = True
+83.9565 	EXP 	Checkerboard2: autoDraw = True
+83.9733 	EXP 	Checkerboard: autoDraw = False
+84.5420 	EXP 	New trial (rep=4, index=0): None
+84.5566 	EXP 	Checkerboard2: autoDraw = False
+84.5566 	EXP 	Checkerboard: autoDraw = False
+84.5566 	EXP 	Checkerboard2: autoDraw = False
+84.5566 	EXP 	Checkerboard: autoDraw = True
+85.1399 	EXP 	Checkerboard2: autoDraw = True
+85.1570 	EXP 	Checkerboard: autoDraw = False
+85.7256 	EXP 	New trial (rep=5, index=0): None
+85.7401 	EXP 	Checkerboard2: autoDraw = False
+85.7401 	EXP 	Checkerboard: autoDraw = False
+85.7401 	EXP 	Checkerboard2: autoDraw = False
+85.7401 	EXP 	Checkerboard: autoDraw = True
+86.3233 	EXP 	Checkerboard2: autoDraw = True
+86.3397 	EXP 	Checkerboard: autoDraw = False
+86.9086 	EXP 	New trial (rep=6, index=0): None
+86.9231 	EXP 	Checkerboard2: autoDraw = False
+86.9231 	EXP 	Checkerboard: autoDraw = False
+86.9231 	EXP 	Checkerboard2: autoDraw = False
+86.9231 	EXP 	Checkerboard: autoDraw = True
+87.5070 	EXP 	Checkerboard2: autoDraw = True
+87.5232 	EXP 	Checkerboard: autoDraw = False
+88.0919 	EXP 	New trial (rep=7, index=0): None
+88.1064 	EXP 	Checkerboard2: autoDraw = False
+88.1064 	EXP 	Checkerboard: autoDraw = False
+88.1064 	EXP 	Checkerboard2: autoDraw = False
+88.1064 	EXP 	Checkerboard: autoDraw = True
+88.6897 	EXP 	Checkerboard2: autoDraw = True
+88.7065 	EXP 	Checkerboard: autoDraw = False
+89.2751 	EXP 	New trial (rep=8, index=0): None
+89.2896 	EXP 	Checkerboard2: autoDraw = False
+89.2896 	EXP 	Checkerboard: autoDraw = False
+89.2896 	EXP 	Checkerboard2: autoDraw = False
+89.2896 	EXP 	Checkerboard: autoDraw = True
+89.8735 	EXP 	Checkerboard2: autoDraw = True
+89.8896 	EXP 	Checkerboard: autoDraw = False
+90.4588 	EXP 	New trial (rep=9, index=0): None
+90.4731 	EXP 	Checkerboard2: autoDraw = False
+90.4731 	EXP 	Checkerboard: autoDraw = False
+90.4731 	EXP 	Checkerboard2: autoDraw = False
+90.4731 	EXP 	Checkerboard: autoDraw = True
+91.0567 	EXP 	Checkerboard2: autoDraw = True
+91.0732 	EXP 	Checkerboard: autoDraw = False
+91.6423 	EXP 	New trial (rep=3, index=0): None
+91.6563 	EXP 	Checkerboard2: autoDraw = False
+91.6563 	EXP 	Checkerboard: autoDraw = False
+91.6563 	EXP 	Checkerboard2: autoDraw = False
+91.6563 	EXP 	text: autoDraw = True
+106.6556 	EXP 	text: autoDraw = False
+106.6556 	EXP 	text: autoDraw = False
+106.6556 	EXP 	text_3: autoDraw = True
+107.1555 	EXP 	text_3: autoDraw = False
+107.1555 	EXP 	text_3: autoDraw = False
+107.7407 	EXP 	Created sequence: random, trialTypes=1, nReps=10, seed=None
+107.7409 	EXP 	New trial (rep=0, index=0): None
+107.7558 	EXP 	Checkerboard: autoDraw = True
+108.3390 	EXP 	Checkerboard2: autoDraw = True
+108.3553 	EXP 	Checkerboard: autoDraw = False
+108.9249 	EXP 	New trial (rep=1, index=0): None
+108.9390 	EXP 	Checkerboard2: autoDraw = False
+108.9390 	EXP 	Checkerboard: autoDraw = False
+108.9390 	EXP 	Checkerboard2: autoDraw = False
+108.9390 	EXP 	Checkerboard: autoDraw = True
+109.5223 	EXP 	Checkerboard2: autoDraw = True
+109.5386 	EXP 	Checkerboard: autoDraw = False
+110.1070 	EXP 	New trial (rep=2, index=0): None
+110.1222 	EXP 	Checkerboard2: autoDraw = False
+110.1222 	EXP 	Checkerboard: autoDraw = False
+110.1222 	EXP 	Checkerboard2: autoDraw = False
+110.1222 	EXP 	Checkerboard: autoDraw = True
+110.7057 	EXP 	Checkerboard2: autoDraw = True
+110.7222 	EXP 	Checkerboard: autoDraw = False
+111.2908 	EXP 	New trial (rep=3, index=0): None
+111.3053 	EXP 	Checkerboard2: autoDraw = False
+111.3053 	EXP 	Checkerboard: autoDraw = False
+111.3053 	EXP 	Checkerboard2: autoDraw = False
+111.3053 	EXP 	Checkerboard: autoDraw = True
+111.8886 	EXP 	Checkerboard2: autoDraw = True
+111.9051 	EXP 	Checkerboard: autoDraw = False
+112.4739 	EXP 	New trial (rep=4, index=0): None
+112.4885 	EXP 	Checkerboard2: autoDraw = False
+112.4885 	EXP 	Checkerboard: autoDraw = False
+112.4885 	EXP 	Checkerboard2: autoDraw = False
+112.4885 	EXP 	Checkerboard: autoDraw = True
+113.0720 	EXP 	Checkerboard2: autoDraw = True
+113.0886 	EXP 	Checkerboard: autoDraw = False
+113.6577 	EXP 	New trial (rep=5, index=0): None
+113.6720 	EXP 	Checkerboard2: autoDraw = False
+113.6720 	EXP 	Checkerboard: autoDraw = False
+113.6720 	EXP 	Checkerboard2: autoDraw = False
+113.6720 	EXP 	Checkerboard: autoDraw = True
+114.2550 	EXP 	Checkerboard2: autoDraw = True
+114.2721 	EXP 	Checkerboard: autoDraw = False
+114.8405 	EXP 	New trial (rep=6, index=0): None
+114.8550 	EXP 	Checkerboard2: autoDraw = False
+114.8550 	EXP 	Checkerboard: autoDraw = False
+114.8550 	EXP 	Checkerboard2: autoDraw = False
+114.8550 	EXP 	Checkerboard: autoDraw = True
+115.4384 	EXP 	Checkerboard2: autoDraw = True
+115.4555 	EXP 	Checkerboard: autoDraw = False
+116.0236 	EXP 	New trial (rep=7, index=0): None
+116.0384 	EXP 	Checkerboard2: autoDraw = False
+116.0384 	EXP 	Checkerboard: autoDraw = False
+116.0384 	EXP 	Checkerboard2: autoDraw = False
+116.0384 	EXP 	Checkerboard: autoDraw = True
+116.6220 	EXP 	Checkerboard2: autoDraw = True
+116.6387 	EXP 	Checkerboard: autoDraw = False
+117.2069 	EXP 	New trial (rep=8, index=0): None
+117.2215 	EXP 	Checkerboard2: autoDraw = False
+117.2215 	EXP 	Checkerboard: autoDraw = False
+117.2215 	EXP 	Checkerboard2: autoDraw = False
+117.2215 	EXP 	Checkerboard: autoDraw = True
+117.8052 	EXP 	Checkerboard2: autoDraw = True
+117.8215 	EXP 	Checkerboard: autoDraw = False
+118.3908 	EXP 	New trial (rep=9, index=0): None
+118.4050 	EXP 	Checkerboard2: autoDraw = False
+118.4050 	EXP 	Checkerboard: autoDraw = False
+118.4050 	EXP 	Checkerboard2: autoDraw = False
+118.4050 	EXP 	Checkerboard: autoDraw = True
+118.9881 	EXP 	Checkerboard2: autoDraw = True
+119.0050 	EXP 	Checkerboard: autoDraw = False
+119.5732 	EXP 	New trial (rep=4, index=0): None
+119.5884 	EXP 	Checkerboard2: autoDraw = False
+119.5884 	EXP 	Checkerboard: autoDraw = False
+119.5884 	EXP 	Checkerboard2: autoDraw = False
+119.5884 	EXP 	text: autoDraw = True
+134.5876 	EXP 	text: autoDraw = False
+134.5876 	EXP 	text: autoDraw = False
+134.5876 	EXP 	text_3: autoDraw = True
+135.0875 	EXP 	text_3: autoDraw = False
+135.0875 	EXP 	text_3: autoDraw = False
+135.6571 	EXP 	Created sequence: random, trialTypes=1, nReps=10, seed=None
+135.6573 	EXP 	New trial (rep=0, index=0): None
+135.6709 	EXP 	Checkerboard: autoDraw = True
+136.2543 	EXP 	Checkerboard2: autoDraw = True
+136.2710 	EXP 	Checkerboard: autoDraw = False
+136.8394 	EXP 	New trial (rep=1, index=0): None
+136.8541 	EXP 	Checkerboard2: autoDraw = False
+136.8541 	EXP 	Checkerboard: autoDraw = False
+136.8541 	EXP 	Checkerboard2: autoDraw = False
+136.8541 	EXP 	Checkerboard: autoDraw = True
+137.4374 	EXP 	Checkerboard2: autoDraw = True
+137.4539 	EXP 	Checkerboard: autoDraw = False
+138.0233 	EXP 	New trial (rep=2, index=0): None
+138.0375 	EXP 	Checkerboard2: autoDraw = False
+138.0375 	EXP 	Checkerboard: autoDraw = False
+138.0375 	EXP 	Checkerboard2: autoDraw = False
+138.0375 	EXP 	Checkerboard: autoDraw = True
+138.6204 	EXP 	Checkerboard2: autoDraw = True
+138.6374 	EXP 	Checkerboard: autoDraw = False
+139.2061 	EXP 	New trial (rep=3, index=0): None
+139.2204 	EXP 	Checkerboard2: autoDraw = False
+139.2204 	EXP 	Checkerboard: autoDraw = False
+139.2204 	EXP 	Checkerboard2: autoDraw = False
+139.2204 	EXP 	Checkerboard: autoDraw = True
+139.8036 	EXP 	Checkerboard2: autoDraw = True
+139.8207 	EXP 	Checkerboard: autoDraw = False
+140.3900 	EXP 	New trial (rep=4, index=0): None
+140.4040 	EXP 	Checkerboard2: autoDraw = False
+140.4040 	EXP 	Checkerboard: autoDraw = False
+140.4040 	EXP 	Checkerboard2: autoDraw = False
+140.4040 	EXP 	Checkerboard: autoDraw = True
+140.9875 	EXP 	Checkerboard2: autoDraw = True
+141.0037 	EXP 	Checkerboard: autoDraw = False
+141.5727 	EXP 	New trial (rep=5, index=0): None
+141.5874 	EXP 	Checkerboard2: autoDraw = False
+141.5874 	EXP 	Checkerboard: autoDraw = False
+141.5874 	EXP 	Checkerboard2: autoDraw = False
+141.5874 	EXP 	Checkerboard: autoDraw = True
+142.1705 	EXP 	Checkerboard2: autoDraw = True
+142.1873 	EXP 	Checkerboard: autoDraw = False
+142.7555 	EXP 	New trial (rep=6, index=0): None
+142.7703 	EXP 	Checkerboard2: autoDraw = False
+142.7703 	EXP 	Checkerboard: autoDraw = False
+142.7703 	EXP 	Checkerboard2: autoDraw = False
+142.7703 	EXP 	Checkerboard: autoDraw = True
+143.3540 	EXP 	Checkerboard2: autoDraw = True
+143.3709 	EXP 	Checkerboard: autoDraw = False
+143.9400 	EXP 	New trial (rep=7, index=0): None
+143.9537 	EXP 	Checkerboard2: autoDraw = False
+143.9537 	EXP 	Checkerboard: autoDraw = False
+143.9537 	EXP 	Checkerboard2: autoDraw = False
+143.9537 	EXP 	Checkerboard: autoDraw = True
+144.5369 	EXP 	Checkerboard2: autoDraw = True
+144.5537 	EXP 	Checkerboard: autoDraw = False
+145.1220 	EXP 	New trial (rep=8, index=0): None
+145.1371 	EXP 	Checkerboard2: autoDraw = False
+145.1371 	EXP 	Checkerboard: autoDraw = False
+145.1371 	EXP 	Checkerboard2: autoDraw = False
+145.1371 	EXP 	Checkerboard: autoDraw = True
+145.7204 	EXP 	Checkerboard2: autoDraw = True
+145.7372 	EXP 	Checkerboard: autoDraw = False
+146.3060 	EXP 	New trial (rep=9, index=0): None
+146.3202 	EXP 	Checkerboard2: autoDraw = False
+146.3202 	EXP 	Checkerboard: autoDraw = False
+146.3202 	EXP 	Checkerboard2: autoDraw = False
+146.3202 	EXP 	Checkerboard: autoDraw = True
+146.9035 	EXP 	Checkerboard2: autoDraw = True
+146.9202 	EXP 	Checkerboard: autoDraw = False
+147.4892 	EXP 	New trial (rep=5, index=0): None
+147.5036 	EXP 	Checkerboard2: autoDraw = False
+147.5036 	EXP 	Checkerboard: autoDraw = False
+147.5036 	EXP 	Checkerboard2: autoDraw = False
+147.5036 	EXP 	text: autoDraw = True
+162.5029 	EXP 	text: autoDraw = False
+162.5029 	EXP 	text: autoDraw = False
+162.5029 	EXP 	text_3: autoDraw = True
+163.0028 	EXP 	text_3: autoDraw = False
+163.0028 	EXP 	text_3: autoDraw = False
+163.5716 	EXP 	Created sequence: random, trialTypes=1, nReps=10, seed=None
+163.5718 	EXP 	New trial (rep=0, index=0): None
+163.5862 	EXP 	Checkerboard: autoDraw = True
+164.1695 	EXP 	Checkerboard2: autoDraw = True
+164.1864 	EXP 	Checkerboard: autoDraw = False
+164.7548 	EXP 	New trial (rep=1, index=0): None
+164.7692 	EXP 	Checkerboard2: autoDraw = False
+164.7692 	EXP 	Checkerboard: autoDraw = False
+164.7692 	EXP 	Checkerboard2: autoDraw = False
+164.7692 	EXP 	Checkerboard: autoDraw = True
+165.3528 	EXP 	Checkerboard2: autoDraw = True
+165.3693 	EXP 	Checkerboard: autoDraw = False
+165.9384 	EXP 	New trial (rep=2, index=0): None
+165.9526 	EXP 	Checkerboard2: autoDraw = False
+165.9526 	EXP 	Checkerboard: autoDraw = False
+165.9526 	EXP 	Checkerboard2: autoDraw = False
+165.9526 	EXP 	Checkerboard: autoDraw = True
+166.5363 	EXP 	Checkerboard2: autoDraw = True
+166.5528 	EXP 	Checkerboard: autoDraw = False
+167.1213 	EXP 	New trial (rep=3, index=0): None
+167.1358 	EXP 	Checkerboard2: autoDraw = False
+167.1358 	EXP 	Checkerboard: autoDraw = False
+167.1358 	EXP 	Checkerboard2: autoDraw = False
+167.1358 	EXP 	Checkerboard: autoDraw = True
+167.7193 	EXP 	Checkerboard2: autoDraw = True
+167.7359 	EXP 	Checkerboard: autoDraw = False
+168.3053 	EXP 	New trial (rep=4, index=0): None
+168.3192 	EXP 	Checkerboard2: autoDraw = False
+168.3192 	EXP 	Checkerboard: autoDraw = False
+168.3192 	EXP 	Checkerboard2: autoDraw = False
+168.3192 	EXP 	Checkerboard: autoDraw = True
+168.9028 	EXP 	Checkerboard2: autoDraw = True
+168.9193 	EXP 	Checkerboard: autoDraw = False
+169.4882 	EXP 	New trial (rep=5, index=0): None
+169.5023 	EXP 	Checkerboard2: autoDraw = False
+169.5023 	EXP 	Checkerboard: autoDraw = False
+169.5023 	EXP 	Checkerboard2: autoDraw = False
+169.5023 	EXP 	Checkerboard: autoDraw = True
+170.0858 	EXP 	Checkerboard2: autoDraw = True
+170.1024 	EXP 	Checkerboard: autoDraw = False
+170.6719 	EXP 	New trial (rep=6, index=0): None
+170.6858 	EXP 	Checkerboard2: autoDraw = False
+170.6858 	EXP 	Checkerboard: autoDraw = False
+170.6858 	EXP 	Checkerboard2: autoDraw = False
+170.6858 	EXP 	Checkerboard: autoDraw = True
+171.2693 	EXP 	Checkerboard2: autoDraw = True
+171.2856 	EXP 	Checkerboard: autoDraw = False
+171.8541 	EXP 	New trial (rep=7, index=0): None
+171.8692 	EXP 	Checkerboard2: autoDraw = False
+171.8692 	EXP 	Checkerboard: autoDraw = False
+171.8692 	EXP 	Checkerboard2: autoDraw = False
+171.8692 	EXP 	Checkerboard: autoDraw = True
+172.4524 	EXP 	Checkerboard2: autoDraw = True
+172.4689 	EXP 	Checkerboard: autoDraw = False
+173.0379 	EXP 	New trial (rep=8, index=0): None
+173.0522 	EXP 	Checkerboard2: autoDraw = False
+173.0522 	EXP 	Checkerboard: autoDraw = False
+173.0522 	EXP 	Checkerboard2: autoDraw = False
+173.0522 	EXP 	Checkerboard: autoDraw = True
+173.6356 	EXP 	Checkerboard2: autoDraw = True
+173.6524 	EXP 	Checkerboard: autoDraw = False
+174.2206 	EXP 	New trial (rep=9, index=0): None
+174.2359 	EXP 	Checkerboard2: autoDraw = False
+174.2359 	EXP 	Checkerboard: autoDraw = False
+174.2359 	EXP 	Checkerboard2: autoDraw = False
+174.2359 	EXP 	Checkerboard: autoDraw = True
+174.8186 	EXP 	Checkerboard2: autoDraw = True
+174.8357 	EXP 	Checkerboard: autoDraw = False
+175.4048 	EXP 	New trial (rep=6, index=0): None
+175.4188 	EXP 	Checkerboard2: autoDraw = False
+175.4188 	EXP 	Checkerboard: autoDraw = False
+175.4188 	EXP 	Checkerboard2: autoDraw = False
+175.4188 	EXP 	text: autoDraw = True
+190.4182 	EXP 	text: autoDraw = False
+190.4182 	EXP 	text: autoDraw = False
+190.4182 	EXP 	text_3: autoDraw = True
+190.9181 	EXP 	text_3: autoDraw = False
+190.9181 	EXP 	text_3: autoDraw = False
+191.5035 	EXP 	Created sequence: random, trialTypes=1, nReps=10, seed=None
+191.5037 	EXP 	New trial (rep=0, index=0): None
+191.5179 	EXP 	Checkerboard: autoDraw = True
+192.1014 	EXP 	Checkerboard2: autoDraw = True
+192.1180 	EXP 	Checkerboard: autoDraw = False
+192.6867 	EXP 	New trial (rep=1, index=0): None
+192.7011 	EXP 	Checkerboard2: autoDraw = False
+192.7011 	EXP 	Checkerboard: autoDraw = False
+192.7011 	EXP 	Checkerboard2: autoDraw = False
+192.7011 	EXP 	Checkerboard: autoDraw = True
+193.2845 	EXP 	Checkerboard2: autoDraw = True
+193.3010 	EXP 	Checkerboard: autoDraw = False
+193.8703 	EXP 	New trial (rep=2, index=0): None
+193.8847 	EXP 	Checkerboard2: autoDraw = False
+193.8847 	EXP 	Checkerboard: autoDraw = False
+193.8847 	EXP 	Checkerboard2: autoDraw = False
+193.8847 	EXP 	Checkerboard: autoDraw = True
+194.4678 	EXP 	Checkerboard2: autoDraw = True
+194.4848 	EXP 	Checkerboard: autoDraw = False
+195.0533 	EXP 	New trial (rep=3, index=0): None
+195.0678 	EXP 	Checkerboard2: autoDraw = False
+195.0678 	EXP 	Checkerboard: autoDraw = False
+195.0678 	EXP 	Checkerboard2: autoDraw = False
+195.0678 	EXP 	Checkerboard: autoDraw = True
+195.6509 	EXP 	Checkerboard2: autoDraw = True
+195.6678 	EXP 	Checkerboard: autoDraw = False
+196.2373 	EXP 	New trial (rep=4, index=0): None
+196.2510 	EXP 	Checkerboard2: autoDraw = False
+196.2510 	EXP 	Checkerboard: autoDraw = False
+196.2510 	EXP 	Checkerboard2: autoDraw = False
+196.2510 	EXP 	Checkerboard: autoDraw = True
+196.8343 	EXP 	Checkerboard2: autoDraw = True
+196.8514 	EXP 	Checkerboard: autoDraw = False
+197.4201 	EXP 	New trial (rep=5, index=0): None
+197.4344 	EXP 	Checkerboard2: autoDraw = False
+197.4344 	EXP 	Checkerboard: autoDraw = False
+197.4344 	EXP 	Checkerboard2: autoDraw = False
+197.4344 	EXP 	Checkerboard: autoDraw = True
+198.0175 	EXP 	Checkerboard2: autoDraw = True
+198.0342 	EXP 	Checkerboard: autoDraw = False
+198.6036 	EXP 	New trial (rep=6, index=0): None
+198.6178 	EXP 	Checkerboard2: autoDraw = False
+198.6178 	EXP 	Checkerboard: autoDraw = False
+198.6178 	EXP 	Checkerboard2: autoDraw = False
+198.6178 	EXP 	Checkerboard: autoDraw = True
+199.2011 	EXP 	Checkerboard2: autoDraw = True
+199.2176 	EXP 	Checkerboard: autoDraw = False
+199.7862 	EXP 	New trial (rep=7, index=0): None
+199.8008 	EXP 	Checkerboard2: autoDraw = False
+199.8008 	EXP 	Checkerboard: autoDraw = False
+199.8008 	EXP 	Checkerboard2: autoDraw = False
+199.8008 	EXP 	Checkerboard: autoDraw = True
+200.3844 	EXP 	Checkerboard2: autoDraw = True
+200.4008 	EXP 	Checkerboard: autoDraw = False
+200.9698 	EXP 	New trial (rep=8, index=0): None
+200.9843 	EXP 	Checkerboard2: autoDraw = False
+200.9843 	EXP 	Checkerboard: autoDraw = False
+200.9843 	EXP 	Checkerboard2: autoDraw = False
+200.9843 	EXP 	Checkerboard: autoDraw = True
+201.5676 	EXP 	Checkerboard2: autoDraw = True
+201.5843 	EXP 	Checkerboard: autoDraw = False
+202.1525 	EXP 	New trial (rep=9, index=0): None
+202.1674 	EXP 	Checkerboard2: autoDraw = False
+202.1674 	EXP 	Checkerboard: autoDraw = False
+202.1674 	EXP 	Checkerboard2: autoDraw = False
+202.1674 	EXP 	Checkerboard: autoDraw = True
+202.7506 	EXP 	Checkerboard2: autoDraw = True
+202.7674 	EXP 	Checkerboard: autoDraw = False
+203.3363 	EXP 	New trial (rep=7, index=0): None
+203.3506 	EXP 	Checkerboard2: autoDraw = False
+203.3506 	EXP 	Checkerboard: autoDraw = False
+203.3506 	EXP 	Checkerboard2: autoDraw = False
+203.3506 	EXP 	text: autoDraw = True
+218.3499 	EXP 	text: autoDraw = False
+218.3499 	EXP 	text: autoDraw = False
+218.3499 	EXP 	text_3: autoDraw = True
+218.8502 	EXP 	text_3: autoDraw = False
+218.8502 	EXP 	text_3: autoDraw = False
+219.4352 	EXP 	Created sequence: random, trialTypes=1, nReps=10, seed=None
+219.4355 	EXP 	New trial (rep=0, index=0): None
+219.4502 	EXP 	Checkerboard: autoDraw = True
+220.0332 	EXP 	Checkerboard2: autoDraw = True
+220.0502 	EXP 	Checkerboard: autoDraw = False
+220.6187 	EXP 	New trial (rep=1, index=0): None
+220.6330 	EXP 	Checkerboard2: autoDraw = False
+220.6330 	EXP 	Checkerboard: autoDraw = False
+220.6330 	EXP 	Checkerboard2: autoDraw = False
+220.6330 	EXP 	Checkerboard: autoDraw = True
+221.2165 	EXP 	Checkerboard2: autoDraw = True
+221.2333 	EXP 	Checkerboard: autoDraw = False
+221.8024 	EXP 	New trial (rep=2, index=0): None
+221.8165 	EXP 	Checkerboard2: autoDraw = False
+221.8165 	EXP 	Checkerboard: autoDraw = False
+221.8165 	EXP 	Checkerboard2: autoDraw = False
+221.8165 	EXP 	Checkerboard: autoDraw = True
+222.4002 	EXP 	Checkerboard2: autoDraw = True
+222.4164 	EXP 	Checkerboard: autoDraw = False
+222.9852 	EXP 	New trial (rep=3, index=0): None
+222.9996 	EXP 	Checkerboard2: autoDraw = False
+222.9996 	EXP 	Checkerboard: autoDraw = False
+222.9996 	EXP 	Checkerboard2: autoDraw = False
+222.9996 	EXP 	Checkerboard: autoDraw = True
+223.5833 	EXP 	Checkerboard2: autoDraw = True
+223.5998 	EXP 	Checkerboard: autoDraw = False
+224.1693 	EXP 	New trial (rep=4, index=0): None
+224.1829 	EXP 	Checkerboard2: autoDraw = False
+224.1829 	EXP 	Checkerboard: autoDraw = False
+224.1829 	EXP 	Checkerboard2: autoDraw = False
+224.1829 	EXP 	Checkerboard: autoDraw = True
+224.7668 	EXP 	Checkerboard2: autoDraw = True
+224.7832 	EXP 	Checkerboard: autoDraw = False
+225.3525 	EXP 	New trial (rep=5, index=0): None
+225.3662 	EXP 	Checkerboard2: autoDraw = False
+225.3662 	EXP 	Checkerboard: autoDraw = False
+225.3662 	EXP 	Checkerboard2: autoDraw = False
+225.3662 	EXP 	Checkerboard: autoDraw = True
+225.9494 	EXP 	Checkerboard2: autoDraw = True
+225.9662 	EXP 	Checkerboard: autoDraw = False
+226.5349 	EXP 	New trial (rep=6, index=0): None
+226.5495 	EXP 	Checkerboard2: autoDraw = False
+226.5495 	EXP 	Checkerboard: autoDraw = False
+226.5495 	EXP 	Checkerboard2: autoDraw = False
+226.5495 	EXP 	Checkerboard: autoDraw = True
+227.1328 	EXP 	Checkerboard2: autoDraw = True
+227.1499 	EXP 	Checkerboard: autoDraw = False
+227.7185 	EXP 	New trial (rep=7, index=0): None
+227.7330 	EXP 	Checkerboard2: autoDraw = False
+227.7330 	EXP 	Checkerboard: autoDraw = False
+227.7330 	EXP 	Checkerboard2: autoDraw = False
+227.7330 	EXP 	Checkerboard: autoDraw = True
+228.3160 	EXP 	Checkerboard2: autoDraw = True
+228.3330 	EXP 	Checkerboard: autoDraw = False
+228.9013 	EXP 	New trial (rep=8, index=0): None
+228.9161 	EXP 	Checkerboard2: autoDraw = False
+228.9161 	EXP 	Checkerboard: autoDraw = False
+228.9161 	EXP 	Checkerboard2: autoDraw = False
+228.9161 	EXP 	Checkerboard: autoDraw = True
+229.4995 	EXP 	Checkerboard2: autoDraw = True
+229.5165 	EXP 	Checkerboard: autoDraw = False
+230.0847 	EXP 	New trial (rep=9, index=0): None
+230.0992 	EXP 	Checkerboard2: autoDraw = False
+230.0992 	EXP 	Checkerboard: autoDraw = False
+230.0992 	EXP 	Checkerboard2: autoDraw = False
+230.0992 	EXP 	Checkerboard: autoDraw = True
+230.6830 	EXP 	Checkerboard2: autoDraw = True
+230.6994 	EXP 	Checkerboard: autoDraw = False
+231.2683 	EXP 	New trial (rep=8, index=0): None
+231.2825 	EXP 	Checkerboard2: autoDraw = False
+231.2825 	EXP 	Checkerboard: autoDraw = False
+231.2825 	EXP 	Checkerboard2: autoDraw = False
+231.2825 	EXP 	text: autoDraw = True
+246.2821 	EXP 	text: autoDraw = False
+246.2821 	EXP 	text: autoDraw = False
+246.2821 	EXP 	text_3: autoDraw = True
+246.7818 	EXP 	text_3: autoDraw = False
+246.7818 	EXP 	text_3: autoDraw = False
+247.3675 	EXP 	Created sequence: random, trialTypes=1, nReps=10, seed=None
+247.3677 	EXP 	New trial (rep=0, index=0): None
+247.3821 	EXP 	Checkerboard: autoDraw = True
+247.9656 	EXP 	Checkerboard2: autoDraw = True
+247.9820 	EXP 	Checkerboard: autoDraw = False
+248.5503 	EXP 	New trial (rep=1, index=0): None
+248.5654 	EXP 	Checkerboard2: autoDraw = False
+248.5654 	EXP 	Checkerboard: autoDraw = False
+248.5654 	EXP 	Checkerboard2: autoDraw = False
+248.5654 	EXP 	Checkerboard: autoDraw = True
+249.1484 	EXP 	Checkerboard2: autoDraw = True
+249.1651 	EXP 	Checkerboard: autoDraw = False
+249.7341 	EXP 	New trial (rep=2, index=0): None
+249.7483 	EXP 	Checkerboard2: autoDraw = False
+249.7483 	EXP 	Checkerboard: autoDraw = False
+249.7483 	EXP 	Checkerboard2: autoDraw = False
+249.7483 	EXP 	Checkerboard: autoDraw = True
+250.3321 	EXP 	Checkerboard2: autoDraw = True
+250.3483 	EXP 	Checkerboard: autoDraw = False
+250.9177 	EXP 	New trial (rep=3, index=0): None
+250.9317 	EXP 	Checkerboard2: autoDraw = False
+250.9317 	EXP 	Checkerboard: autoDraw = False
+250.9317 	EXP 	Checkerboard2: autoDraw = False
+250.9317 	EXP 	Checkerboard: autoDraw = True
+251.5151 	EXP 	Checkerboard2: autoDraw = True
+251.5319 	EXP 	Checkerboard: autoDraw = False
+252.0998 	EXP 	New trial (rep=4, index=0): None
+252.1149 	EXP 	Checkerboard2: autoDraw = False
+252.1149 	EXP 	Checkerboard: autoDraw = False
+252.1149 	EXP 	Checkerboard2: autoDraw = False
+252.1149 	EXP 	Checkerboard: autoDraw = True
+252.6984 	EXP 	Checkerboard2: autoDraw = True
+252.7154 	EXP 	Checkerboard: autoDraw = False
+253.2832 	EXP 	New trial (rep=5, index=0): None
+253.2982 	EXP 	Checkerboard2: autoDraw = False
+253.2982 	EXP 	Checkerboard: autoDraw = False
+253.2982 	EXP 	Checkerboard2: autoDraw = False
+253.2982 	EXP 	Checkerboard: autoDraw = True
+253.8815 	EXP 	Checkerboard2: autoDraw = True
+253.8983 	EXP 	Checkerboard: autoDraw = False
+254.4677 	EXP 	New trial (rep=6, index=0): None
+254.4814 	EXP 	Checkerboard2: autoDraw = False
+254.4814 	EXP 	Checkerboard: autoDraw = False
+254.4814 	EXP 	Checkerboard2: autoDraw = False
+254.4814 	EXP 	Checkerboard: autoDraw = True
+255.0654 	EXP 	Checkerboard2: autoDraw = True
+255.0815 	EXP 	Checkerboard: autoDraw = False
+255.6502 	EXP 	New trial (rep=7, index=0): None
+255.6648 	EXP 	Checkerboard2: autoDraw = False
+255.6648 	EXP 	Checkerboard: autoDraw = False
+255.6648 	EXP 	Checkerboard2: autoDraw = False
+255.6648 	EXP 	Checkerboard: autoDraw = True
+256.2484 	EXP 	Checkerboard2: autoDraw = True
+256.2646 	EXP 	Checkerboard: autoDraw = False
+256.8335 	EXP 	New trial (rep=8, index=0): None
+256.8481 	EXP 	Checkerboard2: autoDraw = False
+256.8481 	EXP 	Checkerboard: autoDraw = False
+256.8481 	EXP 	Checkerboard2: autoDraw = False
+256.8481 	EXP 	Checkerboard: autoDraw = True
+257.4315 	EXP 	Checkerboard2: autoDraw = True
+257.4481 	EXP 	Checkerboard: autoDraw = False
+258.0166 	EXP 	New trial (rep=9, index=0): None
+258.0312 	EXP 	Checkerboard2: autoDraw = False
+258.0312 	EXP 	Checkerboard: autoDraw = False
+258.0312 	EXP 	Checkerboard2: autoDraw = False
+258.0312 	EXP 	Checkerboard: autoDraw = True
+258.6146 	EXP 	Checkerboard2: autoDraw = True
+258.6312 	EXP 	Checkerboard: autoDraw = False
+259.2003 	EXP 	New trial (rep=9, index=0): None
+259.2147 	EXP 	Checkerboard2: autoDraw = False
+259.2147 	EXP 	Checkerboard: autoDraw = False
+259.2147 	EXP 	Checkerboard2: autoDraw = False
+259.2147 	EXP 	text: autoDraw = True
+274.2140 	EXP 	text: autoDraw = False
+274.2140 	EXP 	text: autoDraw = False
+274.2140 	EXP 	text_3: autoDraw = True
+274.7141 	EXP 	text_3: autoDraw = False
+274.7141 	EXP 	text_3: autoDraw = False
+275.2823 	EXP 	Created sequence: random, trialTypes=1, nReps=10, seed=None
+275.2825 	EXP 	New trial (rep=0, index=0): None
+275.2973 	EXP 	Checkerboard: autoDraw = True
+275.8806 	EXP 	Checkerboard2: autoDraw = True
+275.8974 	EXP 	Checkerboard: autoDraw = False
+276.4666 	EXP 	New trial (rep=1, index=0): None
+276.4805 	EXP 	Checkerboard2: autoDraw = False
+276.4805 	EXP 	Checkerboard: autoDraw = False
+276.4805 	EXP 	Checkerboard2: autoDraw = False
+276.4805 	EXP 	Checkerboard: autoDraw = True
+277.0639 	EXP 	Checkerboard2: autoDraw = True
+277.0801 	EXP 	Checkerboard: autoDraw = False
+277.6498 	EXP 	New trial (rep=2, index=0): None
+277.6636 	EXP 	Checkerboard2: autoDraw = False
+277.6636 	EXP 	Checkerboard: autoDraw = False
+277.6636 	EXP 	Checkerboard2: autoDraw = False
+277.6636 	EXP 	Checkerboard: autoDraw = True
+278.2470 	EXP 	Checkerboard2: autoDraw = True
+278.2636 	EXP 	Checkerboard: autoDraw = False
+278.8321 	EXP 	New trial (rep=3, index=0): None
+278.8472 	EXP 	Checkerboard2: autoDraw = False
+278.8472 	EXP 	Checkerboard: autoDraw = False
+278.8472 	EXP 	Checkerboard2: autoDraw = False
+278.8472 	EXP 	Checkerboard: autoDraw = True
+279.4307 	EXP 	Checkerboard2: autoDraw = True
+279.4470 	EXP 	Checkerboard: autoDraw = False
+280.0154 	EXP 	New trial (rep=4, index=0): None
+280.0305 	EXP 	Checkerboard2: autoDraw = False
+280.0305 	EXP 	Checkerboard: autoDraw = False
+280.0305 	EXP 	Checkerboard2: autoDraw = False
+280.0305 	EXP 	Checkerboard: autoDraw = True
+280.6136 	EXP 	Checkerboard2: autoDraw = True
+280.6306 	EXP 	Checkerboard: autoDraw = False
+281.1998 	EXP 	New trial (rep=5, index=0): None
+281.2135 	EXP 	Checkerboard2: autoDraw = False
+281.2135 	EXP 	Checkerboard: autoDraw = False
+281.2135 	EXP 	Checkerboard2: autoDraw = False
+281.2135 	EXP 	Checkerboard: autoDraw = True
+281.7970 	EXP 	Checkerboard2: autoDraw = True
+281.8135 	EXP 	Checkerboard: autoDraw = False
+282.3821 	EXP 	New trial (rep=6, index=0): None
+282.3971 	EXP 	Checkerboard2: autoDraw = False
+282.3971 	EXP 	Checkerboard: autoDraw = False
+282.3971 	EXP 	Checkerboard2: autoDraw = False
+282.3971 	EXP 	Checkerboard: autoDraw = True
+282.9805 	EXP 	Checkerboard2: autoDraw = True
+282.9973 	EXP 	Checkerboard: autoDraw = False
+283.5654 	EXP 	New trial (rep=7, index=0): None
+283.5800 	EXP 	Checkerboard2: autoDraw = False
+283.5800 	EXP 	Checkerboard: autoDraw = False
+283.5800 	EXP 	Checkerboard2: autoDraw = False
+283.5800 	EXP 	Checkerboard: autoDraw = True
+284.1635 	EXP 	Checkerboard2: autoDraw = True
+284.1798 	EXP 	Checkerboard: autoDraw = False
+284.7489 	EXP 	New trial (rep=8, index=0): None
+284.7633 	EXP 	Checkerboard2: autoDraw = False
+284.7633 	EXP 	Checkerboard: autoDraw = False
+284.7633 	EXP 	Checkerboard2: autoDraw = False
+284.7633 	EXP 	Checkerboard: autoDraw = True
+285.3470 	EXP 	Checkerboard2: autoDraw = True
+285.3635 	EXP 	Checkerboard: autoDraw = False
+285.9319 	EXP 	New trial (rep=9, index=0): None
+285.9468 	EXP 	Checkerboard2: autoDraw = False
+285.9468 	EXP 	Checkerboard: autoDraw = False
+285.9468 	EXP 	Checkerboard2: autoDraw = False
+285.9468 	EXP 	Checkerboard: autoDraw = True
+286.5302 	EXP 	Checkerboard2: autoDraw = True
+286.5469 	EXP 	Checkerboard: autoDraw = False
+287.1301 	EXP 	Checkerboard2: autoDraw = False
+287.1301 	EXP 	Checkerboard: autoDraw = False
+287.1301 	EXP 	Checkerboard2: autoDraw = False
+287.1778 	EXP 	window1: mouseVisible = True
