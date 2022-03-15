@@ -192,6 +192,14 @@ oscsend(udpSender,address,'i', 1);
 % 0 = Setup layout
 % 1 = Chat layout 
 % 2 = Full Screen layout
+
+%Unmute the microphone of the researcher
+address = '/mute/researcher';
+oscsend(udpSender,address,'B', false);
+
+%Unmute the microphone of the participant
+address = '/mute/participant';
+oscsend(udpSender,address,'B', false);
 %% Try 
 try
 
@@ -431,6 +439,10 @@ for trial = 1: d.number_trials
         d.number_trials = trial;
         error('Abort key pressed');
     end
+    
+    %Mute the microphone of the participant
+    address = '/mute/participant';
+    oscsend(udpSender,address,'B', true);
 
     %Calculate length of trial
     trial_length = 14 +  d.trial_data(trial).trial_end_wait;
@@ -500,6 +512,14 @@ for trial = 1: d.number_trials
     
     %TRIGGER STORY START
     if d.condition_number == 1
+        %Mute the microphone of the memoji
+        address = '/mute/memoji';
+        oscsend(udpSender,address,'B', true);
+        
+        %Unmute the microphone of the researcher
+        address = '/mute/researcher';
+        oscsend(udpSender,address,'B', false);
+        
         %Display a live video feed of the researcher
         address = '/display/live';
         oscsend(udpSender,address,'s','researcher');
@@ -511,8 +531,20 @@ for trial = 1: d.number_trials
         end
         
         WaitSecs(10);
+                
+        %Mute the microphone of the researcher
+        address = '/mute/researcher';
+        oscsend(udpSender,address,'B', true);
         
     elseif d.condition_number == 2
+        %Mute the microphone of the researcher
+        address = '/mute/researcher';
+        oscsend(udpSender,address,'B', true);
+        
+        %Unmute the microphone of the memoji
+        address = '/mute/memoji';
+        oscsend(udpSender,address,'B', false);
+        
         %Display a live video feed of the memoji user
         address = '/display/live';
         oscsend(udpSender,address,'s','memoji');
@@ -525,7 +557,15 @@ for trial = 1: d.number_trials
         
         WaitSecs(10);
         
+        %Mute the microphone of the memoji
+        address = '/mute/memoji';
+        oscsend(udpSender,address,'B', true);
+        
     elseif d.condition_number == 3
+        %Mute all users
+        address = '/mute';
+        oscsend(udpSender,address,'B', true);
+        
         address = '/display/video';
         oscsend(udpSender,address,'s', movie_filepath);
                 
@@ -541,6 +581,10 @@ for trial = 1: d.number_trials
         WaitSecs(movie_duration);
         
     elseif d.condition_number == 4
+        %Mute all users
+        address = '/mute';
+        oscsend(udpSender,address,'B', true);
+        
         address = '/display/video';
         oscsend(udpSender,address,'s', movie_filepath);
         
@@ -574,6 +618,10 @@ for trial = 1: d.number_trials
     Eyelink('Message','End of Question Period %d', trial);
     fprintf('End of question period %d...\n', trial);
     
+    %Unmute the microphone of the participant
+    address = '/mute/participant';
+    oscsend(udpSender,address,'B', false);
+    
     %START OF ANSWER PERIOD
     %Play a beep to tell the confederate and partici[ant the answer period has begun
     %start beep
@@ -590,6 +638,10 @@ for trial = 1: d.number_trials
     
     WaitSecs(3);
     
+    %Mute the microphone of the participant
+    address = '/mute/participant';
+    oscsend(udpSender,address,'B', true);
+
     [~,~,keys] = KbCheck(-1);
     if any(keys(p.KEYS.SKIP.VALUE))
         %ends current trial
