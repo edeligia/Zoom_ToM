@@ -200,6 +200,10 @@ oscsend(udpSender,address,'B', false);
 %Unmute the microphone of the participant
 address = '/mute/participant';
 oscsend(udpSender,address,'B', false);
+
+%Notify the researcher that the experimental run has started 
+address = '/experiment/start';
+oscsend(udpSender, address);
 %% Try 
 try
 
@@ -277,6 +281,10 @@ t0 = GetSecs;
 d.time_start_experiment = t0;
 d.timestamp_start_experiment = GetTimestamp;
 
+%Put the participant into Focus mode
+address = '/mode/participant';
+oscsend(udpSender,address,'i',2);
+
 %% Practice Run
 fprintf('\n----------------------------------------------\nWaiting for run key (%s) to start the practice run or skip key (%s) to skip practice run...\n----------------------------------------------\n\n', p.KEYS.RUN.NAME, p.KEYS.SKIP.NAME);
 
@@ -287,6 +295,10 @@ while 1
         
         for practice_trial = 1:4
             practice_movie_filepath = sprintf('%s%d_question.mp4', p.DIR_VIDEOSTIMS_PRACTICE, practice_trial);
+            
+            %Play a beep to tell the confederate and partici[ant the question period has begun
+            %start beep
+            PsychPortAudio('Start', sound_handle_beep_start);
             address = '/display/video'           
             oscsend(udpSender,address,'s', practice_movie_filepath);
             
@@ -294,6 +306,11 @@ while 1
             
             address = '/display/clear'
             oscsend(udpSender,address);
+            
+            %START OF ANSWER PERIOD
+            %Play a beep to tell the confederate and partici[ant the answer period has begun
+            %start beep
+            PsychPortAudio('Start', sound_handle_beep_start);
             
             while 1
                 [~,keys] = KbWait(-1,3);
@@ -406,9 +423,7 @@ end
 
 fprintf('Starting Run...\n');
 
-%Notify the researcher that the experimental run has started 
-address = '/experiment/start';
-oscsend(udpSender, address);
+
 
 for trial = 1: d.number_trials
     d.trial_data(trial).timing.onset = GetSecs - t0;
