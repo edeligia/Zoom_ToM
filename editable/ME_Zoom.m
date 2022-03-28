@@ -295,6 +295,12 @@ while 1
         
         for practice_trial = 1:4
             practice_movie_filepath = sprintf('%s%d_question.mp4', p.DIR_VIDEOSTIMS_PRACTICE, practice_trial);
+
+            message = 'Pre-recorded';
+            address = '/display/message';
+            oscsend(udpSender,address,'s', message);
+            
+            WaitSecs(1);
             
             %Play a beep to tell the confederate and partici[ant the question period has begun
             %start beep
@@ -303,9 +309,6 @@ while 1
             oscsend(udpSender,address,'s', practice_movie_filepath);
             
             WaitSecs(10);
-            
-            address = '/display/clear';
-            oscsend(udpSender,address);
             
             %START OF ANSWER PERIOD
             %Play a beep to tell the confederate and partici[ant the answer period has begun
@@ -321,9 +324,7 @@ while 1
                     oscsend(udpSender,address,'s', d.filepath_practice_image_correct);
 
                     WaitSecs(1);
-                    
-                    address = '/display/clear';
-                    oscsend(udpSender,address);
+            
                     break;
                 elseif any(keys(p.KEYS.NO.VALUE))
                     %incorrect_response_image_practice = imread(d.filepath_practice_image_incorrect);
@@ -333,8 +334,6 @@ while 1
 
                     WaitSecs(1);
                     
-                    address = '/display/clear';
-                    oscsend(udpSender,address);
                     break;
                 elseif any(keys(p.KEYS.ABORT.VALUE))
                     error('Abort key pressed');
@@ -428,6 +427,25 @@ fprintf('Starting Run...\n');
 for trial = 1: d.number_trials
     d.trial_data(trial).timing.onset = GetSecs - t0;
     d.latest_trial = trial;
+    
+    %define trial as either live or pre-recorded 
+    if d.condition_number == 1
+        d.trial_data(trial).liveness_type = sprintf('Live');
+    elseif d.condition_number == 2
+        d.trial_data(trial).liveness_type = sprintf('Live');
+    elseif d.condition_number == 3
+        d.trial_data(trial).liveness_type = sprintf('Pre-recorded');
+    elseif d.condition_number == 4
+        d.trial_data(trial).liveness_type = sprintf('Pre-recorded');
+    elseif ~d.condition_number
+        error('No condition type available');
+    end
+    
+    message = d.trial_data(trial).liveness_type;
+    address = '/display/message';
+    oscsend(udpSender,address,'s', message);
+
+    WaitSecs(1);
     
     question_number = d.order.data{trial, 2};
     d.condition_number = xls{trial + 1, 3};
