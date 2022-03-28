@@ -7,8 +7,8 @@ function ME_Zoom(participant_number, run_number)
 % 4 = pre-recorded + memoji 
 
 %% Debug Settings
-p.USE_EYELINK = false;
-p.TRIGGER_STIM_TRACKER = false;
+p.USE_EYELINK = true;
+p.TRIGGER_STIM_TRACKER = true;
 
 if ~p.TRIGGER_STIM_TRACKER    
     warning('One or more debug settings is active!')
@@ -50,8 +50,8 @@ p.DIR_VIDEOSTIMS_PRACTICE = ['Videos' filesep 'Practice_Stims' filesep];
 p.TRIGGER_CABLE_COM_STRING = 'COM3';
 
 %timings
-p.DURATION_BASELINE = 2;
-p.DURATION_BASELINE_FINAL = 2;
+p.DURATION_BASELINE = 30;
+p.DURATION_BASELINE_FINAL = 30;
 
 %buttons
 p.KEYS.RUN.NAME = 'RETURN';
@@ -299,12 +299,12 @@ while 1
             %Play a beep to tell the confederate and partici[ant the question period has begun
             %start beep
             PsychPortAudio('Start', sound_handle_beep_start);
-            address = '/display/video'           
+            address = '/display/video';           
             oscsend(udpSender,address,'s', practice_movie_filepath);
             
             WaitSecs(10);
             
-            address = '/display/clear'
+            address = '/display/clear';
             oscsend(udpSender,address);
             
             %START OF ANSWER PERIOD
@@ -317,7 +317,7 @@ while 1
                 if any(keys(p.KEYS.YES.VALUE))
                     % correct_response_image_practice = imread(d.filepath_practice_image_correct);
                     
-                    address = '/display/picture'
+                    address = '/display/picture';
                     oscsend(udpSender,address,'s', d.filepath_practice_image_correct);
 
                     WaitSecs(1);
@@ -431,6 +431,8 @@ for trial = 1: d.number_trials
     
     question_number = d.order.data{trial, 2};
     d.condition_number = xls{trial + 1, 3};
+    ITI = d.order.data{trial,4};
+    
     %Notify researcher that a new trial has begun
     address = '/trial/start';
     oscsend(udpSender, address);
@@ -440,10 +442,10 @@ for trial = 1: d.number_trials
         oscsend(udpSender,address,'i', question_number);
     end
     
-    %jitter the trial ITI (save the variable)
-    ITI = [1 2 3 4];
-    ITI_index = randi(numel(ITI));
-    d.trial_data(trial).trial_end_wait = ITI(ITI_index);
+%     %jitter the trial ITI (save the variable)
+%     ITI = [1 2 3 4];
+%     ITI_index = randi(numel(ITI));
+%     d.trial_data(trial).trial_end_wait = ITI(ITI_index);
     
     [~,~,keys] = KbCheck(-1);
     if any(keys(p.KEYS.SKIP.VALUE))%ends current trial
@@ -527,6 +529,10 @@ for trial = 1: d.number_trials
     
     %TRIGGER STORY START
     if d.condition_number == 1
+        %message unity which live trial type
+        address = '/trial/start';
+        oscsend(udpSender, address,'s','Human');
+
         %Mute the microphone of the memoji
         address = '/mute/memoji';
         oscsend(udpSender,address,'B', true);
@@ -552,6 +558,10 @@ for trial = 1: d.number_trials
         oscsend(udpSender,address,'B', true);
         
     elseif d.condition_number == 2
+        %message unity which trial type
+        address = '/trial/start';
+        oscsend(udpSender, address,'s','Memoji');
+
         %Mute the microphone of the researcher
         address = '/mute/researcher';
         oscsend(udpSender,address,'B', true);
@@ -797,7 +807,7 @@ for trial = 1: d.number_trials
     oscsend(udpSender, address);
     
     %ITI
-    WaitSecs(d.trial_data(trial).trial_end_wait);
+    WaitSecs(ITI);
     
     if p.TRIGGER_STIM_TRACKER
         fwrite(sport,['mh',bin2dec('00000001'),0]);
