@@ -189,6 +189,14 @@ PsychPortAudio('FillBuffer', sound_handle_beep_start, beep_start);
 address = '/mode';
 oscsend(udpSender,address,'i', 1);
 
+%Show the UI for the participant
+address = '/UI/participant';
+oscsend(udpSender,address,'s', 'Conceal');
+
+%Display a live video feed of the researcher
+address = '/display/live';
+oscsend(udpSender,address,'s','researcher');
+
 % 0 = Setup layout
 % 1 = Chat layout 
 % 2 = Full Screen layout
@@ -285,6 +293,14 @@ d.timestamp_start_experiment = GetTimestamp;
 address = '/mode/participant';
 oscsend(udpSender,address,'i',2);
 
+%Mute all users
+address = '/mute';
+oscsend(udpSender,address,'B', true);
+
+%Focus mode is index 2
+address = '/mode';
+oscsend(udpSender,address,'i', 2);
+
 %% Practice Run
 fprintf('\n----------------------------------------------\nWaiting for run key (%s) to start the practice run or skip key (%s) to skip practice run...\n----------------------------------------------\n\n', p.KEYS.RUN.NAME, p.KEYS.SKIP.NAME);
 
@@ -305,6 +321,7 @@ while 1
             %Play a beep to tell the confederate and partici[ant the question period has begun
             %start beep
             PsychPortAudio('Start', sound_handle_beep_start);
+
             address = '/display/video';           
             oscsend(udpSender,address,'s', practice_movie_filepath);
             
@@ -314,8 +331,11 @@ while 1
             %Play a beep to tell the confederate and partici[ant the answer period has begun
             %start beep
             PsychPortAudio('Start', sound_handle_beep_start);
+
+            address = '/display/clear';
+            oscsend(udpSender,address);
             
-            while 1
+            while 0
                 [~,keys] = KbWait(-1,3);
                 if any(keys(p.KEYS.YES.VALUE))
                     % correct_response_image_practice = imread(d.filepath_practice_image_correct);
@@ -374,8 +394,9 @@ oscsend(udpSender,address,'s', message);
 
 WaitSecs(3);
 
-address = '/display/clear';
-oscsend(udpSender,address);
+message = '';
+address = '/display/message';
+oscsend(udpSender,address,'s', message);
 
 if p.TRIGGER_STIM_TRACKER
     fwrite(sport, ['mh',bin2dec('01000000'),0]);
@@ -482,8 +503,8 @@ for trial = 1: d.number_trials
     %Calculate length of trial
     trial_length = 14 +  d.trial_data(trial).trial_end_wait;
     %Send the amount of time for the current trial. 
-    address = '/duration/trial';
-    oscsend(udpSender,address,'i', trial_length);
+    address = '/clock/start/trial';
+    oscsend(udpSender,address,'f', trial_length);
 
     %     %Calculate time until next live trial and send to unity
     %     while 1
@@ -585,9 +606,9 @@ for trial = 1: d.number_trials
         oscsend(udpSender,address,'B', true);
         
         %Unmute the microphone of the memoji
-        address = '/mute/memoji';
+        address = '/mute/memoji'
         oscsend(udpSender,address,'B', false);
-        
+
         %Display a live video feed of the memoji user
         address = '/display/live';
         oscsend(udpSender,address,'s','memoji');
@@ -824,6 +845,9 @@ for trial = 1: d.number_trials
     address = '/trial/end';
     oscsend(udpSender, address);
     
+    address = '/display/clear';
+    oscsend(udpSender,address);
+
     %ITI
     WaitSecs(ITI);
     
@@ -849,8 +873,9 @@ oscsend(udpSender,address,'s', message);
 
 WaitSecs(3);
 
-address = '/display/clear';
-oscsend(udpSender,address);
+message = '';
+address = '/display/message';
+oscsend(udpSender,address,'s', message);
 
 path = 'Images/drift_check.png';
 address = '/display/picture';
@@ -860,8 +885,9 @@ Eyelink('Message',sprintf('Drift Check'));
 
 WaitSecs(2);
 
-address = '/display/clear';
-oscsend(udpSender,address);
+message = '';
+address = '/display/message';
+oscsend(udpSender,address,'s', message);
 %% Stop eyelink recording
 fprintf('Eyelink Close');   
 
@@ -877,8 +903,9 @@ oscsend(udpSender,address,'s', message);
 
 WaitSecs(3);
 
-address = '/display/clear';
-oscsend(udpSender,address);
+message = '';
+address = '/display/message';
+oscsend(udpSender,address,'s', message);
 
 fprintf('Final baseline...\n');
 tend = GetSecs + p.DURATION_BASELINE_FINAL;
@@ -958,8 +985,8 @@ catch err
     sca
     sca
     
-%     address = '/display/clear';
-%     oscsend(udpSender,address);
+    address = '/display/clear';
+    oscsend(udpSender,address);
     
     %save everything
     save(['ErrorDump_' d.timestamp_start_script])
@@ -1050,14 +1077,14 @@ function oscsend(u,path,varargin)
         types = oscstr([',' varargin{1}]);
     else
         types = oscstr(',');
-    end;
+    end
     
     % set args (either a matrix, or varargin)
     if nargin == 3 && length(types) > 2
         args = varargin{2};
     else
         args = varargin(2:end);
-    end;
+    end
 
     % convert arguments to the right bytes
     data = [];
@@ -1079,8 +1106,8 @@ function oscsend(u,path,varargin)
                 %ignore data
             otherwise
                 warning(['Unsupported type: ' types(i+1)]);
-        end;
-    end;
+        end
+    end
     
     %write data to UDP
     data = [oscstr(path) types data];
@@ -1093,7 +1120,7 @@ function float = oscfloat(float,littleEndian)
         float = typecast(swapbytes(single(float)),'uint8');
    else
         float = typecast(single(float),'uint8');
-   end;
+   end
 end
 
 %Conversion to int
