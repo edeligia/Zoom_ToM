@@ -1,6 +1,14 @@
 function FB_localizer(participant_number, run_number)
+%%Notes
+%Participant presses T for true and F key for false 
+%Can error out the script with ESC only during the answer period where it is looking
+%for a key press 
+%Participant responses are saved in a behavioural mat file that has 1 =
+%true and 2 = false and 0 = no response
 
-cd('C:\Users\CulhmanLab\Documents\GitHub\Zoom_ToM\editable\tom_localizer\FB_text_files');
+%% Path needs to be set each time script is run
+%Need to be in FB_text_files folder where the script is located 
+cd('C:\Users\evade\Documents\GitHub\Zoom_ToM\editable\FB_localizer\FB_text_files');
 
 %% Prepare Orders
 fol_out = [pwd filesep 'Orders' filesep];
@@ -41,7 +49,7 @@ if ~p.TRIGGER_STIM_TRACKER
     warning('One or more debug settings is active!')
 end
 %% Parameters 
-screen_number = 1;
+screen_number = 0;
 screen_rect = [ ];
 screen_colour_background = [0 0 0];
 screen_colour_text = [255 255 255];
@@ -110,6 +118,12 @@ d.time_start_experiment = t0;
 d.timestamp_start_experiment = GetTimestamp;
 
 d.number_trials = size(d.order_data, 1);
+%% Participant Instructions 
+DrawFormattedText(window, 'Press T for TRUE and F for FALSE.', 'center', 'center', screen_colour_text);
+Screen('Flip', window); 
+
+WaitSecs(3);
+
 %% Initial Baseline 
 
 DrawFormattedText(window, 'We will now have a 30 second baseline. Please remain still.', 'center', 'center', screen_colour_text);
