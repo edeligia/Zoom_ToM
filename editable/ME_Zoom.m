@@ -8,7 +8,7 @@ function ME_Zoom(participant_number, run_number)
 
 %% Debug Settings
 p.USE_EYELINK = true;
-p.TRIGGER_STIM_TRACKER = true;
+p.TRIGGER_STIM_TRACKER = false;
 
 if ~p.TRIGGER_STIM_TRACKER    
     warning('One or more debug settings is active!')
@@ -47,7 +47,7 @@ p.DIR_VIDEOSTIMS_PRACTICE = ['Videos' filesep 'Practice_Stims' filesep];
 
 %stim tracker
 %the left port on Eva's laptop is COM3 and on the culham lab msi laptop 
-p.TRIGGER_CABLE_COM_STRING = 'COM3';
+p.TRIGGER_CABLE_COM_STRING = 'COM6';
 
 %timings
 p.DURATION_BASELINE = 30;
@@ -162,6 +162,7 @@ PsychPortAudio('FillBuffer', sound_handle_beep_start, beep_start);
 %Change the layout of both applications to the chat interface.  The Participant and
 %Researcher users will be made visible for this portion.
 
+<<<<<<< Updated upstream
 %Option 1 for changing the mode of the Researcher to Setup
 command = "MODE_RESEARCHER/0";
 TCPSend(command);
@@ -170,6 +171,11 @@ TCPSend(command);
 value = 1;
 command = "MODE_PARTICIPANT/"+value;
 TCPSend(command);
+=======
+%Show the UI for the participant
+address = '/ui/participant';
+oscsend(udpSender,address,'s', 'Conceal');
+>>>>>>> Stashed changes
 
 %Display a live video feed of the researcher
 %Switch the main live source to the Researcher
@@ -320,8 +326,13 @@ while 1
 
             WaitSecs(3);
             
+<<<<<<< Updated upstream
             command = 'DISPLAY_CLEAR';
             TCPSend(command);
+=======
+            address = '/display/clear';
+            oscsend(udpSender,address);
+>>>>>>> Stashed changes
             
             %Wait for key press to show reponse
             while 0
@@ -448,6 +459,11 @@ for trial = 1: d.number_trials
     d.trial_data(trial).timing.onset = GetSecs - t0;
     d.latest_trial = trial;
     
+        
+    question_number = d.order.data{trial, 2};
+    d.condition_number = xls{trial + 1, 3};
+    ITI = d.order.data{trial,4};
+    
     %define trial as either live or pre-recorded 
     if d.condition_number == 1
         d.trial_data(trial).liveness_type = sprintf('Live');
@@ -466,10 +482,6 @@ for trial = 1: d.number_trials
     TCPSend(command);
 
     WaitSecs(1);
-    
-    question_number = d.order.data{trial, 2};
-    d.condition_number = xls{trial + 1, 3};
-    ITI = d.order.data{trial,4};
     
     %Notify researcher that a new trial has begun
     command = "TRIAL_START";
@@ -501,7 +513,7 @@ for trial = 1: d.number_trials
     TCPSend(command);
 
     %Calculate length of trial
-    trial_length = 14 +  d.trial_data(trial).trial_end_wait;
+    trial_length = 14 +  ITI;
     %Send the amount of time for the current trial. 
     command = "CLOCK_START_TRIAL/"+trial_length;
     TCPSend(command);
@@ -561,7 +573,7 @@ for trial = 1: d.number_trials
     d.trial_data(trial).correct_response = nan;
     d.trial_data(trial).timing.trigger.reaction = [];
     
-    %Play a beep to tell the confederate and partici[ant the question period has begun
+    %Play a beep to t  ell the confederate and partici[ant the question period has begun
     %start beep
     PsychPortAudio('Start', sound_handle_beep_start);
     fprintf('Start of question period %d...\n', trial);

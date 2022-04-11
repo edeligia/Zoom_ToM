@@ -111,7 +111,7 @@ triggerKey			= '+';										% this is the value of the key the scanner sends to
 
 
 %% param
-TRIGGER_CABLE_COM_STRING = 'COM3';
+TRIGGER_CABLE_COM_STRING = 'COM6';
 
 %% open serial port for stim tracker
 sport=serial(TRIGGER_CABLE_COM_STRING,'BaudRate',115200);

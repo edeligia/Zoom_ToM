@@ -3,7 +3,11 @@ for par_num = 2:2
 DIR_OUT = [pwd filesep 'Mat Orders' filesep];
 DIR_IN = [pwd filesep];
 
+<<<<<<< Updated upstream
 for run = 1:4
+=======
+for run = 2:4
+>>>>>>> Stashed changes
     orderfilepath = sprintf('%sPAR%02d_RUN%02d.xlsx', DIR_IN, par_num, run);
 
     [~,~,xls] = xlsread(orderfilepath);
