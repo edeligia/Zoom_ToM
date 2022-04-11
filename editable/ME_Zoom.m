@@ -84,30 +84,6 @@ end
 if isempty(which('Eyelink.Collection.Connect'))
     error('The "AddToPath" directory must be added to the MATLAB path. Run "setup.m" or add manually.');
 end
-
-%Setup a network connection to the Unity application so messages can be
-%sent
-% Get localhost address of the computer
-[~,hostName] = system('hostname');
-% Convert hostname to fully-qualified domain name
-[~,hostAddress] = resolvehost([strtrim(hostName) '172.23.32.213']);
-% Compute broadcast address. This assumes a subnet mask of 255.255.255.0,
-% which implies that address xxx.xxx.xxx.255 is the broadcast address
-expression = '(?<=\d+[.]\d+[.]\d+[.])\d+';
-broadcastAddress = regexprep(hostAddress, expression, '255');
-% Create the UDP connection to broadcast messages on port 31416
-sharedPort = 7000;
-udpSender = udp('255.255.255.255', sharedPort,...
-                'LocalPort', sharedPort);
-            
-% Enable port sharing to allow multiple clients on the same PC to bind to 
-% the same port
-udpSender.EnablePortSharing = 'on';
-udpSender.Terminator = 'CR';
-udpSender.BytesAvailableFcnMode = 'terminator';
-udpSender.BytesAvailableFcn = @(~,~)fprintf('Message "%s" at %s\n', fgetl(udpSender), datestr(now));
-fopen(udpSender);
-
 %% Prepare Orders
 
 % orderfilepath = sprintf('%sPAR%02d_RUN%02d.xlsx', p.DIR_ORDERS, participant_number, run_number);
@@ -185,33 +161,39 @@ PsychPortAudio('FillBuffer', sound_handle_beep_start, beep_start);
 %% Chat and participant instructions
 %Change the layout of both applications to the chat interface.  The Participant and
 %Researcher users will be made visible for this portion.
-%Chat mode is index 1
-address = '/mode';
-oscsend(udpSender,address,'i', 1);
 
-%Show the UI for the participant
-address = '/UI/participant';
-oscsend(udpSender,address,'s', 'Conceal');
+%Option 1 for changing the mode of the Researcher to Setup
+command = "MODE_RESEARCHER/0";
+TCPSend(command);
+
+%Option 2 for changing the mode of the Participant to Focus
+value = 1;
+command = "MODE_PARTICIPANT/"+value;
+TCPSend(command);
 
 %Display a live video feed of the researcher
-address = '/display/live';
-oscsend(udpSender,address,'s','researcher');
+%Switch the main live source to the Researcher
+command = "DISPLAY_LIVE/Researcher";
+TCPSend(command);
 
 % 0 = Setup layout
 % 1 = Chat layout 
 % 2 = Full Screen layout
 
 %Unmute the microphone of the researcher
-address = '/mute/researcher';
-oscsend(udpSender,address,'B', false);
+state = 'false';
+command = "MUTE_RESEARCHER/"+state;
+TCPSend(command);
 
 %Unmute the microphone of the participant
-address = '/mute/participant';
-oscsend(udpSender,address,'B', false);
+state = 'false';
+command = "MUTE_PARTICIPANT/"+state;
+TCPSend(command);
+
 
 %Notify the researcher that the experimental run has started 
-address = '/experiment/start';
-oscsend(udpSender, address);
+command = "EXPERIMENT_START";
+TCPSend(command);
 %% Try 
 try
 
@@ -289,17 +271,14 @@ t0 = GetSecs;
 d.time_start_experiment = t0;
 d.timestamp_start_experiment = GetTimestamp;
 
-%Put the participant into Focus mode
-address = '/mode/participant';
-oscsend(udpSender,address,'i',2);
+%Option 2 for changing the mode of the Participant to Focus
+value = 2;
+command = "MODE_PARTICIPANT/"+value;
+TCPSend(command);
 
-%Mute all users
-address = '/mute';
-oscsend(udpSender,address,'B', true);
-
-%Focus mode is index 2
-address = '/mode';
-oscsend(udpSender,address,'i', 2);
+%Muting all users
+command = "MUTE/True";
+TCPSend(command);
 
 %% Practice Run
 fprintf('\n----------------------------------------------\nWaiting for run key (%s) to start the practice run or skip key (%s) to skip practice run...\n----------------------------------------------\n\n', p.KEYS.RUN.NAME, p.KEYS.SKIP.NAME);
@@ -313,8 +292,9 @@ while 1
             practice_movie_filepath = sprintf('%s%d_question.mp4', p.DIR_VIDEOSTIMS_PRACTICE, practice_trial);
 
             message = 'Pre-recorded';
-            address = '/display/message';
-            oscsend(udpSender,address,'s', message);
+            command = "DISPLAY_MESSAGE/"+message;
+            TCPSend(command);
+
             
             WaitSecs(1);
             
@@ -322,43 +302,62 @@ while 1
             %start beep
             PsychPortAudio('Start', sound_handle_beep_start);
 
-            address = '/display/video';           
-            oscsend(udpSender,address,'s', practice_movie_filepath);
+         
+            path = practice_movie_filepath;
+            command = "DISPLAY_VIDEO/"+path;
+            TCPSend(command);
             
             WaitSecs(10);
+            
+            path = 'Images/fixation.png';
+            command = "DISPLAY_PICTURE/"+path;
+            TCPSend(command);
             
             %START OF ANSWER PERIOD
             %Play a beep to tell the confederate and partici[ant the answer period has begun
             %start beep
             PsychPortAudio('Start', sound_handle_beep_start);
 
-            address = '/display/clear';
-            oscsend(udpSender,address);
+            WaitSecs(3);
             
+            command = 'DISPLAY_CLEAR';
+            TCPSend(command);
+            
+            %Wait for key press to show reponse
             while 0
                 [~,keys] = KbWait(-1,3);
                 if any(keys(p.KEYS.YES.VALUE))
                     % correct_response_image_practice = imread(d.filepath_practice_image_correct);
                     
-                    address = '/display/picture';
-                    oscsend(udpSender,address,'s', d.filepath_practice_image_correct);
+                    path =  d.filepath_practice_image_correct;
+                    command = "DISPLAY_PICTURE/"+path;
+                    TCPSend(command);
 
                     WaitSecs(1);
+                    
+                    command = 'DISPLAY_CLEAR';
+                    TCPSend(command);
             
                     break;
                 elseif any(keys(p.KEYS.NO.VALUE))
                     %incorrect_response_image_practice = imread(d.filepath_practice_image_incorrect);
                     
-                    address = '/display/picture';
-                    oscsend(udpSender,address,'s', d.filepath_practice_image_incorrect);
-
+                    path =  d.filepath_practice_image_incorrect;
+                    command = "DISPLAY_PICTURE/"+path;
+                    TCPSend(command);
+                    
                     WaitSecs(1);
                     
+                    command = 'DISPLAY_CLEAR';
+                    TCPSend(command);
                     break;
                 elseif any(keys(p.KEYS.ABORT.VALUE))
                     error('Abort key pressed');
                 end
             end
+            
+            command = 'DISPLAY_CLEAR';
+            TCPSend(command);
         end
         break;
     elseif any(keys(p.KEYS.SKIP.VALUE))
@@ -389,14 +388,14 @@ end
 %a clear message.
 
 message = 'We will now begin a 30 second baseline, please remain as still as possible';
-address = '/display/message';
-oscsend(udpSender,address,'s', message);
+command = "DISPLAY_MESSAGE/"+message;
+TCPSend(command);
 
 WaitSecs(3);
 
 message = '';
-address = '/display/message';
-oscsend(udpSender,address,'s', message);
+command = "DISPLAY_MESSAGE/"+message;
+TCPSend(command);
 
 if p.TRIGGER_STIM_TRACKER
     fwrite(sport, ['mh',bin2dec('01000000'),0]);
@@ -463,8 +462,8 @@ for trial = 1: d.number_trials
     end
     
     message = d.trial_data(trial).liveness_type;
-    address = '/display/message';
-    oscsend(udpSender,address,'s', message);
+    command = "DISPLAY_MESSAGE/"+message;
+    TCPSend(command);
 
     WaitSecs(1);
     
@@ -473,12 +472,12 @@ for trial = 1: d.number_trials
     ITI = d.order.data{trial,4};
     
     %Notify researcher that a new trial has begun
-    address = '/trial/start';
-    oscsend(udpSender, address);
+    command = "TRIAL_START";
+    TCPSend(command);
     
     if d.condition_number == 1 || 2
-        address = '/display/question';
-        oscsend(udpSender,address,'i', question_number);
+        command = "DISPLAY_QUESTION/"+question_number;
+        TCPSend(command);
     end
     
 %     %jitter the trial ITI (save the variable)
@@ -497,14 +496,16 @@ for trial = 1: d.number_trials
     end
     
     %Mute the microphone of the participant
-    address = '/mute/participant';
-    oscsend(udpSender,address,'B', true);
+    state = 'true';
+    command = "MUTE_PARTICIPANT/"+state;
+    TCPSend(command);
 
     %Calculate length of trial
     trial_length = 14 +  d.trial_data(trial).trial_end_wait;
     %Send the amount of time for the current trial. 
-    address = '/clock/start/trial';
-    oscsend(udpSender,address,'f', trial_length);
+    command = "CLOCK_START_TRIAL/"+trial_length;
+    TCPSend(command);
+
 
     %     %Calculate time until next live trial and send to unity
     %     while 1
@@ -518,9 +519,9 @@ for trial = 1: d.number_trials
     %         end
     %     end
     %
-    %     next_live_trial_number =
-    %     message = strcat("DURATION_LIVE-",string(10));
-    %     Send(client, message);
+%     time = 10;
+%     command = "CLOCK_START_WAIT/"+time;
+%     TCPSend(command);
     %
     Eyelink('Message',sprintf('Event: Start of trial %03d\n', trial));
     fprintf('\nTrial %d (%g sec)\n', trial, d.trial_data(trial).timing.onset);
@@ -568,21 +569,20 @@ for trial = 1: d.number_trials
     
     %TRIGGER STORY START
     if d.condition_number == 1
-        %message unity which live trial type
-        address = '/trial/start';
-        oscsend(udpSender, address,'s','Human');
 
         %Mute the microphone of the memoji
-        address = '/mute/memoji';
-        oscsend(udpSender,address,'B', true);
+        state = 'true';
+        command = "MUTE_MEMOJI/"+state;
+        TCPSend(command);
         
         %Unmute the microphone of the researcher
-        address = '/mute/researcher';
-        oscsend(udpSender,address,'B', false);
+        state = 'false';
+        command = "MUTE_RESEARCHER/"+state;
+        TCPSend(command);
         
         %Display a live video feed of the researcher
-        address = '/display/live';
-        oscsend(udpSender,address,'s','researcher');
+        command = "DISPLAY_LIVE/Researcher";
+        TCPSend(command);
         
         if p.TRIGGER_STIM_TRACKER
             fwrite(sport,['mh',bin2dec('00000001'),0]); %turn question period trigger on (for StimTracker)
@@ -593,25 +593,25 @@ for trial = 1: d.number_trials
         WaitSecs(10);
                 
         %Mute the microphone of the researcher
-        address = '/mute/researcher';
-        oscsend(udpSender,address,'B', true);
+        state = 'true';
+        command = "MUTE_RESEARCHER/"+state;
+        TCPSend(command);
         
     elseif d.condition_number == 2
-        %message unity which trial type
-        address = '/trial/start';
-        oscsend(udpSender, address,'s','Memoji');
 
         %Mute the microphone of the researcher
-        address = '/mute/researcher';
-        oscsend(udpSender,address,'B', true);
+        state = 'true';
+        command = "MUTE_RESEARCHER/"+state;
+        TCPSend(command);
         
         %Unmute the microphone of the memoji
-        address = '/mute/memoji'
-        oscsend(udpSender,address,'B', false);
+        state = 'false';
+        command = "MUTE_MEMOJI/"+state;
+        TCPSend(command);
 
         %Display a live video feed of the memoji user
-        address = '/display/live';
-        oscsend(udpSender,address,'s','memoji');
+        command = "DISPLAY_LIVE/Memoji";
+        TCPSend(command);
         
         if p.TRIGGER_STIM_TRACKER
             fwrite(sport,['mh',bin2dec('00000010'),0]); %turn question period trigger on (for StimTracker)
@@ -622,16 +622,18 @@ for trial = 1: d.number_trials
         WaitSecs(10);
         
         %Mute the microphone of the memoji
-        address = '/mute/memoji';
-        oscsend(udpSender,address,'B', true);
+        state = 'true';
+        command = "MUTE_MEMOJI/"+state;
+        TCPSend(command);
         
     elseif d.condition_number == 3
         %Mute all users
-        address = '/mute';
-        oscsend(udpSender,address,'B', true);
+        command = "MUTE/True";
+        TCPSend(command);
         
-        address = '/display/video';
-        oscsend(udpSender,address,'s', movie_filepath);
+        path = movie_filepath;
+        command = "DISPLAY_VIDEO/"+path;
+        TCPSend(command);
                 
         if p.TRIGGER_STIM_TRACKER
             fwrite(sport,['mh',bin2dec('00000100'),0]); %turn question period trigger on (for StimTracker)
@@ -646,11 +648,12 @@ for trial = 1: d.number_trials
         
     elseif d.condition_number == 4
         %Mute all users
-        address = '/mute';
-        oscsend(udpSender,address,'B', true);
+        command = "MUTE/True";
+        TCPSend(command);
         
-        address = '/display/video';
-        oscsend(udpSender,address,'s', movie_filepath);
+        path = movie_filepath;
+        command = "DISPLAY_VIDEO/"+path;
+        TCPSend(command);
         
         if p.TRIGGER_STIM_TRACKER
             fwrite(sport,['mh',bin2dec('00001000'),0]); %turn question period trigger on (for StimTracker)
@@ -676,15 +679,16 @@ for trial = 1: d.number_trials
     end
     
     path = 'Images/fixation.png';
-    address = '/display/picture';
-    oscsend(udpSender,address,'s', path);
+    command = "DISPLAY_PICTURE/"+path;
+    TCPSend(command);
 
     Eyelink('Message','End of Question Period %d', trial);
     fprintf('End of question period %d...\n', trial);
     
     %Unmute the microphone of the participant
-    address = '/mute/participant';
-    oscsend(udpSender,address,'B', false);
+    state = 'false';
+    command = "MUTE_PARTICIPANT/"+state;
+    TCPSend(command)
     
     %START OF ANSWER PERIOD
     %Play a beep to tell the confederate and partici[ant the answer period has begun
@@ -703,9 +707,10 @@ for trial = 1: d.number_trials
     WaitSecs(3);
     
     %Mute the microphone of the participant
-    address = '/mute/participant';
-    oscsend(udpSender,address,'B', true);
-
+    state = 'true';
+    command = "MUTE_PARTICIPANT/"+state;
+    TCPSend(command)
+    
     [~,~,keys] = KbCheck(-1);
     if any(keys(p.KEYS.SKIP.VALUE))
         %ends current trial
@@ -724,8 +729,10 @@ for trial = 1: d.number_trials
         %display image response if in pre-recorded conditions
         if any(keys(p.KEYS.YES.VALUE)) && (d.trial_data(trial).correct_response ~= true) && (d.condition_number == 3 || d.condition_number == 4)
               
-            address = '/display/picture';
-            oscsend(udpSender,address,'s', d.filepath_correct_image_response);
+            path = d.filepath_correct_image_response;
+            command = "DISPLAY_PICTURE/"+path;
+            TCPSend(command);
+            
             Eyelink('Message','Answer correct for trial %d', trial);
             
             
@@ -739,8 +746,8 @@ for trial = 1: d.number_trials
             WaitSecs(1);
             
             path = 'Images/fixation.png';
-            address = '/display/picture';
-            oscsend(udpSender,address,'s', path);
+            command = "DISPLAY_PICTURE/"+path;
+            TCPSend(command);
             
             d.trial_data(trial).correct_response = true;
             
@@ -748,8 +755,9 @@ for trial = 1: d.number_trials
             
         elseif any(keys(p.KEYS.NO.VALUE)) && (d.trial_data(trial).correct_response ~= false) && (d.condition_number == 3 || d.condition_number == 4)
             
-            address = '/display/picture';
-            oscsend(udpSender,address,'s', d.filepath_incorrect_image_response);
+            path = d.filepath_incorrect_image_response;
+            command = "DISPLAY_PICTURE/"+path;
+            TCPSend(command);
             
             Eyelink('Message','Answer incorrect for trial %d', trial);
             
@@ -763,9 +771,9 @@ for trial = 1: d.number_trials
             WaitSecs(1);
             
             path = 'Images/fixation.png';
-            address = '/display/picture';
-            oscsend(udpSender,address,'s', path);
-            
+            command = "DISPLAY_PICTURE/"+path;
+            TCPSend(command);
+                        
             d.trial_data(trial).correct_response = true;
             
             break;
@@ -774,11 +782,11 @@ for trial = 1: d.number_trials
         elseif any(keys(p.KEYS.YES.VALUE)) && (d.trial_data(trial).correct_response ~= true) && (d.condition_number == 1 || d.condition_number == 2)
             
             if d.condition_number == 1
-                address = '/display/live';
-                oscsend(udpSender,address,'s','researcher');
+                command = "DISPLAY_LIVE/Researcher";
+                TCPSend(command);
             elseif d.condition_number == 2
-                address = '/display/live';
-                oscsend(udpSender,address,'s','memoji');
+                command = "DISPLAY_LIVE/Memoji";
+                TCPSend(command);
             end
             
             Eyelink('Message','Answer correct for trial %d', trial);
@@ -795,19 +803,19 @@ for trial = 1: d.number_trials
             WaitSecs(1);
             
             path = 'Images/fixation.png';
-            address = '/display/picture';
-            oscsend(udpSender,address,'s', path);
+            command = "DISPLAY_PICTURE/"+path;
+            TCPSend(command);
             
             break;
             
         elseif any(keys(p.KEYS.NO.VALUE)) && (d.trial_data(trial).correct_response ~= true) && (d.condition_number == 1 || d.condition_number == 2)
             
             if d.condition_number == 1
-                address = '/display/live';
-                oscsend(udpSender,address,'s','researcher');
+                command = "DISPLAY_LIVE/Researcher";
+                TCPSend(command);
             elseif d.condition_number == 2
-                address = '/display/live';
-                oscsend(udpSender,address,'s','memoji');
+                command = "DISPLAY_LIVE/Memoji";
+                TCPSend(command);
             end
             
             Eyelink('Message','Answer incorrect for trial %d', trial);
@@ -824,8 +832,8 @@ for trial = 1: d.number_trials
             WaitSecs(1);
             
             path = 'Images/fixation.png';
-            address = '/display/picture';
-            oscsend(udpSender,address,'s', path);
+            command = "DISPLAY_PICTURE/"+path;
+            TCPSend(command);
             
             break;
             %triggers the end of the current trial             
@@ -842,11 +850,11 @@ for trial = 1: d.number_trials
     end
     
     %Notify the researcher that the trial had ended
-    address = '/trial/end';
-    oscsend(udpSender, address);
-    
-    address = '/display/clear';
-    oscsend(udpSender,address);
+    command = "TRIAL_END";
+    TCPSend(command);
+
+    command = 'DISPLAY_CLEAR';
+    TCPSend(command);
 
     %ITI
     WaitSecs(ITI);
@@ -860,34 +868,34 @@ for trial = 1: d.number_trials
     
     fprintf('Saving...\n');
     save(d.filepath_data, 'p', 'd')
+    
+    %You can clear off the message at the end of a trial by sending the DISPLAY_CLEAR command
+    command = "DISPLAY_CLEAR";
+    TCPSend(command);
 end
 
 %Notify the researcher that the experiment ended
-address = '/experiment/end';
-oscsend(udpSender, address);
+command = "EXPERIMENT_END";
+TCPSend(command);
 
 %% Drift Check 
 message = 'Fixate on the centre of the dot on the bottom middle of the screen';
-address = '/display/message';
-oscsend(udpSender,address,'s', message);
+command = "DISPLAY_MESSAGE/"+message;
+TCPSend(command);
 
 WaitSecs(3);
 
-message = '';
-address = '/display/message';
-oscsend(udpSender,address,'s', message);
-
-path = 'Images/drift_check.png';
-address = '/display/picture';
-oscsend(udpSender,address,'s', path);
+path = 'Images/fixation.png';
+command = "DISPLAY_PICTURE/"+path;
+TCPSend(command);
 
 Eyelink('Message',sprintf('Drift Check'));
 
 WaitSecs(2);
 
 message = '';
-address = '/display/message';
-oscsend(udpSender,address,'s', message);
+command = "DISPLAY_MESSAGE/"+message;
+TCPSend(command);
 %% Stop eyelink recording
 fprintf('Eyelink Close');   
 
@@ -898,14 +906,14 @@ else
 end 
 %% Final Baseline
 message = 'We will now begin a 30 second baseline, please remain as still as possible';
-address = '/display/message';
-oscsend(udpSender,address,'s', message);
+command = "DISPLAY_MESSAGE/"+message;
+TCPSend(command);
 
 WaitSecs(3);
 
 message = '';
-address = '/display/message';
-oscsend(udpSender,address,'s', message);
+command = "DISPLAY_MESSAGE/"+message;
+TCPSend(command);
 
 fprintf('Final baseline...\n');
 tend = GetSecs + p.DURATION_BASELINE_FINAL;
@@ -985,8 +993,8 @@ catch err
     sca
     sca
     
-    address = '/display/clear';
-    oscsend(udpSender,address);
+    command = 'DISPLAY_CLEAR';
+    TCPSend(command);
     
     %save everything
     save(['ErrorDump_' d.timestamp_start_script])
@@ -1019,11 +1027,6 @@ catch err
         
     end 
     
-    %Close Unity Connection
-    fclose(udpSender);
-    delete(udpSender);
-    clear udpSender;
-    
     %rethrow error for troubleshooting
     rethrow(err)
 end 
@@ -1034,108 +1037,14 @@ timestamp = sprintf('%d-%d-%d_%d-%d_%d',c([4 5 6 3 2 1]));
 timestamp_edf = sprintf('%02d%02d', c(5:6));
 end 
 
-function oscsend(u,path,varargin)
-% Sends a Open Sound Control (OSC) message through a UDP connection
-%
-% oscsend(u,path)
-% oscsend(u,path,types,arg1,arg2,...)
-% oscsedn(u,path,types,[args])
-%
-% u = UDP object with open connection.
-% path = path-string
-% types = string with types of arguments,
-%    supported:
-%       i = integer
-%       f = float
-%       s = string
-%       N = Null (ignores corresponding argument)
-%       I = Impulse (ignores corresponding argument)
-%       T = True (ignores corresponding argument)
-%       F = False (ignores corresponding argument)
-%       B = boolean (not official: converts argument to T/F in the type)
-%    not supported:
-%       b = blob
-%
-% args = arguments as specified by types.
-%
-% EXAMPLE
-%       u = udp('127.0.0.1',7488);  
-%       fopen(u);
-%       oscsend(u,'/test','ifsINBTF', 1, 3.14, 'hello',[],[],false,[],[]);
-%       fclose(u);
-%
-% See http://opensoundcontrol.org/ for more information about OSC.
-
-% MARK MARIJNISSEN 10 may 2011 (markmarijnissen@gmail.com)
-    
-    %figure out little endian for int/float conversion
-    [~, ~, endian] = computer;
-    littleEndian = endian == 'L';
-
-    % set type
-    if nargin >= 3,
-        types = oscstr([',' varargin{1}]);
-    else
-        types = oscstr(',');
-    end
-    
-    % set args (either a matrix, or varargin)
-    if nargin == 3 && length(types) > 2
-        args = varargin{2};
-    else
-        args = varargin(2:end);
-    end
-
-    % convert arguments to the right bytes
-    data = [];
-    for i=1:length(args)
-        switch(types(i+1))
-            case 'i'
-                data = [data oscint(args{i},littleEndian)];
-            case 'f'
-                data = [data oscfloat(args{i},littleEndian)];
-            case 's'
-                data = [data oscstr(args{i})];
-            case 'B'
-                if args{i}
-                    types(i+1) = 'T';
-                else
-                    types(i+1) = 'F';
-                end;
-            case {'N','I','T','F'}
-                %ignore data
-            otherwise
-                warning(['Unsupported type: ' types(i+1)]);
-        end
-    end
-    
-    %write data to UDP
-    data = [oscstr(path) types data];
-    fwrite(u,data);
-end
-
-%Conversion from double to float
-function float = oscfloat(float,littleEndian)
-   if littleEndian
-        float = typecast(swapbytes(single(float)),'uint8');
-   else
-        float = typecast(single(float),'uint8');
-   end
-end
-
-%Conversion to int
-function int = oscint(int,littleEndian)
-   if littleEndian
-        int = typecast(swapbytes(int32(int)),'uint8');
-   else
-        int = typecast(int32(int),'uint8');
-   end;
-end
-
-%Conversion to string (null-terminated, in multiples of 4 bytes)
-function string = oscstr(string)
-    string = [string 0 0 0 0];
-    string = string(1:end-mod(length(string),4));
+function TCPSend(msg)
+		%The IP address (192.168.0.151) here is just an example.  It needs to be swapped for
+		%the IP of the computer used be the researcher.  
+    tcpipClient = tcpip('192.168.0.151',7778,'NetworkRole','Client');
+    set(tcpipClient,'Timeout',30);
+    fopen(tcpipClient);
+    fwrite(tcpipClient,msg);
+    fclose(tcpipClient);
 end
 end 
 

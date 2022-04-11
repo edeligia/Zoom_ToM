@@ -1,9 +1,9 @@
-for par_num = 1:1
+for par_num = 2:2
 
 DIR_OUT = [pwd filesep 'Mat Orders' filesep];
 DIR_IN = [pwd filesep];
 
-for run = 1:1
+for run = 1:4
     orderfilepath = sprintf('%sPAR%02d_RUN%02d.xlsx', DIR_IN, par_num, run);
 
     [~,~,xls] = xlsread(orderfilepath);
