@@ -162,7 +162,7 @@ PsychPortAudio('FillBuffer', sound_handle_beep_start, beep_start);
 %Change the layout of both applications to the chat interface.  The Participant and
 %Researcher users will be made visible for this portion.
 
-<<<<<<< Updated upstream
+
 %Option 1 for changing the mode of the Researcher to Setup
 command = "MODE_RESEARCHER/0";
 TCPSend(command);
@@ -171,11 +171,6 @@ TCPSend(command);
 value = 1;
 command = "MODE_PARTICIPANT/"+value;
 TCPSend(command);
-=======
-%Show the UI for the participant
-address = '/ui/participant';
-oscsend(udpSender,address,'s', 'Conceal');
->>>>>>> Stashed changes
 
 %Display a live video feed of the researcher
 %Switch the main live source to the Researcher
@@ -325,15 +320,10 @@ while 1
             PsychPortAudio('Start', sound_handle_beep_start);
 
             WaitSecs(3);
-            
-<<<<<<< Updated upstream
+           
             command = 'DISPLAY_CLEAR';
             TCPSend(command);
-=======
-            address = '/display/clear';
-            oscsend(udpSender,address);
->>>>>>> Stashed changes
-            
+
             %Wait for key press to show reponse
             while 0
                 [~,keys] = KbWait(-1,3);
@@ -409,7 +399,7 @@ command = "DISPLAY_MESSAGE/"+message;
 TCPSend(command);
 
 if p.TRIGGER_STIM_TRACKER
-    fwrite(sport, ['mh',bin2dec('01000000'),0]);
+    fwrite(sport, ['mh',5,0]);
     WaitSecs(0.1);
     fwrite(sport, ['mh', bin2dec('00000000'), 0]); 
 end
@@ -428,13 +418,7 @@ end
 [~,~,keys] = KbCheck(-1);
 if any(keys(p.KEYS.ABORT.VALUE))
     error('Abort Key Pressed');
-end
-
-if p.TRIGGER_STIM_TRACKER     
-    fwrite(sport, ['mh',bin2dec('01000000'),0]); %turn off 2 
-    WaitSecs(0.1);
-    fwrite(sport, ['mh', bin2dec('00000000'), 0]);
-end   
+end 
 
 fprintf('Baseline complete...\n'); 
 %% Start Eyetracking Recording
@@ -458,7 +442,14 @@ fprintf('Starting Run...\n');
 for trial = 1: d.number_trials
     d.trial_data(trial).timing.onset = GetSecs - t0;
     d.latest_trial = trial;
+    %Trigger statt of trial
     
+    if p.TRIGGER_STIM_TRACKER
+        fwrite(sport,['mh',6,0]);
+        Eyelink('Message','Event: End of trial %03d\n', trial);
+        d.trial_data(trial).timing.onset = GetSecs - t0;
+        fwrite(sport,['mh',bin2dec('00000000'),0]);
+    end
         
     question_number = d.order.data{trial, 2};
     d.condition_number = xls{trial + 1, 3};
@@ -597,7 +588,7 @@ for trial = 1: d.number_trials
         TCPSend(command);
         
         if p.TRIGGER_STIM_TRACKER
-            fwrite(sport,['mh',bin2dec('00000001'),0]); %turn question period trigger on (for StimTracker)
+            fwrite(sport,['mh',1,0]); %turn question period trigger on (for StimTracker)
             d.trial_data(trial).timing.trigger.question_period_start = GetSecs - t0;
             fwrite(sport,['mh',bin2dec('00000000'),0]); %turn question period trigger off (for StimTracker)
         end
@@ -626,7 +617,7 @@ for trial = 1: d.number_trials
         TCPSend(command);
         
         if p.TRIGGER_STIM_TRACKER
-            fwrite(sport,['mh',bin2dec('00000010'),0]); %turn question period trigger on (for StimTracker)
+            fwrite(sport,['mh',2,0]); %turn question period trigger on (for StimTracker)
             d.trial_data(trial).timing.trigger.question_period_start = GetSecs - t0;
             fwrite(sport,['mh',bin2dec('00000000'),0]); %turn question period trigger off (for StimTracker)
         end
@@ -648,7 +639,7 @@ for trial = 1: d.number_trials
         TCPSend(command);
                 
         if p.TRIGGER_STIM_TRACKER
-            fwrite(sport,['mh',bin2dec('00000100'),0]); %turn question period trigger on (for StimTracker)
+            fwrite(sport,['mh',3,0]); %turn question period trigger on (for StimTracker)
             d.trial_data(trial).timing.trigger.question_period_start = GetSecs - t0;
             fwrite(sport,['mh',bin2dec('00000000'),0]); %turn question period trigger off (for StimTracker)
         end
@@ -668,7 +659,7 @@ for trial = 1: d.number_trials
         TCPSend(command);
         
         if p.TRIGGER_STIM_TRACKER
-            fwrite(sport,['mh',bin2dec('00001000'),0]); %turn question period trigger on (for StimTracker)
+            fwrite(sport,['mh', 4 ,0]); %turn question period trigger on (for StimTracker)
             d.trial_data(trial).timing.trigger.question_period_start = GetSecs - t0;
             fwrite(sport,['mh',bin2dec('00000000'),0]); %turn question period trigger off (for StimTracker)
         end
@@ -711,7 +702,7 @@ for trial = 1: d.number_trials
     
     %TRIGGER START OF ANSWER PERIOD
     if p.TRIGGER_STIM_TRACKER
-        fwrite(sport,['mh',bin2dec('00010000'),0]); %turn question period trigger on (for StimTracker)
+        fwrite(sport,['mh',7,0]); %turn question period trigger on (for StimTracker)
         d.trial_data(trial).timing.trigger.answer_period_start = GetSecs - t0;
         fwrite(sport,['mh',bin2dec('00000000'),0]);
     end
@@ -750,7 +741,7 @@ for trial = 1: d.number_trials
             
             %TRIGGER REACTION PRERECORDED
             if p.TRIGGER_STIM_TRACKER
-                fwrite(sport,['mh',bin2dec('10000000'),0]);
+                fwrite(sport,['mh',8,0]);
                 d.trial_data(trial).timing.trigger.reaction(end+1) = GetSecs - t0;
                 fwrite(sport,['mh',bin2dec('00000000'),0]);
             end
@@ -775,7 +766,7 @@ for trial = 1: d.number_trials
             
             %TRIGGER REACTION PRERECORDED
             if p.TRIGGER_STIM_TRACKER
-                fwrite(sport,['mh',bin2dec('10000000'),0]);
+                fwrite(sport,['mh',8,0]);
                 d.trial_data(trial).timing.trigger.reaction(end+1) = GetSecs - t0;
                 fwrite(sport,['mh',bin2dec('00000000'),0]);
             end
@@ -805,7 +796,7 @@ for trial = 1: d.number_trials
             
             %TRIGGER REACTION PRERECORDED
             if p.TRIGGER_STIM_TRACKER
-                fwrite(sport,['mh',bin2dec('10000000'),0]);
+                fwrite(sport,['mh',8,0]);
                 d.trial_data(trial).timing.trigger.reaction(end+1) = GetSecs - t0;
                 fwrite(sport,['mh',bin2dec('00000000'),0]);
             end
@@ -834,7 +825,7 @@ for trial = 1: d.number_trials
             
             %TRIGGER REACTION PRERECORDED
             if p.TRIGGER_STIM_TRACKER
-                fwrite(sport,['mh',bin2dec('10000000'),0]);
+                fwrite(sport,['mh',8,0]);
                 d.trial_data(trial).timing.trigger.reaction(end+1) = GetSecs - t0;
                 fwrite(sport,['mh',bin2dec('00000000'),0]);
             end
@@ -871,19 +862,9 @@ for trial = 1: d.number_trials
     %ITI
     WaitSecs(ITI);
     
-    if p.TRIGGER_STIM_TRACKER
-        fwrite(sport,['mh',bin2dec('00000001'),0]);
-        Eyelink('Message','Event: End of trial %03d\n', trial);
-        d.trial_data(trial).timing.offset = GetSecs - t0;
-        fwrite(sport,['mh',bin2dec('00000000'),0]);
-    end
-    
     fprintf('Saving...\n');
     save(d.filepath_data, 'p', 'd')
     
-    %You can clear off the message at the end of a trial by sending the DISPLAY_CLEAR command
-    command = "DISPLAY_CLEAR";
-    TCPSend(command);
 end
 
 %Notify the researcher that the experiment ended
@@ -929,6 +910,15 @@ TCPSend(command);
 
 fprintf('Final baseline...\n');
 tend = GetSecs + p.DURATION_BASELINE_FINAL;
+
+%Trigger start of final baseline
+if p.TRIGGER_STIM_TRACKER
+    fwrite(sport,['mh',5,0]);
+    Eyelink('Message','Event: End of trial %03d\n', trial);
+    WaitSecs(0.1);
+    fwrite(sport,['mh',bin2dec('00000000'),0]);
+end
+
 while 1
     ti = GetSecs;
     if ti > tend
@@ -943,7 +933,7 @@ end
 
 %% trigger stim tracker (end of exp which is also end of baseline)
 if p.TRIGGER_STIM_TRACKER
-    fwrite(sport, ['mh',bin2dec('00000001'),0]);
+    fwrite(sport, ['mh',5,0]);
     WaitSecs(0.1);
     fwrite(sport, ['mh', bin2dec('00000000'), 0]); 
 end
