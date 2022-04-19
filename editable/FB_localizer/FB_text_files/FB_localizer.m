@@ -8,7 +8,7 @@ function FB_localizer(participant_number, run_number)
 
 %% Path needs to be set each time script is run
 %Need to be in FB_text_files folder where the script is located 
-cd('C:\Users\evade\Documents\GitHub\Zoom_ToM\editable\FB_localizer\FB_text_files');
+cd('C:\Users\CulhmanLab\Documents\GitHub\Zoom_ToM\editable\FB_localizer\FB_text_files');
 
 %% Prepare Orders
 fol_out = [pwd filesep 'Orders' filesep];
@@ -124,10 +124,25 @@ Screen('Flip', window);
 
 WaitSecs(3);
 
+Screen('Flip', window);
+
+%% open serial port for stim tracker
+if p.TRIGGER_STIM_TRACKER
+    %sport=serial('/dev/tty.usbserial-00001014','BaudRate',115200);
+    sport=serial(p.TRIGGER_CABLE_COM_STRING,'BaudRate',115200);
+    fopen(sport);
+else
+    sport = nan;
+end
+
 %% Initial Baseline 
 
 DrawFormattedText(window, 'We will now have a 30 second baseline. Please remain still.', 'center', 'center', screen_colour_text);
-Screen('Flip', window);     
+Screen('Flip', window);  
+
+WaitSecs(3);
+
+Screen('Flip', window);
 
 if p.TRIGGER_STIM_TRACKER
     fwrite(sport, ['mh',bin2dec('10000000'),0]);
@@ -252,6 +267,10 @@ fprintf('Final baseline...\n');
 DrawFormattedText(window, 'We will now have a 30 second baseline. Please remain still.', 'center', 'center', screen_colour_text);
 Screen('Flip', window);
 
+WaitSecs(3);
+
+Screen('Flip', window);
+
 tend = GetSecs + p.DURATION_BASELINE_FINAL;
 while 1
     ti = GetSecs;
@@ -270,6 +289,15 @@ if p.TRIGGER_STIM_TRACKER
     fwrite(sport, ['mh',bin2dec('10000000'),0]);
     WaitSecs(0.1);
     fwrite(sport, ['mh', bin2dec('10000000'), 0]); 
+end
+
+%% close serial port for stim tracker
+if p.TRIGGER_STIM_TRACKER
+    try
+        fclose(sport);
+    catch
+        warning('Could not close serial connection')
+    end
 end
 
 %% End

@@ -7,8 +7,8 @@ function ME_Zoom(participant_number, run_number)
 % 4 = pre-recorded + memoji 
 
 %% Debug Settings
-p.USE_EYELINK = true;
-p.TRIGGER_STIM_TRACKER = false;
+p.USE_EYELINK = false;
+p.TRIGGER_STIM_TRACKER = true;
 
 if ~p.TRIGGER_STIM_TRACKER    
     warning('One or more debug settings is active!')
@@ -16,10 +16,11 @@ end
 
 %% Start Timestamp 
 
+
 [d.timestamp, d.timestamp_edf] = GetTimestamp;
 
 %% Parameters
-
+ 
 %Folder to save EDF file to 
 filepath_participant_edf = sprintf('PAR%02d', participant_number);
 
@@ -162,6 +163,8 @@ PsychPortAudio('FillBuffer', sound_handle_beep_start, beep_start);
 %Change the layout of both applications to the chat interface.  The Participant and
 %Researcher users will be made visible for this portion.
 
+command = "UI_PARTICIPANT/Conceal";
+TCPSend(command);
 
 %Option 1 for changing the mode of the Researcher to Setup
 command = "MODE_RESEARCHER/0";
@@ -325,7 +328,7 @@ while 1
             TCPSend(command);
 
             %Wait for key press to show reponse
-            while 0
+            while 1
                 [~,keys] = KbWait(-1,3);
                 if any(keys(p.KEYS.YES.VALUE))
                     % correct_response_image_practice = imread(d.filepath_practice_image_correct);
@@ -437,8 +440,6 @@ end
 
 fprintf('Starting Run...\n');
 
-
-
 for trial = 1: d.number_trials
     d.trial_data(trial).timing.onset = GetSecs - t0;
     d.latest_trial = trial;
@@ -472,16 +473,17 @@ for trial = 1: d.number_trials
     command = "DISPLAY_MESSAGE/"+message;
     TCPSend(command);
 
+    if d.condition_number == 1 || 2
+        command = "DISPLAY_QUESTION/"+question_number;
+        TCPSend(command);
+    end
+    
     WaitSecs(1);
     
     %Notify researcher that a new trial has begun
     command = "TRIAL_START";
     TCPSend(command);
-    
-    if d.condition_number == 1 || 2
-        command = "DISPLAY_QUESTION/"+question_number;
-        TCPSend(command);
-    end
+
     
 %     %jitter the trial ITI (save the variable)
 %     ITI = [1 2 3 4];
@@ -748,10 +750,9 @@ for trial = 1: d.number_trials
             
             WaitSecs(1);
             
-            path = 'Images/fixation.png';
-            command = "DISPLAY_PICTURE/"+path;
+            command = 'DISPLAY_CLEAR';
             TCPSend(command);
-            
+                       
             d.trial_data(trial).correct_response = true;
             
             break;
@@ -773,8 +774,7 @@ for trial = 1: d.number_trials
             
             WaitSecs(1);
             
-            path = 'Images/fixation.png';
-            command = "DISPLAY_PICTURE/"+path;
+            command = 'DISPLAY_CLEAR';
             TCPSend(command);
                         
             d.trial_data(trial).correct_response = true;
@@ -805,8 +805,7 @@ for trial = 1: d.number_trials
             
             WaitSecs(1);
             
-            path = 'Images/fixation.png';
-            command = "DISPLAY_PICTURE/"+path;
+            command = 'DISPLAY_CLEAR';
             TCPSend(command);
             
             break;
@@ -834,8 +833,8 @@ for trial = 1: d.number_trials
             
             WaitSecs(1);
             
-            path = 'Images/fixation.png';
-            command = "DISPLAY_PICTURE/"+path;
+            
+            command = 'DISPLAY_CLEAR';
             TCPSend(command);
             
             break;
@@ -854,9 +853,6 @@ for trial = 1: d.number_trials
     
     %Notify the researcher that the trial had ended
     command = "TRIAL_END";
-    TCPSend(command);
-
-    command = 'DISPLAY_CLEAR';
     TCPSend(command);
 
     %ITI
@@ -878,7 +874,7 @@ TCPSend(command);
 
 WaitSecs(3);
 
-path = 'Images/fixation.png';
+path = 'Images/drift_check.png';
 command = "DISPLAY_PICTURE/"+path;
 TCPSend(command);
 
@@ -941,6 +937,11 @@ end
 %% End
 d.time_end_experiment = GetSecs;
 d.timestamp_end_experiment = GetTimestamp;
+
+%% Tell Participant It is the End
+message = 'The run is now complete, thank you!';
+command = "DISPLAY_MESSAGE/"+message;
+TCPSend(command);
 
 %% Done
 save(d.filepath_data, 'p', 'd')
@@ -1042,7 +1043,7 @@ end
 function TCPSend(msg)
 		%The IP address (192.168.0.151) here is just an example.  It needs to be swapped for
 		%the IP of the computer used be the researcher.  
-    tcpipClient = tcpip('192.168.0.151',7778,'NetworkRole','Client');
+    tcpipClient = tcpip('129.100.118.96',7778,'NetworkRole','Client');
     set(tcpipClient,'Timeout',30);
     fopen(tcpipClient);
     fwrite(tcpipClient,msg);
