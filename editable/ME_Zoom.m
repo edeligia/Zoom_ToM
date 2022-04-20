@@ -163,9 +163,12 @@ PsychPortAudio('FillBuffer', sound_handle_beep_start, beep_start);
 %Change the layout of both applications to the chat interface.  The Participant and
 %Researcher users will be made visible for this portion.
 
+<<<<<<< Updated upstream
 command = "UI_PARTICIPANT/Conceal";
 TCPSend(command);
 
+=======
+>>>>>>> Stashed changes
 %Option 1 for changing the mode of the Researcher to Setup
 command = "MODE_RESEARCHER/0";
 TCPSend(command);
@@ -728,18 +731,23 @@ for trial = 1: d.number_trials
     end
     
     fprintf('End of answer period %d...\n', trial);
-    %START OF FEEDBACK PHASE    
+    %START OF FEEDBACK PHASE 
+    %Get time of response start 
+    t_resp_start = GetSecs;
+
     while 1
         [~,keys] = KbWait(-1);
         %display image response if in pre-recorded conditions
         if any(keys(p.KEYS.YES.VALUE)) && (d.trial_data(trial).correct_response ~= true) && (d.condition_number == 3 || d.condition_number == 4)
-              
+            t_resp = GetSecs;
+            
             path = d.filepath_correct_image_response;
             command = "DISPLAY_PICTURE/"+path;
             TCPSend(command);
             
-            Eyelink('Message','Answer correct for trial %d', trial);
+            WaitSecs(3 - (t_resp - t_resp_start));
             
+            Eyelink('Message','Answer correct for trial %d', trial);
             
             %TRIGGER REACTION PRERECORDED
             if p.TRIGGER_STIM_TRACKER

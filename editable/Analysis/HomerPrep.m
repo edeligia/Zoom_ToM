@@ -8,7 +8,7 @@ function HomerPrep
 % this will break for more than 10 runs sorry
 num_runs = 4;
 %filepath for folder with all the runs 
-input_directory = ('C:\Users\evade\Documents\Zoom_project\Data\Piloting_2022\HV\2022-03-29');
+input_directory = ('C:\Users\evade\Documents\Zoom_project\Data\Piloting_2022\HV');
 %need to have manually created folders in your output folder that have the
 %same name as each run folder in the raw data 
 output_directory = ('C:\Users\evade\Documents\Zoom_project\Data\Piloting_2022\HV\2022-03-29-HOMER');
