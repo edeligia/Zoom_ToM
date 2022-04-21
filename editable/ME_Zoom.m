@@ -8,7 +8,7 @@ function ME_Zoom(participant_number, run_number)
 
 %% Debug Settings
 p.USE_EYELINK = false;
-p.TRIGGER_STIM_TRACKER = true;
+p.TRIGGER_STIM_TRACKER = false;
 
 if ~p.TRIGGER_STIM_TRACKER    
     warning('One or more debug settings is active!')
@@ -564,7 +564,7 @@ for trial = 1: d.number_trials
         movie_filepath_matlab = sprintf('%s%d_question.mp4', p.DIR_VIDEOSTIMS_HUMAN, question_number);
     elseif d.condition_number == 4
         movie_filepath_matlab = sprintf('%s%d_question.mp4', p.DIR_VIDEOSTIMS_MEMOJI, question_number);
-    end
+     end 
     
     d.trial_data(trial).correct_response = nan;
     d.trial_data(trial).timing.trigger.reaction = [];
@@ -592,6 +592,11 @@ for trial = 1: d.number_trials
         command = "DISPLAY_LIVE/Researcher";
         TCPSend(command);
         
+        %Start recording Human video
+        type = "Human";
+        command = "RECORD_START/"+type;
+        TCPSend(command);
+        
         if p.TRIGGER_STIM_TRACKER
             fwrite(sport,['mh',1,0]); %turn question period trigger on (for StimTracker)
             d.trial_data(trial).timing.trigger.question_period_start = GetSecs - t0;
@@ -599,6 +604,10 @@ for trial = 1: d.number_trials
         end
         
         WaitSecs(10);
+        
+        %Stop recording Human video
+        command = "RECORD_STOP";
+        TCPSend(command);
                 
         %Mute the microphone of the researcher
         state = 'true';
@@ -621,6 +630,11 @@ for trial = 1: d.number_trials
         command = "DISPLAY_LIVE/Memoji";
         TCPSend(command);
         
+        %Start recording Memoji video
+        type = "Memoji";
+        command = "RECORD_START/"+type;
+        TCPSend(command);
+        
         if p.TRIGGER_STIM_TRACKER
             fwrite(sport,['mh',2,0]); %turn question period trigger on (for StimTracker)
             d.trial_data(trial).timing.trigger.question_period_start = GetSecs - t0;
@@ -628,6 +642,10 @@ for trial = 1: d.number_trials
         end
         
         WaitSecs(10);
+        
+        %Stop recording Human video 
+        command = "RECORD_STOP";
+        TCPSend(command);
         
         %Mute the microphone of the memoji
         state = 'true';
