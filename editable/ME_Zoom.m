@@ -163,12 +163,9 @@ PsychPortAudio('FillBuffer', sound_handle_beep_start, beep_start);
 %Change the layout of both applications to the chat interface.  The Participant and
 %Researcher users will be made visible for this portion.
 
-<<<<<<< Updated upstream
 command = "UI_PARTICIPANT/Conceal";
 TCPSend(command);
 
-=======
->>>>>>> Stashed changes
 %Option 1 for changing the mode of the Researcher to Setup
 command = "MODE_RESEARCHER/0";
 TCPSend(command);
@@ -778,6 +775,10 @@ for trial = 1: d.number_trials
             
             command = 'DISPLAY_CLEAR';
             TCPSend(command);
+            
+            path = 'Images/fixation.png';
+            command = "DISPLAY_PICTURE/"+path;
+            TCPSend(command);
                        
             d.trial_data(trial).correct_response = true;
             
@@ -803,7 +804,11 @@ for trial = 1: d.number_trials
             command = 'DISPLAY_CLEAR';
             TCPSend(command);
                         
-            d.trial_data(trial).correct_response = true;
+            path = 'Images/fixation.png';
+            command = "DISPLAY_PICTURE/"+path;
+            TCPSend(command);
+            
+            d.trial_data(trial).correct_response = false;
             
             break;
             
@@ -834,6 +839,10 @@ for trial = 1: d.number_trials
             command = 'DISPLAY_CLEAR';
             TCPSend(command);
             
+            path = 'Images/fixation.png';
+            command = "DISPLAY_PICTURE/"+path;
+            TCPSend(command);
+            
             break;
             
         elseif any(keys(p.KEYS.NO.VALUE)) && (d.trial_data(trial).correct_response ~= true) && (d.condition_number == 1 || d.condition_number == 2)
@@ -855,12 +864,15 @@ for trial = 1: d.number_trials
                 fwrite(sport,['mh',bin2dec('00000000'),0]);
             end
             
-            d.trial_data(trial).correct_response = true;
+            d.trial_data(trial).correct_response = false;
             
             WaitSecs(1);
             
-            
             command = 'DISPLAY_CLEAR';
+            TCPSend(command);
+            
+            path = 'Images/fixation.png';
+            command = "DISPLAY_PICTURE/"+path;
             TCPSend(command);
             
             break;
@@ -881,6 +893,10 @@ for trial = 1: d.number_trials
     command = "TRIAL_END";
     TCPSend(command);
 
+    path = 'Images/fixation.png';
+    command = "DISPLAY_PICTURE/"+path;
+    TCPSend(command);
+    
     %ITI
     WaitSecs(ITI);
     
