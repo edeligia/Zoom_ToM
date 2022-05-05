@@ -7,8 +7,8 @@ function ME_Zoom(participant_number, run_number)
 % 4 = pre-recorded + memoji 
 
 %% Debug Settings
-p.USE_EYELINK = false;
-p.TRIGGER_STIM_TRACKER = false;
+p.USE_EYELINK = true;
+p.TRIGGER_STIM_TRACKER = true;
 
 if ~p.TRIGGER_STIM_TRACKER    
     warning('One or more debug settings is active!')
@@ -48,7 +48,7 @@ p.DIR_VIDEOSTIMS_PRACTICE = ['Videos' filesep 'Practice_Stims' filesep];
 
 %stim tracker
 %the left port on Eva's laptop is COM3 and on the culham lab msi laptop 
-p.TRIGGER_CABLE_COM_STRING = 'COM6';
+p.TRIGGER_CABLE_COM_STRING = 'COM3';
 
 %timings
 p.DURATION_BASELINE = 30;
@@ -410,12 +410,14 @@ end
 fprintf('Initial baseline...\n');
 tend = t0 + p.DURATION_BASELINE;
 
-while 1
-    ti = GetSecs;
-    if ti > tend
-        break;
-    end
-end
+% while 1
+%     ti = GetSecs;
+%     if ti > tend
+%         break;
+%     end
+% end
+
+WaitSecs(30);
 
 %Check for abort key to end run
 [~,~,keys] = KbCheck(-1);
@@ -957,17 +959,20 @@ if p.TRIGGER_STIM_TRACKER
     fwrite(sport,['mh',bin2dec('00000000'),0]);
 end
 
-while 1
-    ti = GetSecs;
-    if ti > tend
-        break;
-    end
-    
-    [~,~,keys] = KbCheck(-1);  
-    if any(keys(p.KEYS.ABORT.VALUE))
-        error('Error Key Pressed');
-    end 
-end
+% while 1
+%     ti = GetSecs;
+%     if ti > tend
+%         break;
+%     end
+%     
+%     [~,~,keys] = KbCheck(-1);  
+%     if any(keys(p.KEYS.ABORT.VALUE))
+%         error('Error Key Pressed');
+%     end 
+% end
+
+
+WaitSecs(30);
 
 %% trigger stim tracker (end of exp which is also end of baseline)
 if p.TRIGGER_STIM_TRACKER
@@ -1022,10 +1027,6 @@ else
     Eyelink('InitializeDummy');
 end
 
-%% Clean up - close unity connection
-fclose(udpSender);
-delete(udpSender);
-clear udpSender;
 
 %done
 disp('Run complete!');

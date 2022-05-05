@@ -43,7 +43,7 @@ d.filepath_data = sprintf('%sPAR%02d_RUN%02d_%s.mat', p.DIR_DATA, d.participant_
 if ~exist(p.DIR_DATA, 'dir'), mkdir(p.DIR_DATA); end
 
 %% Debug 
-p.TRIGGER_STIM_TRACKER = false;
+p.TRIGGER_STIM_TRACKER = true;
 
 if ~p.TRIGGER_STIM_TRACKER    
     warning('One or more debug settings is active!')
