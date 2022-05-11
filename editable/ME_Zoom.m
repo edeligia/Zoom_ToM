@@ -48,7 +48,7 @@ p.DIR_VIDEOSTIMS_PRACTICE = ['Videos' filesep 'Practice_Stims' filesep];
 
 %stim tracker
 %the left port on Eva's laptop is COM3 and on the culham lab msi laptop 
-p.TRIGGER_CABLE_COM_STRING = 'COM3';
+p.TRIGGER_CABLE_COM_STRING = 'COM6';
 
 %timings
 p.DURATION_BASELINE = 30;
@@ -407,17 +407,21 @@ if p.TRIGGER_STIM_TRACKER
     fwrite(sport, ['mh', bin2dec('00000000'), 0]); 
 end
 
+tbaseline = GetSecs; 
 fprintf('Initial baseline...\n');
-tend = t0 + p.DURATION_BASELINE;
+tend = tbaseline + p.DURATION_BASELINE;
 
-% while 1
-%     ti = GetSecs;
-%     if ti > tend
-%         break;
-%     end
-% end
-
-WaitSecs(30);
+while 1
+    ti = GetSecs;
+    if ti > tend
+        break;
+    end
+    
+        [~,~,keys] = KbCheck(-1);  
+    if any(keys(p.KEYS.ABORT.VALUE))
+        error('Error Key Pressed');
+    end
+end
 
 %Check for abort key to end run
 [~,~,keys] = KbCheck(-1);
@@ -449,7 +453,7 @@ for trial = 1: d.number_trials
     
     if p.TRIGGER_STIM_TRACKER
         fwrite(sport,['mh',6,0]);
-        Eyelink('Message','Event: End of trial %03d\n', trial);
+        Eyelink('Message','Event: Start of trial %03d\n', trial);
         d.trial_data(trial).timing.onset = GetSecs - t0;
         fwrite(sport,['mh',bin2dec('00000000'),0]);
     end
@@ -530,7 +534,7 @@ for trial = 1: d.number_trials
 %     command = "CLOCK_START_WAIT/"+time;
 %     TCPSend(command);
     %
-    Eyelink('Message',sprintf('Event: Start of trial %03d\n', trial));
+    Eyelink('Message',sprintf('Event: Start of condition %03d\n', d.condition_number));
     fprintf('\nTrial %d (%g sec)\n', trial, d.trial_data(trial).timing.onset);
      
     %save condition type in data
@@ -948,31 +952,29 @@ message = '';
 command = "DISPLAY_MESSAGE/"+message;
 TCPSend(command);
 
+tbaseline = GetSecs; 
 fprintf('Final baseline...\n');
-tend = GetSecs + p.DURATION_BASELINE_FINAL;
+tend = tbaseline + p.DURATION_BASELINE_FINAL;
 
 %Trigger start of final baseline
 if p.TRIGGER_STIM_TRACKER
     fwrite(sport,['mh',5,0]);
-    Eyelink('Message','Event: End of trial %03d\n', trial);
     WaitSecs(0.1);
     fwrite(sport,['mh',bin2dec('00000000'),0]);
 end
 
-% while 1
-%     ti = GetSecs;
-%     if ti > tend
-%         break;
-%     end
-%     
-%     [~,~,keys] = KbCheck(-1);  
-%     if any(keys(p.KEYS.ABORT.VALUE))
-%         error('Error Key Pressed');
-%     end 
-% end
+while 1
+    ti = GetSecs;
+    if ti > tend
+        break;
+    end
+    
+    [~,~,keys] = KbCheck(-1);  
+    if any(keys(p.KEYS.ABORT.VALUE))
+        error('Error Key Pressed');
+    end 
+end
 
-
-WaitSecs(30);
 
 %% trigger stim tracker (end of exp which is also end of baseline)
 if p.TRIGGER_STIM_TRACKER

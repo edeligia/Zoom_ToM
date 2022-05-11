@@ -150,8 +150,9 @@ if p.TRIGGER_STIM_TRACKER
     fwrite(sport, ['mh', bin2dec('00000000'), 0]); 
 end
 
+tbaseline = GetSecs;
 fprintf('Initial baseline...\n');
-tend = t0 + p.DURATION_BASELINE;
+tend = tbaseline + p.DURATION_BASELINE;
 
 while 1
     ti = GetSecs;
