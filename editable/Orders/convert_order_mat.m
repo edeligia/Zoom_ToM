@@ -1,10 +1,10 @@
-for par_num = 2:2
+for par_num = 3:3
 
 DIR_OUT = [pwd filesep 'Mat Orders' filesep];
 DIR_IN = [pwd filesep];
 
 
-for run = 2:4
+for run = 1:4
 
     orderfilepath = sprintf('%sPAR%02d_RUN%02d.xlsx', DIR_IN, par_num, run);
 
