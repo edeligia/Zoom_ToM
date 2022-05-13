@@ -59,7 +59,7 @@ scrnRes     = Screen('Resolution',screen_number);               % Get Screen res
 [x0 y0]		= RectCenter([0 0 scrnRes.width scrnRes.height]);   % Screen center.
 d.story_disp = 10;
 d.quest_disp = 4;
-ITI = 12;
+ITI = 7;
 
 %buttons
 p.KEYS.START.NAME = 'RETURN';
@@ -72,8 +72,8 @@ p.KEYS.FALSE.NAME = 'F';
 p.TRIGGER_CABLE_COM_STRING = 'COM3';
 
 %timings
-p.DURATION_BASELINE = 2;
-p.DURATION_BASELINE_FINAL = 2;
+p.DURATION_BASELINE = 20;
+p.DURATION_BASELINE_FINAL = 20;
 %%  Check Requirements
 %psychtoolbox
 try
@@ -145,9 +145,9 @@ WaitSecs(3);
 Screen('Flip', window);
 
 if p.TRIGGER_STIM_TRACKER
-    fwrite(sport, ['mh',bin2dec('10000000'),0]);
+    fwrite(sport, ['mh',1,0]);
     WaitSecs(0.1);
-    fwrite(sport, ['mh', bin2dec('00000000'), 0]); 
+    fwrite(sport, ['mh',0,0]); 
 end
 
 tbaseline = GetSecs;
@@ -168,7 +168,7 @@ if any(keys(p.KEYS.EXIT.VALUE))
 end
 
 if p.TRIGGER_STIM_TRACKER     
-    fwrite(sport, ['mh',bin2dec('10000000'),0]); %turn off 2 
+    fwrite(sport, ['mh',1,0]); %turn off 2 
     WaitSecs(0.1);
     fwrite(sport, ['mh', bin2dec('00000000'), 0]);
 end   
@@ -201,7 +201,7 @@ for trial = 1:d.number_trials
     Screen('Flip', window);
     
     if p.TRIGGER_STIM_TRACKER
-        fwrite(sport,['mh',bin2dec('00000001'),0]); %turn story period trigger on (for StimTracker)
+        fwrite(sport,['mh',2,0]); %turn story period trigger on (for StimTracker)
         d.trial_data(trial).timing.trigger.story_period_start = GetSecs - t0;
         fwrite(sport,['mh',bin2dec('00000000'),0]); %turn story period trigger off (for StimTracker)
     end
@@ -209,7 +209,7 @@ for trial = 1:d.number_trials
     WaitSecs(d.story_disp);
     
     if p.TRIGGER_STIM_TRACKER
-        fwrite(sport,['mh',bin2dec('00000001'),0]); %turn story period trigger on (for StimTracker)
+        fwrite(sport,['mh',2,0]); %turn story period trigger on (for StimTracker)
         d.trial_data(trial).timing.trigger.story_period_end = GetSecs - t0;
         fwrite(sport,['mh',bin2dec('00000000'),0]); %turn story period trigger off (for StimTracker)
     end
@@ -233,7 +233,7 @@ for trial = 1:d.number_trials
     Screen('Flip', window);
     
      if p.TRIGGER_STIM_TRACKER
-        fwrite(sport,['mh',bin2dec('00000010'),0]); %turn story period trigger on (for StimTracker)
+        fwrite(sport,['mh',3,0]); %turn story period trigger on (for StimTracker)
         d.trial_data(trial).timing.trigger.question_period_start = GetSecs - t0;
         fwrite(sport,['mh',bin2dec('00000000'),0]); %turn story period trigger off (for StimTracker)
      end
@@ -254,7 +254,7 @@ for trial = 1:d.number_trials
     Screen('Flip', window);
     
     if p.TRIGGER_STIM_TRACKER
-        fwrite(sport,['mh',bin2dec('00000010'),0]); %turn story period trigger on (for StimTracker)
+        fwrite(sport,['mh',3,0]); %turn story period trigger on (for StimTracker)
         d.trial_data(trial).timing.trigger.story_period_start = GetSecs - t0;
         fwrite(sport,['mh',bin2dec('00000000'),0]); %turn story period trigger off (for StimTracker)
     end
@@ -287,9 +287,9 @@ end
 
 %% trigger stim tracker (end of exp which is also end of baseline)
 if p.TRIGGER_STIM_TRACKER
-    fwrite(sport, ['mh',bin2dec('10000000'),0]);
+    fwrite(sport, ['mh',1,0]);
     WaitSecs(0.1);
-    fwrite(sport, ['mh', bin2dec('10000000'), 0]); 
+    fwrite(sport, ['mh',0,0]); 
 end
 
 %% close serial port for stim tracker

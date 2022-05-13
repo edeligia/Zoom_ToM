@@ -123,7 +123,7 @@ stimdir             = fullfile(rootdir, 'stimuli');
 behavdir			= fullfile(rootdir, 'behavioural');
 moviefName          = fullfile(stimdir, 'partly_cloudy.mp4');
 
-p.DURATION_BASELINE = 30;  %fixation time before movie. we stopped scanning in the middle of credits, so no post movie fixation
+p.DURATION_BASELINE = 20;  %fixation time before movie. we stopped scanning in the middle of credits, so no post movie fixation
 movieDur = 349;
 
 %% check if it was run before shuffle order of stories
@@ -206,6 +206,13 @@ Screen(w, 'Flip');
 
 %% Initial Baseline 
 
+DrawFormattedText(window, 'We will now have a 30 second baseline. Please remain still.', 'center', 'center', screen_colour_text);
+Screen('Flip', window);  
+
+WaitSecs(3);
+
+Screen('Flip', window);
+
 fwrite(sport,['mh',1,0]); %send trigger to Stim Tracker
 WaitSecs(0.1); %PTB command, could use built-in, doesn't have to be 1sec, a few msec is fine
 fwrite(sport,['mh',0,0]); %turn trigger off (for StimTracker)
@@ -255,6 +262,17 @@ while(GetSecs - p.trialStart < movieDur -.2)
 end
 Screen('CloseMovie', movie);
 Screen(w, 'Flip');
+
+fwrite(sport,['mh',1,0]); %send trigger to Stim Tracker
+WaitSecs(0.1); %PTB command, could use built-in, doesn't have to be 1sec, a few msec is fine
+fwrite(sport,['mh',0,0]); %turn trigger off (for StimTracker)
+
+DrawFormattedText(window, 'We will now have a 30 second baseline. Please remain still.', 'center', 'center', screen_colour_text);
+Screen('Flip', window);  
+
+WaitSecs(3);
+
+Screen('Flip', window);
 
 fwrite(sport,['mh',1,0]); %send trigger to Stim Tracker
 WaitSecs(0.1); %PTB command, could use built-in, doesn't have to be 1sec, a few msec is fine
