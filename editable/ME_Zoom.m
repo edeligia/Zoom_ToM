@@ -211,6 +211,15 @@ while 1
     end
 end
 
+%% open serial port for stim tracker
+if p.TRIGGER_STIM_TRACKER
+    %sport=serial('/dev/tty.usbserial-00001014','BaudRate',115200);
+    sport=serial(p.TRIGGER_CABLE_COM_STRING,'BaudRate',115200);
+    fopen(sport);
+else
+    sport = nan;
+end
+
 %% Calibrate Eyetracker 
 %create window for calibration
 try
@@ -367,15 +376,6 @@ while 1
     elseif any(keys(p.KEYS.SKIP.VALUE))
         break;
     end
-end
-
-%% open serial port for stim tracker
-if p.TRIGGER_STIM_TRACKER
-    %sport=serial('/dev/tty.usbserial-00001014','BaudRate',115200);
-    sport=serial(p.TRIGGER_CABLE_COM_STRING,'BaudRate',115200);
-    fopen(sport);
-else
-    sport = nan;
 end
 
 %% Initial Baseline 

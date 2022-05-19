@@ -8,12 +8,12 @@ function HomerPrep
 % this will break for more than 10 runs sorry
 num_runs = 4;
 %filepath for folder with all the runs 
-input_directory = ('C:\Users\evade\Documents\Zoom_project\Data\Piloting_2022\HV');
+input_directory = ('C:\Users\evade\Documents\Zoom_project\Data\Piloting_2022\PU0505\');
 %need to have manually created folders in your output folder that have the
 %same name as each run folder in the raw data 
-output_directory = ('C:\Users\evade\Documents\Zoom_project\Data\Piloting_2022\HV\2022-03-29-HOMER');
+output_directory = ('C:\Users\evade\Documents\Zoom_project\Data\Piloting_2022\PU0505\2022-05-05-HOMER\');
 % corresponds to the data folder without the run number
-par_id = '2022-03-29_00';
+par_id = '2022-05-05_00';
 
 %% Convert to 2 wavelength 
 dir_runs = [output_directory filesep];
@@ -21,7 +21,7 @@ dir_runs = [output_directory filesep];
 PrepareDataWavelengths(input_directory, output_directory)
 
 %% Convert to .nirs
-for num_runs = 1:num_runs
+for num_runs = 4:num_runs
     pathname = sprintf('%s%s%d', dir_runs, par_id, num_runs);
     HomerOfflineConverter(pathname)
 end 
