@@ -119,8 +119,8 @@ d.filepath_data = sprintf('%sPAR%02d_RUN%02d_%s.mat', p.DIR_DATA, d.participant_
 d.filepath_error = strrep(d.filepath_data, '.mat', '_ERROR.mat');
 d.filename_edf_on_system = sprintf('P%02d%s', d.participant_number, d.timestamp_edf);
 d.filepath_run_edf = sprintf('%sParticipant_%02d_Run%03d_%s', p.DIR_PARTICIPANT_EDF, d.participant_number, d.run_number, d.timestamp);
-d.filepath_practice_image_correct = 'Images/correct_response_03.jpeg';
-d.filepath_practice_image_incorrect = 'Images/incorrect_response_03.jpeg';
+d.filepath_practice_image_correct = 'Images/correct_response_03.JPG';
+d.filepath_practice_image_incorrect = 'Images/incorrect_response_03.JPG';
 
 %create output directories
 if ~exist(p.DIR_DATA, 'dir'), mkdir(p.DIR_DATA); end
@@ -511,29 +511,16 @@ for trial = 1: d.number_trials
     command = "MUTE_PARTICIPANT/"+state;
     TCPSend(command);
 
-    %Calculate length of trial
-    trial_length = 14 +  ITI;
-    %Send the amount of time for the current trial. 
-    command = "CLOCK_START_TRIAL/"+trial_length;
+    duration_question = 10;
+    %Send the amount of time for the current question period. 
+    command = "CLOCK_START_TRIAL/"+duration_question;
     TCPSend(command);
 
-
-    %     %Calculate time until next live trial and send to unity
-    %     while 1
-    %         next_condition_number = xls{trial + 2,3};
-    %         if next_condition_number == 1 || next_condition_number == 2
-    %         address = '/clock/start/wait';
-%               oscsend(udpSender,address,'f', trial_length);
-    %         break;
-    %         else
-    %             next_condition_number = next_condition_number + 1;
-    %         end
-    %     end
-    %
-%     time = 10;
-%     command = "CLOCK_START_WAIT/"+time;
-%     TCPSend(command);
-    %
+    %Calculate length of trial and send the duration of the current trial
+    trial_length = 14 +  ITI;
+    command = "CLOCK_START_WAIT/"+trial_length;
+    TCPSend(command);
+ 
     Eyelink('Message',sprintf('Event: Start of condition %03d\n', d.condition_number));
     fprintf('\nTrial %d (%g sec)\n', trial, d.trial_data(trial).timing.onset);
      
@@ -553,8 +540,8 @@ for trial = 1: d.number_trials
     %filepaths dependent on knowing the condition number (this is an
     %unsophisticated work around)
       
-    d.filepath_correct_image_response = sprintf('%s/correct_response_%02d.jpeg', 'Images', d.condition_number);
-    d.filepath_incorrect_image_response = sprintf('%s/incorrect_response_%02d.jpeg', 'Images', d.condition_number);
+    d.filepath_correct_image_response = sprintf('%s/correct_response_%02d.JPG', 'Images', d.condition_number);
+    d.filepath_incorrect_image_response = sprintf('%s/incorrect_response_%02d.JPG', 'Images', d.condition_number);
     
     
     if d.condition_number == 3
@@ -595,9 +582,10 @@ for trial = 1: d.number_trials
         command = "DISPLAY_LIVE/Researcher";
         TCPSend(command);
         
+
         %Start recording Human video
-        type = "Human";
-        command = "RECORD_START/"+type;
+        type = 'Human';
+        command = "RECORD_START/"+type+"&"+question_number+"_question";
         TCPSend(command);
         
         if p.TRIGGER_STIM_TRACKER
@@ -635,7 +623,7 @@ for trial = 1: d.number_trials
         
         %Start recording Memoji video
         type = "Memoji";
-        command = "RECORD_START/"+type;
+        command = "RECORD_START/"+type+"&"+question_number+"_question";
         TCPSend(command);
         
         if p.TRIGGER_STIM_TRACKER
