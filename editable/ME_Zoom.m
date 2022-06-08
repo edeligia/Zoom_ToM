@@ -379,6 +379,7 @@ while 1
 end
 
 %% Initial Baseline 
+fprintf('\n----\nSTART FNIRS RECORDING NOW\n-------\n\n');
 fprintf('\n----------------------------------------------\nWaiting for RUN key (%s) to start the baseline or ABORT key (%s)...\n----------------------------------------------\n\n', p.KEYS.RUN.NAME, p.KEYS.ABORT.NAME);
 while 1
     [~,keys] = KbWait(-1);
@@ -516,10 +517,10 @@ for trial = 1: d.number_trials
     command = "CLOCK_START_TRIAL/"+duration_question;
     TCPSend(command);
 
-    %Calculate length of trial and send the duration of the current trial
-    trial_length = 14 +  ITI;
-    command = "CLOCK_START_WAIT/"+trial_length;
-    TCPSend(command);
+%     %Calculate length of trial and send the duration of the current trial
+%     trial_length = 14 +  ITI;
+%     command = "CLOCK_START_WAIT/"+trial_length;
+%     TCPSend(command);
  
     Eyelink('Message',sprintf('Event: Start of condition %03d\n', d.condition_number));
     fprintf('\nTrial %d (%g sec)\n', trial, d.trial_data(trial).timing.onset);
@@ -539,11 +540,14 @@ for trial = 1: d.number_trials
     
     %filepaths dependent on knowing the condition number (this is an
     %unsophisticated work around)
-      
-    d.filepath_correct_image_response = sprintf('%s/correct_response_%02d.JPG', 'Images', d.condition_number);
-    d.filepath_incorrect_image_response = sprintf('%s/incorrect_response_%02d.JPG', 'Images', d.condition_number);
-    
-    
+    if d.condition_number == 3  
+        d.filepath_correct_image_response = sprintf('%s/correct_response_%02d.JPG', 'Images', d.condition_number);
+        d.filepath_incorrect_image_response = sprintf('%s/incorrect_response_%02d.JPG', 'Images', d.condition_number);
+    elseif d.condition_number == 4
+        d.filepath_correct_image_response = sprintf('%s/correct_response_%02d.jpeg', 'Images', d.condition_number);
+        d.filepath_incorrect_image_response = sprintf('%s/incorrect_response_%02d.jpeg', 'Images', d.condition_number);  
+    end
+       
     if d.condition_number == 3
         movie_filepath = sprintf('%s/%d_question.mp4', 'Videos/Human' , question_number);
     elseif d.condition_number == 4
