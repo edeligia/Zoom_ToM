@@ -1,4 +1,4 @@
-for par_num = 3:3
+for par_num = 4:4
 
 DIR_OUT = [pwd filesep 'Mat Orders' filesep];
 DIR_IN = [pwd filesep];
