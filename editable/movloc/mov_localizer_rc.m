@@ -111,7 +111,7 @@ triggerKey			= '+';										% this is the value of the key the scanner sends to
 
 
 %% param
-TRIGGER_CABLE_COM_STRING = 'COM3';
+TRIGGER_CABLE_COM_STRING = 'COM6';
 
 %% open serial port for stim tracker
 sport=serial(TRIGGER_CABLE_COM_STRING,'BaudRate',115200);
@@ -206,12 +206,12 @@ Screen(w, 'Flip');
 
 %% Initial Baseline 
 
-DrawFormattedText(window, 'We will now have a 30 second baseline. Please remain still.', 'center', 'center', screen_colour_text);
-Screen('Flip', window);  
-
-WaitSecs(3);
-
-Screen('Flip', window);
+% DrawFormattedText(window, 'We will now have a 30 second baseline. Please remain still.', 'center', 'center', screen_colour_text);
+% Screen('Flip', window);  
+% 
+% WaitSecs(3);
+% 
+% Screen('Flip', window);
 
 fwrite(sport,['mh',1,0]); %send trigger to Stim Tracker
 WaitSecs(0.1); %PTB command, could use built-in, doesn't have to be 1sec, a few msec is fine
@@ -267,12 +267,12 @@ fwrite(sport,['mh',1,0]); %send trigger to Stim Tracker
 WaitSecs(0.1); %PTB command, could use built-in, doesn't have to be 1sec, a few msec is fine
 fwrite(sport,['mh',0,0]); %turn trigger off (for StimTracker)
 
-DrawFormattedText(window, 'We will now have a 30 second baseline. Please remain still.', 'center', 'center', screen_colour_text);
-Screen('Flip', window);  
-
-WaitSecs(3);
-
-Screen('Flip', window);
+% DrawFormattedText(window, 'We will now have a 30 second baseline. Please remain still.', 'center', 'center', screen_colour_text);
+% Screen('Flip', window);  
+% 
+% WaitSecs(3);
+% 
+% Screen('Flip', window);
 
 fwrite(sport,['mh',1,0]); %send trigger to Stim Tracker
 WaitSecs(0.1); %PTB command, could use built-in, doesn't have to be 1sec, a few msec is fine
