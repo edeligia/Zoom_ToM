@@ -9,7 +9,7 @@
 
 function Zoom_Make_Order_File
 
-dir_root = [pwd filesep raw' filesep];
+dir_root = ['C:\Users\evade\Documents\Zoom_project\Data\Piloting_2022\Zoom\raw' filesep];
 TRIAL_DURATION_SEC = 20;
 
 %% find participant folders
@@ -26,14 +26,16 @@ for p = 1:par_count
     list = dir(dir_par);
     list = list(arrayfun(@(i) i.name(1)~='.' && i.isdir, list));
     run_names = {list.name};
+    %need to do one run at a time for p1-7
     run_count = length(run_names);
-    
+    %run_count = 1;
+
     mat_list = dir([dir_par '*.mat']);
     mat_count = length(mat_list);
     
-    if run_count ~= mat_count
-        error('Number of data folders (%d) does not match number of mat files (%d)!', run_count, mat_count);
-    end
+%     if run_count ~= mat_count
+%         error('Number of data folders (%d) does not match number of mat files (%d)!', run_count, mat_count);
+%     end
     
     for r = 1:run_count
         dir_run = [dir_par run_names{r} filesep];
@@ -48,8 +50,8 @@ for p = 1:par_count
             xls{1,1} = 'All times must be in seconds relative to the first trigger (or first sample if there is no trigger';
             
             %all times will be relative to first trigger
-            %for GRATO, this occurs at start of init baseline
-            time_first_trigger = mat.d.time_start_experiment;
+            %for ZOOM p1-7 need to add manually 
+            time_first_trigger = 1;
             
             %start/end times
             xls(2,1:2) = {'Time Start' , mat.d.time_start_experiment - time_first_trigger}; %start of initial baseline
@@ -58,10 +60,10 @@ for p = 1:par_count
             %event table
             xls(5,1:5) = {'Onset' 'Duration' 'Condition' 'Weight' 'Interest'};
             for t = 1:mat.d.latest_trial
-                cond = mat.d.trial_data(t).Condition.Task;
+                cond = mat.d.trial_data(t).condition_type;
                 cond(1) = upper(cond(1));
                 
-                onset = mat.d.trial_data(t).timing.trigger; %already in seconds relative to time_first_trigger
+                onset = mat.d.trial_data(t).timing.onset; %already in seconds relative to time_first_trigger
                 
                 xls(5+t,:) = {onset , TRIAL_DURATION_SEC , cond , 1, true};
             end
