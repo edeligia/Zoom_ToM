@@ -15,8 +15,6 @@ if ~p.TRIGGER_STIM_TRACKER
 end
 
 %% Start Timestamp 
-
-
 [d.timestamp, d.timestamp_edf] = GetTimestamp;
 
 %% Parameters
@@ -119,8 +117,8 @@ d.filepath_data = sprintf('%sPAR%02d_RUN%02d_%s.mat', p.DIR_DATA, d.participant_
 d.filepath_error = strrep(d.filepath_data, '.mat', '_ERROR.mat');
 d.filename_edf_on_system = sprintf('P%02d%s', d.participant_number, d.timestamp_edf);
 d.filepath_run_edf = sprintf('%sParticipant_%02d_Run%03d_%s', p.DIR_PARTICIPANT_EDF, d.participant_number, d.run_number, d.timestamp);
-d.filepath_practice_image_correct = 'Images/correct_response_03.JPG';
-d.filepath_practice_image_incorrect = 'Images/incorrect_response_03.JPG';
+d.filepath_practice_image_correct = 'Images/correct_response_03.jpeg';
+d.filepath_practice_image_incorrect = 'Images/incorrect_response_03.jpeg';
 
 %create output directories
 if ~exist(p.DIR_DATA, 'dir'), mkdir(p.DIR_DATA); end
@@ -541,8 +539,8 @@ for trial = 1: d.number_trials
     %filepaths dependent on knowing the condition number (this is an
     %unsophisticated work around)
     if d.condition_number == 3  
-        d.filepath_correct_image_response = sprintf('%s/correct_response_%02d.JPG', 'Images', d.condition_number);
-        d.filepath_incorrect_image_response = sprintf('%s/incorrect_response_%02d.JPG', 'Images', d.condition_number);
+        d.filepath_correct_image_response = sprintf('%s/correct_response_%02d.jpeg', 'Images', d.condition_number);
+        d.filepath_incorrect_image_response = sprintf('%s/incorrect_response_%02d.jpeg', 'Images', d.condition_number);
     elseif d.condition_number == 4
         d.filepath_correct_image_response = sprintf('%s/correct_response_%02d.jpeg', 'Images', d.condition_number);
         d.filepath_incorrect_image_response = sprintf('%s/incorrect_response_%02d.jpeg', 'Images', d.condition_number);  

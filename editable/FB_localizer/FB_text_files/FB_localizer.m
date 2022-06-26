@@ -69,7 +69,7 @@ p.KEYS.FALSE.NAME = 'F';
 
 %stim tracker
 %the left port on Eva's laptop is COM3 and on the culham lab msi laptop 
-p.TRIGGER_CABLE_COM_STRING = 'COM3';
+p.TRIGGER_CABLE_COM_STRING = 'COM6';
 
 %timings
 p.DURATION_BASELINE = 20;

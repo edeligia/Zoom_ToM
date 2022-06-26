@@ -1,0 +1,193 @@
+1.6431 	WARNING 	We strongly recommend you activate the PTB sound engine in PsychoPy prefs as the preferred audio engine. Its timing is vastly superior. Your prefs are currently set to use ['sounddevice', 'PTB', 'pyo', 'pygame'] (in that order).
+6.3472 	EXP 	Created window1 = Window(allowGUI=False, allowStencil=False, autoLog=True, backendConf=UNKNOWN, bitsMode=UNKNOWN, blendMode='avg', bpc=(8, 8, 8), color=array([0, 0, 0]), colorSpace='rgb', depthBits=8, fullscr=<method-wrapper '__getattribute__' of attributeSetter object at 0x0000020B3D72D5F8>, gamma=None, gammaErrorPolicy='raise', lms=UNKNOWN, monitor=<psychopy.monitors.calibTools.Monitor object at 0x0000020B3D9102B0>, multiSample=False, name='window1', numSamples=2, pos=[0.0, 0.0], screen=0, size=array([1920, 1080]), stencilBits=0, stereo=False, units='height', useFBO=True, useRetina=False, viewOri=0.0, viewPos=None, viewScale=None, waitBlanking=True, winType='pyglet')
+6.3475 	EXP 	window1: mouseVisible = True
+6.3475 	EXP 	window1: recordFrameIntervals = False
+6.5132 	EXP 	window1: recordFrameIntervals = True
+6.6973 	EXP 	window1: recordFrameIntervals = False
+7.2290 	EXP 	Created text_9 = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoLog=True, bold=False, color=array([1, 1, 1]), colorSpace='rgb', contrast=1.0, depth=0.0, flipHoriz=False, flipVert=False, font='Arial', fontFiles=[], height=0.1, italic=False, languageStyle='LTR', name='text_9', opacity=1, ori=0, pos=array([0., 0.]), rgb=UNKNOWN, text=str(...), units='height', win=Window(...), wrapWidth=1)
+7.2803 	EXP 	Created text_5 = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoLog=True, bold=False, color=array([1, 1, 1]), colorSpace='rgb', contrast=1.0, depth=0.0, flipHoriz=False, flipVert=False, font='Arial', fontFiles=[], height=0.1, italic=False, languageStyle='LTR', name='text_5', opacity=1, ori=0, pos=array([0., 0.]), rgb=UNKNOWN, text='Countdown will begin', units='height', win=Window(...), wrapWidth=1)
+7.3087 	EXP 	Sound sound_3 set volume 1.000
+7.3135 	EXP 	Created text_6 = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoLog=True, bold=False, color=array([1, 1, 1]), colorSpace='rgb', contrast=1.0, depth=-2.0, flipHoriz=False, flipVert=False, font='Arial', fontFiles=[], height=0.1, italic=False, languageStyle='LTR', name='text_6', opacity=1, ori=0, pos=array([0., 0.]), rgb=UNKNOWN, text='One', units='height', win=Window(...), wrapWidth=1)
+7.3155 	EXP 	Created text_7 = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoLog=True, bold=False, color=array([1, 1, 1]), colorSpace='rgb', contrast=1.0, depth=-3.0, flipHoriz=False, flipVert=False, font='Arial', fontFiles=[], height=0.1, italic=False, languageStyle='LTR', name='text_7', opacity=1, ori=0, pos=array([0., 0.]), rgb=UNKNOWN, text='Two', units='height', win=Window(...), wrapWidth=1)
+7.3183 	EXP 	Created text_8 = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoLog=True, bold=False, color=array([1, 1, 1]), colorSpace='rgb', contrast=1.0, depth=-4.0, flipHoriz=False, flipVert=False, font='Arial', fontFiles=[], height=0.1, italic=False, languageStyle='LTR', name='text_8', opacity=1, ori=0, pos=array([0., 0.]), rgb=UNKNOWN, text='Three', units='height', win=Window(...), wrapWidth=1)
+7.4911 	EXP 	Created Baseline_text = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoLog=True, bold=False, color=array([1, 1, 1]), colorSpace='rgb', contrast=1.0, depth=0.0, flipHoriz=False, flipVert=False, font='Open Sans', fontFiles=[], height=0.1, italic=False, languageStyle='LTR', name='Baseline_text', opacity=1, ori=0.0, pos=array([0., 0.]), rgb=UNKNOWN, text=str(...), units='height', win=Window(...), wrapWidth=1)
+7.4917 	EXP 	Created text_10 = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoLog=True, bold=False, color=array([1, 1, 1]), colorSpace='rgb', contrast=1.0, depth=-1.0, flipHoriz=False, flipVert=False, font='Open Sans', fontFiles=[], height=0.1, italic=False, languageStyle='LTR', name='text_10', opacity=1, ori=0.0, pos=array([0., 0.]), rgb=UNKNOWN, text='', units='height', win=Window(...), wrapWidth=1)
+7.4922 	EXP 	Created text = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoLog=True, bold=False, color=array([1, 1, 1]), colorSpace='rgb', contrast=1.0, depth=0.0, flipHoriz=False, flipVert=False, font='Arial', fontFiles=[], height=0.1, italic=False, languageStyle='LTR', name='text', opacity=1, ori=0, pos=array([0., 0.]), rgb=UNKNOWN, text='', units='height', win=Window(...), wrapWidth=1)
+7.4922 	EXP 	Sound sound_1 set volume 1.000
+7.4928 	EXP 	Created text_4 = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoLog=True, bold=False, color=array([1, 1, 1]), colorSpace='rgb', contrast=1.0, depth=-2.0, flipHoriz=False, flipVert=False, font='Arial', fontFiles=[], height=0.1, italic=False, languageStyle='LTR', name='text_4', opacity=1, ori=0, pos=array([0., 0.]), rgb=UNKNOWN, text='', units='height', win=Window(...), wrapWidth=1)
+7.4933 	EXP 	Created text_2 = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoLog=True, bold=False, color=array([1, 1, 1]), colorSpace='rgb', contrast=1.0, depth=0.0, flipHoriz=False, flipVert=False, font='Arial', fontFiles=[], height=0.1, italic=False, languageStyle='LTR', name='text_2', opacity=1, ori=0, pos=array([0., 0.]), rgb=UNKNOWN, text='', units='height', win=Window(...), wrapWidth=1)
+7.4991 	EXP 	Sound sound_2 set volume 1.000
+7.4998 	EXP 	Created text_3 = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoLog=True, bold=False, color=array([1, 1, 1]), colorSpace='rgb', contrast=1.0, depth=-2.0, flipHoriz=False, flipVert=False, font='Arial', fontFiles=[], height=0.1, italic=False, languageStyle='LTR', name='text_3', opacity=1, ori=0, pos=array([0., 0.]), rgb=UNKNOWN, text='', units='height', win=Window(...), wrapWidth=1)
+7.5304 	EXP 	text_9: autoDraw = True
+14.9706 	DATA 	Keypress: space
+14.9797 	EXP 	text_9: autoDraw = False
+14.9797 	EXP 	text_5: autoDraw = True
+16.9794 	EXP 	text_5: autoDraw = False
+17.9624 	EXP 	text_6: autoDraw = True
+18.9627 	EXP 	text_6: autoDraw = False
+18.9627 	EXP 	text_7: autoDraw = True
+19.9628 	EXP 	text_7: autoDraw = False
+19.9628 	EXP 	text_8: autoDraw = True
+20.9625 	EXP 	text_8: autoDraw = False
+21.0960 	EXP 	text_5: autoDraw = False
+21.0960 	EXP 	text_6: autoDraw = False
+21.0960 	EXP 	text_7: autoDraw = False
+21.0960 	EXP 	text_8: autoDraw = False
+21.0960 	EXP 	Baseline_text: autoDraw = True
+23.0791 	EXP 	text_10: autoDraw = True
+23.0958 	EXP 	Baseline_text: autoDraw = False
+43.0853 	EXP 	Imported Psychopy_TrialTypes.xlsx as conditions, 1 conditions, 7 params
+43.0857 	EXP 	Created sequence: sequential, trialTypes=1, nReps=10, seed=None
+43.0860 	EXP 	New trial (rep=0, index=0): {'condition': 'right', 'textstim': 'right', 'textdur': 1, 'sound': 'Audio\\\\right.wav', 'recoverydur': 1, 'stopsound': 'Audio\\\\Stop.wav', 'marker': 1}
+43.1026 	EXP 	text_10: autoDraw = False
+43.1026 	EXP 	Baseline_text: autoDraw = False
+43.1026 	EXP 	text_10: autoDraw = False
+43.1026 	EXP 	text: text = 'right'
+43.1026 	EXP 	text: autoDraw = True
+43.1026 	EXP 	text_4: autoDraw = True
+44.1112 	EXP 	text: autoDraw = False
+53.1112 	EXP 	text_4: autoDraw = False
+53.1112 	EXP 	text: autoDraw = False
+53.1112 	EXP 	text_4: autoDraw = False
+53.1112 	EXP 	text_2: text = 'Stop'
+53.1112 	EXP 	text_2: autoDraw = True
+53.1112 	EXP 	text_3: autoDraw = True
+54.1113 	EXP 	text_2: autoDraw = False
+68.1112 	EXP 	New trial (rep=1, index=0): {'condition': 'right', 'textstim': 'right', 'textdur': 1, 'sound': 'Audio\\\\right.wav', 'recoverydur': 1, 'stopsound': 'Audio\\\\Stop.wav', 'marker': 1}
+68.1269 	EXP 	text_2: autoDraw = False
+68.1269 	EXP 	text_3: autoDraw = False
+68.1269 	EXP 	text: text = 'right'
+68.1269 	EXP 	text: autoDraw = True
+68.1269 	EXP 	text_4: autoDraw = True
+69.1270 	EXP 	text: autoDraw = False
+78.1265 	EXP 	text_4: autoDraw = False
+78.1265 	EXP 	text: autoDraw = False
+78.1265 	EXP 	text_4: autoDraw = False
+78.1265 	EXP 	text_2: text = 'Stop'
+78.1265 	EXP 	text_2: autoDraw = True
+78.1265 	EXP 	text_3: autoDraw = True
+79.1266 	EXP 	text_2: autoDraw = False
+93.1120 	EXP 	New trial (rep=2, index=0): {'condition': 'right', 'textstim': 'right', 'textdur': 1, 'sound': 'Audio\\\\right.wav', 'recoverydur': 1, 'stopsound': 'Audio\\\\Stop.wav', 'marker': 1}
+93.1260 	EXP 	text_3: autoDraw = False
+93.1260 	EXP 	text_2: autoDraw = False
+93.1260 	EXP 	text_3: autoDraw = False
+93.1260 	EXP 	text: text = 'right'
+93.1260 	EXP 	text: autoDraw = True
+93.1260 	EXP 	text_4: autoDraw = True
+94.1260 	EXP 	text: autoDraw = False
+103.1256 	EXP 	text_4: autoDraw = False
+103.1256 	EXP 	text: autoDraw = False
+103.1256 	EXP 	text_4: autoDraw = False
+103.1256 	EXP 	text_2: text = 'Stop'
+103.1256 	EXP 	text_2: autoDraw = True
+103.1256 	EXP 	text_3: autoDraw = True
+104.1251 	EXP 	text_2: autoDraw = False
+118.1106 	EXP 	New trial (rep=3, index=0): {'condition': 'right', 'textstim': 'right', 'textdur': 1, 'sound': 'Audio\\\\right.wav', 'recoverydur': 1, 'stopsound': 'Audio\\\\Stop.wav', 'marker': 1}
+118.1247 	EXP 	text_3: autoDraw = False
+118.1247 	EXP 	text_2: autoDraw = False
+118.1247 	EXP 	text_3: autoDraw = False
+118.1247 	EXP 	text: text = 'right'
+118.1247 	EXP 	text: autoDraw = True
+118.1247 	EXP 	text_4: autoDraw = True
+119.1244 	EXP 	text: autoDraw = False
+128.1242 	EXP 	text_4: autoDraw = False
+128.1242 	EXP 	text: autoDraw = False
+128.1242 	EXP 	text_4: autoDraw = False
+128.1242 	EXP 	text_2: text = 'Stop'
+128.1242 	EXP 	text_2: autoDraw = True
+128.1242 	EXP 	text_3: autoDraw = True
+129.1240 	EXP 	text_2: autoDraw = False
+143.1089 	EXP 	New trial (rep=4, index=0): {'condition': 'right', 'textstim': 'right', 'textdur': 1, 'sound': 'Audio\\\\right.wav', 'recoverydur': 1, 'stopsound': 'Audio\\\\Stop.wav', 'marker': 1}
+143.1236 	EXP 	text_3: autoDraw = False
+143.1236 	EXP 	text_2: autoDraw = False
+143.1236 	EXP 	text_3: autoDraw = False
+143.1236 	EXP 	text: text = 'right'
+143.1236 	EXP 	text: autoDraw = True
+143.1236 	EXP 	text_4: autoDraw = True
+144.1232 	EXP 	text: autoDraw = False
+153.1230 	EXP 	text_4: autoDraw = False
+153.1230 	EXP 	text: autoDraw = False
+153.1230 	EXP 	text_4: autoDraw = False
+153.1230 	EXP 	text_2: text = 'Stop'
+153.1230 	EXP 	text_2: autoDraw = True
+153.1230 	EXP 	text_3: autoDraw = True
+154.1228 	EXP 	text_2: autoDraw = False
+168.1081 	EXP 	New trial (rep=5, index=0): {'condition': 'right', 'textstim': 'right', 'textdur': 1, 'sound': 'Audio\\\\right.wav', 'recoverydur': 1, 'stopsound': 'Audio\\\\Stop.wav', 'marker': 1}
+168.1226 	EXP 	text_3: autoDraw = False
+168.1226 	EXP 	text_2: autoDraw = False
+168.1226 	EXP 	text_3: autoDraw = False
+168.1226 	EXP 	text: text = 'right'
+168.1226 	EXP 	text: autoDraw = True
+168.1226 	EXP 	text_4: autoDraw = True
+169.1222 	EXP 	text: autoDraw = False
+178.1215 	EXP 	text_4: autoDraw = False
+178.1215 	EXP 	text: autoDraw = False
+178.1215 	EXP 	text_4: autoDraw = False
+178.1215 	EXP 	text_2: text = 'Stop'
+178.1215 	EXP 	text_2: autoDraw = True
+178.1215 	EXP 	text_3: autoDraw = True
+179.1218 	EXP 	text_2: autoDraw = False
+193.1074 	EXP 	New trial (rep=6, index=0): {'condition': 'right', 'textstim': 'right', 'textdur': 1, 'sound': 'Audio\\\\right.wav', 'recoverydur': 1, 'stopsound': 'Audio\\\\Stop.wav', 'marker': 1}
+193.1210 	EXP 	text_3: autoDraw = False
+193.1210 	EXP 	text_2: autoDraw = False
+193.1210 	EXP 	text_3: autoDraw = False
+193.1210 	EXP 	text: text = 'right'
+193.1210 	EXP 	text: autoDraw = True
+193.1210 	EXP 	text_4: autoDraw = True
+194.1214 	EXP 	text: autoDraw = False
+203.1204 	EXP 	text_4: autoDraw = False
+203.1204 	EXP 	text: autoDraw = False
+203.1204 	EXP 	text_4: autoDraw = False
+203.1204 	EXP 	text_2: text = 'Stop'
+203.1204 	EXP 	text_2: autoDraw = True
+203.1204 	EXP 	text_3: autoDraw = True
+204.1204 	EXP 	text_2: autoDraw = False
+218.1055 	EXP 	New trial (rep=7, index=0): {'condition': 'right', 'textstim': 'right', 'textdur': 1, 'sound': 'Audio\\\\right.wav', 'recoverydur': 1, 'stopsound': 'Audio\\\\Stop.wav', 'marker': 1}
+218.1199 	EXP 	text_3: autoDraw = False
+218.1199 	EXP 	text_2: autoDraw = False
+218.1199 	EXP 	text_3: autoDraw = False
+218.1199 	EXP 	text: text = 'right'
+218.1199 	EXP 	text: autoDraw = True
+218.1199 	EXP 	text_4: autoDraw = True
+219.1201 	EXP 	text: autoDraw = False
+228.1194 	EXP 	text_4: autoDraw = False
+228.1194 	EXP 	text: autoDraw = False
+228.1194 	EXP 	text_4: autoDraw = False
+228.1194 	EXP 	text_2: text = 'Stop'
+228.1194 	EXP 	text_2: autoDraw = True
+228.1194 	EXP 	text_3: autoDraw = True
+229.1190 	EXP 	text_2: autoDraw = False
+243.1038 	EXP 	New trial (rep=8, index=0): {'condition': 'right', 'textstim': 'right', 'textdur': 1, 'sound': 'Audio\\\\right.wav', 'recoverydur': 1, 'stopsound': 'Audio\\\\Stop.wav', 'marker': 1}
+243.1188 	EXP 	text_3: autoDraw = False
+243.1188 	EXP 	text_2: autoDraw = False
+243.1188 	EXP 	text_3: autoDraw = False
+243.1188 	EXP 	text: text = 'right'
+243.1188 	EXP 	text: autoDraw = True
+243.1188 	EXP 	text_4: autoDraw = True
+244.1184 	EXP 	text: autoDraw = False
+253.1181 	EXP 	text_4: autoDraw = False
+253.1181 	EXP 	text: autoDraw = False
+253.1181 	EXP 	text_4: autoDraw = False
+253.1181 	EXP 	text_2: text = 'Stop'
+253.1181 	EXP 	text_2: autoDraw = True
+253.1181 	EXP 	text_3: autoDraw = True
+254.1182 	EXP 	text_2: autoDraw = False
+268.1033 	EXP 	New trial (rep=9, index=0): {'condition': 'right', 'textstim': 'right', 'textdur': 1, 'sound': 'Audio\\\\right.wav', 'recoverydur': 1, 'stopsound': 'Audio\\\\Stop.wav', 'marker': 1}
+268.1172 	EXP 	text_3: autoDraw = False
+268.1172 	EXP 	text_2: autoDraw = False
+268.1172 	EXP 	text_3: autoDraw = False
+268.1172 	EXP 	text: text = 'right'
+268.1172 	EXP 	text: autoDraw = True
+268.1172 	EXP 	text_4: autoDraw = True
+269.1175 	EXP 	text: autoDraw = False
+278.1170 	EXP 	text_4: autoDraw = False
+278.1170 	EXP 	text: autoDraw = False
+278.1170 	EXP 	text_4: autoDraw = False
+278.1170 	EXP 	text_2: text = 'Stop'
+278.1170 	EXP 	text_2: autoDraw = True
+278.1170 	EXP 	text_3: autoDraw = True
+279.1166 	EXP 	text_2: autoDraw = False
+293.1160 	EXP 	text_3: autoDraw = False
+293.1160 	EXP 	text_2: autoDraw = False
+293.1160 	EXP 	text_3: autoDraw = False
+293.1598 	EXP 	window1: mouseVisible = True

@@ -1,5 +1,5 @@
 function EyelinkCalibrationTest(par_num)
-
+Screen('Preference', 'SkipSyncTests', 1);
 %% Requires PTB
 try
     AssertOpenGL();
@@ -25,7 +25,7 @@ participant_number = par_num;
 filename_edf = sprintf('PAR%02d', participant_number);
 
 screen_number = max(Screen('Screens'));
-screen_rect = [0 0 500 500];
+screen_rect = [ ];
 screen_colour_background = [0 0 0];
 screen_colour_text = [255 255 255];
 screen_font_size = 30;
