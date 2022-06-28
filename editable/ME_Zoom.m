@@ -277,11 +277,6 @@ while 1
     end
 end
 
-%Time of Run start
-t0 = GetSecs;
-d.time_start_experiment = t0;
-d.timestamp_start_experiment = GetTimestamp;
-
 %Option 2 for changing the mode of the Participant to Focus
 value = 2;
 command = "MODE_PARTICIPANT/"+value;
@@ -376,6 +371,7 @@ while 1
     end
 end
 
+
 %% Initial Baseline 
 fprintf('\n----\nSTART FNIRS RECORDING NOW\n-------\n\n');
 fprintf('\n----------------------------------------------\nWaiting for RUN key (%s) to start the baseline or ABORT key (%s)...\n----------------------------------------------\n\n', p.KEYS.RUN.NAME, p.KEYS.ABORT.NAME);
@@ -399,6 +395,11 @@ WaitSecs(3);
 message = '';
 command = "DISPLAY_MESSAGE/"+message;
 TCPSend(command);
+
+%Time of Run start
+t0 = GetSecs;
+d.time_start_experiment = t0;
+d.timestamp_start_experiment = GetTimestamp;
 
 if p.TRIGGER_STIM_TRACKER
     fwrite(sport, ['mh',5,0]);
@@ -453,7 +454,6 @@ for trial = 1: d.number_trials
     if p.TRIGGER_STIM_TRACKER
         fwrite(sport,['mh',6,0]);
         Eyelink('Message','Event: Start of trial %03d\n', trial);
-        d.trial_data(trial).timing.onset = GetSecs - t0;
         fwrite(sport,['mh',bin2dec('00000000'),0]);
     end
         
