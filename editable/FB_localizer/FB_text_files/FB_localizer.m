@@ -255,7 +255,7 @@ for trial = 1:d.number_trials
     
     if p.TRIGGER_STIM_TRACKER
         fwrite(sport,['mh',3,0]); %turn story period trigger on (for StimTracker)
-        d.trial_data(trial).timing.trigger.story_period_start = GetSecs - t0;
+        d.trial_data(trial).timing.trigger.question_period_end = GetSecs - t0;
         fwrite(sport,['mh',bin2dec('00000000'),0]); %turn story period trigger off (for StimTracker)
     end
     
